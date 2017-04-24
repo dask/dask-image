@@ -4,6 +4,7 @@
 import numbers
 
 import numpy
+import scipy.ndimage.filters
 
 
 def _get_footprint(ndim, size=None, footprint=None):
@@ -26,7 +27,7 @@ def _get_footprint(ndim, size=None, footprint=None):
             " the array being filtered."
         )
     if footprint.size == 0:
-        raise ValueError("The footprint must have only non-zero dimensions.")
+        raise RuntimeError("The footprint must have only non-zero dimensions.")
 
     # Convert to Boolean.
     footprint = (footprint != 0)
@@ -34,18 +35,15 @@ def _get_footprint(ndim, size=None, footprint=None):
     return footprint
 
 
-def _get_origin(size, origin=0):
-    size = numpy.array(size)
-    if not issubclass(size.dtype.type, numbers.Integral):
-        raise ValueError("The size must be of integral type.")
-
-    ndim = len(size)
+def _get_origin(footprint, origin=0):
+    size = numpy.array(footprint.shape)
+    ndim = footprint.ndim
 
     if isinstance(origin, numbers.Real):
         origin = ndim * (origin,)
 
     origin = numpy.array(origin)
-    origin = numpy.floor(origin).astype(int)
+    origin = numpy.fix(origin).astype(int)
 
     # Validate dimensions.
     if origin.ndim != 1:
@@ -61,3 +59,31 @@ def _get_origin(size, origin=0):
         raise ValueError("The origin must be within the footprint.")
 
     return origin
+
+
+def median_filter(input,
+                  size=None,
+                  footprint=None,
+                  mode='reflect',
+                  cval=0.0,
+                  origin=0):
+    footprint = _get_footprint(input.ndim, size, footprint)
+    size = numpy.array(footprint.shape)
+    origin = _get_origin(footprint, origin)
+
+    half_size = size // 2
+    depth = half_size + abs(origin)
+
+    result = input.map_overlap(
+        scipy.ndimage.filters.median_filter,
+        depth=depth,
+        boundary="none",
+        dtype=input.dtype,
+        name="median_filter",
+        footprint=footprint,
+        mode=mode,
+        cval=cval,
+        origin=origin
+    )
+
+    return result
