@@ -31,7 +31,7 @@ dask-ndfilters
 A library for using N-D filters with Dask Arrays
 
 
-* Free software: BSD license
+* Free software: BSD 3-Clause
 * Documentation: https://dask-ndfilters.readthedocs.io.
 
 
