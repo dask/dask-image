@@ -32,3 +32,32 @@ def _get_footprint(ndim, size=None, footprint=None):
     footprint = (footprint != 0)
 
     return footprint
+
+
+def _get_origin(size, origin=0):
+    size = numpy.array(size)
+    if not issubclass(size.dtype.type, numbers.Integral):
+        raise ValueError("The size must be of integral type.")
+
+    ndim = len(size)
+
+    if isinstance(origin, numbers.Real):
+        origin = ndim * (origin,)
+
+    origin = numpy.array(origin)
+    origin = numpy.floor(origin).astype(int)
+
+    # Validate dimensions.
+    if origin.ndim != 1:
+        raise RuntimeError("The origin must have only one dimension.")
+    if len(origin) != ndim:
+        raise RuntimeError(
+            "The origin must have the same length as the number of dimensions"
+            " as the array being filtered."
+        )
+
+    # Validate origin is bounded.
+    if not (origin < ((size + 1) // 2)).all():
+        raise ValueError("The origin must be within the footprint.")
+
+    return origin
