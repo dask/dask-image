@@ -7,3 +7,6 @@ dependencies:
   - pip==9.0.1
   - wheel==0.29.0
   - Sphinx==1.5.1
+  - dask==0.13.0
+  - numpy==1.11.3
+  - scipy==0.18.1
