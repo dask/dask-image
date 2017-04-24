@@ -4,4 +4,4 @@
 from __future__ import absolute_import
 
 
-from dask_ndfilters import dask_ndfilters
+from dask_ndfilters import core
