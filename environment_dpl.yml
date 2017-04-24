@@ -6,7 +6,7 @@ channels:
 dependencies:
   - pip==9.0.1
   - wheel==0.29.0
-  - coverage==3.7.1
-  - python-coveralls==2.5.0
+  - coverage==4.0.3
+  - python-coveralls==2.7.0
   - cryptography==1.4
   - pyyaml==3.11

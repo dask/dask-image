@@ -1,7 +1,6 @@
 [run]
 branch = True
-erase = True
-package = dask_ndfilters
+source = dask_ndfilters
 [report]
 exclude_lines =
     # Ignore coverage of code that requires the module to be executed.
