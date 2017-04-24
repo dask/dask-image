@@ -10,7 +10,9 @@ with open("README.rst") as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+    "dask",
+    "numpy",
+    "scipy",
 ]
 
 test_requirements = [
