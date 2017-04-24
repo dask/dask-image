@@ -1,0 +1,67 @@
+# Config file for automatic testing at travis-ci.org
+# This file will be regenerated if you run travis_pypi_setup.py
+
+sudo: false
+
+language: generic
+
+env:
+  - PYVER="3.6"
+  - PYVER="3.5"
+  - PYVER="3.4"
+  - PYVER="2.7"
+
+install:
+  # Install Miniconda.
+  - curl -L https://repo.continuum.io/miniconda/Miniconda3-4.1.11-Linux-x86_64.sh > miniconda.sh
+  - openssl md5 miniconda.sh | grep 874dbb0d3c7ec665adf7231bbb575ab2
+  - bash miniconda.sh -b -p ~/miniconda
+  - rm miniconda.sh
+  - source ~/miniconda/bin/activate root
+  - conda config --set show_channel_urls true
+  - conda update -y -n root --all
+  - conda install -y -n root conda-build
+  - conda clean -tipsy
+
+  # Create the test environment.
+  - conda create -y -n testenv python="${PYVER}"
+  - conda remove -y --force -n testenv openssl
+  - conda env update -n testenv --file environment_ci.yml
+  - conda list --full-name -n testenv openssl || conda install -y -n testenv openssl
+  - source activate testenv
+
+  # Install the package and dependencies.
+  - pip install -e .
+
+# command to run tests, e.g. python setup.py test
+script:
+  - coverage erase
+  - coverage run --source . setup.py test
+  - coverage report -m
+
+# Report coverage
+after_success:
+  - source activate root
+  - conda create -y -n dplenv python="3.5";
+  - conda remove -y --force -n dplenv openssl
+  - conda env update -n dplenv --file environment_dpl.yml
+  - conda list --full-name -n dplenv openssl || conda install -y -n dplenv openssl
+  - source activate dplenv
+  - coveralls
+
+# Disable email notifications.
+notifications:
+  email: false
+
+# After you create the Github repo and add it to Travis, run the
+# travis_pypi_setup.py script to finish PyPI deployment setup
+deploy:
+  provider: pypi
+  distributions: sdist
+  user: jakirkham
+  password:
+    secure: PLEASE_REPLACE_ME
+  on:
+    tags: true
+    repo: jakirkham/dask-ndfilters
+    condition: $PYVER == 2.7
