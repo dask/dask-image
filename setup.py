@@ -19,20 +19,20 @@ test_requirements = [
 
 
 setup(
-    name="dask_ndfilters",
+    name="dask-ndfilters",
     version=versioneer.get_version(),
     description="A library for using N-D filters with Dask Arrays",
     long_description=readme,
     author="John Kirkham",
     author_email="kirkhamj@janelia.hhmi.org",
-    url="https://github.com/jakirkham/dask_ndfilters",
+    url="https://github.com/jakirkham/dask-ndfilters",
     cmdclass=versioneer.get_cmdclass(),
     packages=setuptools.find_packages(exclude=["tests*"]),
     include_package_data=True,
     install_requires=requirements,
     license="BSD 3-Clause",
     zip_safe=False,
-    keywords="dask_ndfilters",
+    keywords="dask-ndfilters",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",

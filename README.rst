@@ -3,27 +3,27 @@ dask-ndfilters
 ===============================
 
 
-.. image:: https://img.shields.io/pypi/v/dask_ndfilters.svg
-        :target: https://pypi.python.org/pypi/dask_ndfilters
+.. image:: https://img.shields.io/pypi/v/dask-ndfilters.svg
+        :target: https://pypi.python.org/pypi/dask-ndfilters
         :alt: PyPI
 
-.. image:: https://anaconda.org/conda-forge/dask_ndfilters/badges/version.svg
-        :target: https://anaconda.org/conda-forge/dask_ndfilters
+.. image:: https://anaconda.org/conda-forge/dask-ndfilters/badges/version.svg
+        :target: https://anaconda.org/conda-forge/dask-ndfilters
         :alt: conda-forge
 
-.. image:: https://img.shields.io/travis/jakirkham/dask_ndfilters/master.svg
-        :target: https://travis-ci.org/jakirkham/dask_ndfilters
+.. image:: https://img.shields.io/travis/jakirkham/dask-ndfilters/master.svg
+        :target: https://travis-ci.org/jakirkham/dask-ndfilters
         :alt: Travis CI
 
 .. image:: https://readthedocs.org/projects/dask-ndfilters/badge/?version=latest
         :target: https://dask-ndfilters.readthedocs.io/en/latest/?badge=latest
         :alt: Read the Docs
 
-.. image:: https://coveralls.io/repos/github/jakirkham/dask_ndfilters/badge.svg
-        :target: https://coveralls.io/github/jakirkham/dask_ndfilters
+.. image:: https://coveralls.io/repos/github/jakirkham/dask-ndfilters/badge.svg
+        :target: https://coveralls.io/github/jakirkham/dask-ndfilters
         :alt: Coveralls
 
-.. image:: https://img.shields.io/github/license/jakirkham/dask_ndfilters.svg
+.. image:: https://img.shields.io/github/license/jakirkham/dask-ndfilters.svg
         :target: ./LICENSE.txt
         :alt: License
 

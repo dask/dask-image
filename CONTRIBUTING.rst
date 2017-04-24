@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/jakirkham/dask_ndfilters/issues.
+Report bugs at https://github.com/jakirkham/dask-ndfilters/issues.
 
 If you are reporting a bug, please include:
 
@@ -45,7 +45,7 @@ articles, and such.
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/jakirkham/dask_ndfilters/issues.
+The best way to send feedback is to file an issue at https://github.com/jakirkham/dask-ndfilters/issues.
 
 If you are proposing a feature:
 
@@ -57,12 +57,12 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `dask_ndfilters` for local development.
+Ready to contribute? Here's how to set up `dask-ndfilters` for local development.
 
-1. Fork the `dask_ndfilters` repo on GitHub.
+1. Fork the `dask-ndfilters` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/dask_ndfilters.git
+    $ git clone git@github.com:your_name_here/dask-ndfilters.git
 
 3. Install your local copy into an environment. Assuming you have conda installed, this is how you set up your fork for local development (on Windows drop `source`). Replace `"<some version>"` with the Python version used for testing.::
 
@@ -101,7 +101,7 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 2.7, 3.4, 3.5, and 3.6. Check
-   https://travis-ci.org/jakirkham/dask_ndfilters/pull_requests
+   https://travis-ci.org/jakirkham/dask-ndfilters/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips

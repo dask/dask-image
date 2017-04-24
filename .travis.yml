@@ -63,5 +63,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: jakirkham/dask_ndfilters
+    repo: jakirkham/dask-ndfilters
     condition: $PYVER == 2.7
