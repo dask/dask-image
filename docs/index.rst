@@ -11,7 +11,7 @@ Contents:
    usage
    api
    contributing
-   authorshistory
+   authors
 
 Indices and tables
 ==================
