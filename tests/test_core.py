@@ -4,4 +4,4 @@
 from __future__ import absolute_import
 
 
-from dask_ndmorph import dask_ndmorph
+from dask_ndmorph import core
