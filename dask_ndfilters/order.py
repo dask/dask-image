@@ -61,6 +61,29 @@ def _get_origin(footprint, origin=0):
     return origin
 
 
+def _get_depth_boundary(footprint, origin):
+    origin = _get_origin(footprint, origin)
+
+    size = numpy.array(footprint.shape)
+    half_size = size // 2
+    depth = half_size + abs(origin)
+    depth = tuple(depth)
+
+    # Workaround for a bug in Dask with 0 depth.
+    #
+    # ref: https://github.com/dask/dask/issues/2258
+    #
+    boundary = dict()
+    for i in range(len(depth)):
+        d = depth[i]
+        if d == 0:
+            boundary[i] = None
+        else:
+            boundary[i] = "none"
+
+    return depth, boundary
+
+
 def median_filter(input,
                   size=None,
                   footprint=None,
@@ -68,16 +91,13 @@ def median_filter(input,
                   cval=0.0,
                   origin=0):
     footprint = _get_footprint(input.ndim, size, footprint)
-    size = numpy.array(footprint.shape)
     origin = _get_origin(footprint, origin)
-
-    half_size = size // 2
-    depth = half_size + abs(origin)
+    depth, boundary = _get_depth_boundary(footprint, origin)
 
     result = input.map_overlap(
         scipy.ndimage.filters.median_filter,
         depth=depth,
-        boundary="none",
+        boundary=boundary,
         dtype=input.dtype,
         name="median_filter",
         footprint=footprint,
