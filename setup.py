@@ -3,7 +3,21 @@
 
 import setuptools
 from setuptools import setup
+from setuptools.command.test import test as TestCommand
 import versioneer
+
+
+class PyTest(TestCommand):
+    description = "Run test suite with pytest"
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        pytest.main(self.test_args)
 
 
 with open("README.rst") as readme_file:
@@ -16,9 +30,13 @@ requirements = [
 ]
 
 test_requirements = [
-    # TODO: put package test requirements here
+    "pytest",
 ]
 
+cmdclasses = {
+    "test": PyTest,
+}
+cmdclasses.update(versioneer.get_cmdclass())
 
 setup(
     name="dask-ndfilters",
@@ -28,7 +46,7 @@ setup(
     author="John Kirkham",
     author_email="kirkhamj@janelia.hhmi.org",
     url="https://github.com/jakirkham/dask-ndfilters",
-    cmdclass=versioneer.get_cmdclass(),
+    cmdclass=cmdclasses,
     packages=setuptools.find_packages(exclude=["tests*"]),
     include_package_data=True,
     install_requires=requirements,
@@ -47,6 +65,5 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
     ],
-    test_suite="tests",
     tests_require=test_requirements
 )
