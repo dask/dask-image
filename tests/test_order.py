@@ -15,11 +15,13 @@ import dask_ndfilters as da_ndf
 
 
 @pytest.mark.parametrize(
-    "da_func",
+    "da_func, extra_kwargs",
     [
-        da_ndf.minimum_filter,
-        da_ndf.median_filter,
-        da_ndf.maximum_filter,
+        (da_ndf.minimum_filter, {}),
+        (da_ndf.median_filter, {}),
+        (da_ndf.maximum_filter, {}),
+        (da_ndf.rank_filter, {"rank": 0}),
+        (da_ndf.percentile_filter, {"percentile": 0}),
     ]
 )
 @pytest.mark.parametrize(
@@ -34,20 +36,31 @@ import dask_ndfilters as da_ndf
         (ValueError, 1, None, 1),
     ]
 )
-def test_order_filter_params(da_func, err_type, size, footprint, origin):
+def test_order_filter_params(da_func,
+                             extra_kwargs,
+                             err_type,
+                             size,
+                             footprint,
+                             origin):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
     with pytest.raises(err_type):
-        da_func(d, size=size, footprint=footprint, origin=origin)
+        da_func(d,
+                size=size,
+                footprint=footprint,
+                origin=origin,
+                **extra_kwargs)
 
 
 @pytest.mark.parametrize(
-    "sp_func, da_func",
+    "sp_func, da_func, extra_kwargs",
     [
-        (sp_ndf.minimum_filter, da_ndf.minimum_filter),
-        (sp_ndf.median_filter, da_ndf.median_filter),
-        (sp_ndf.maximum_filter, da_ndf.maximum_filter),
+        (sp_ndf.minimum_filter, da_ndf.minimum_filter, {}),
+        (sp_ndf.median_filter, da_ndf.median_filter, {}),
+        (sp_ndf.maximum_filter, da_ndf.maximum_filter, {}),
+        (sp_ndf.rank_filter, da_ndf.rank_filter, {"rank": 0}),
+        (sp_ndf.percentile_filter, da_ndf.percentile_filter, {"percentile": 0}),
     ]
 )
 @pytest.mark.parametrize(
@@ -58,24 +71,32 @@ def test_order_filter_params(da_func, err_type, size, footprint, origin):
         (None, np.ones((1, 1))),
     ]
 )
-def test_ordered_filter_identity(sp_func, da_func, size, footprint):
+def test_ordered_filter_identity(sp_func,
+                                 da_func,
+                                 extra_kwargs,
+                                 size,
+                                 footprint):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(d, da_func(d, size=size, footprint=footprint))
+    dau.assert_eq(
+        d, da_func(d, size=size, footprint=footprint, **extra_kwargs)
+    )
 
     dau.assert_eq(
-        sp_func(a, size=size, footprint=footprint),
-        da_func(d, size=size, footprint=footprint)
+        sp_func(a, size=size, footprint=footprint, **extra_kwargs),
+        da_func(d, size=size, footprint=footprint, **extra_kwargs)
     )
 
 
 @pytest.mark.parametrize(
-    "sp_func, da_func",
+    "sp_func, da_func, extra_kwargs",
     [
-        (sp_ndf.minimum_filter, da_ndf.minimum_filter),
-        (sp_ndf.median_filter, da_ndf.median_filter),
-        (sp_ndf.maximum_filter, da_ndf.maximum_filter),
+        (sp_ndf.minimum_filter, da_ndf.minimum_filter, {}),
+        (sp_ndf.median_filter, da_ndf.median_filter, {}),
+        (sp_ndf.maximum_filter, da_ndf.maximum_filter, {}),
+        (sp_ndf.rank_filter, da_ndf.rank_filter, {"rank": 1}),
+        (sp_ndf.percentile_filter, da_ndf.percentile_filter, {"percentile": 10}),
     ]
 )
 @pytest.mark.parametrize(
@@ -96,16 +117,32 @@ def test_ordered_filter_identity(sp_func, da_func, size, footprint):
         (5, None, -2),
     ]
 )
-def test_ordered_filter_compare(sp_func, da_func, size, footprint, origin):
+def test_ordered_filter_compare(sp_func,
+                                da_func,
+                                extra_kwargs,
+                                size,
+                                footprint,
+                                origin):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
     dau.assert_eq(
-        sp_func(a, size=size, footprint=footprint, origin=origin),
-        da_func(d, size=size, footprint=footprint, origin=origin)
+        sp_func(
+            a, size=size, footprint=footprint, origin=origin, **extra_kwargs
+        ),
+        da_func(
+            d, size=size, footprint=footprint, origin=origin, **extra_kwargs
+        )
     )
 
 
+@pytest.mark.parametrize(
+    "sp_func, da_func, extra_kwargs",
+    [
+        (sp_ndf.median_filter, da_ndf.median_filter, {}),
+        (sp_ndf.rank_filter, da_ndf.rank_filter, {"rank": 1}),
+    ]
+)
 @pytest.mark.parametrize(
     "size, footprint, origin",
     [
@@ -115,11 +152,20 @@ def test_ordered_filter_compare(sp_func, da_func, size, footprint, origin):
         (5, None, -1.4),
     ]
 )
-def test_median_float_origin_compare(size, footprint, origin):
+def test_ordered_filter_float_origin_compare(sp_func,
+                                             da_func,
+                                             extra_kwargs,
+                                             size,
+                                             footprint,
+                                             origin):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
     dau.assert_eq(
-        sp_ndf.median_filter(a, size=size, footprint=footprint, origin=origin),
-        da_ndf.median_filter(d, size=size, footprint=footprint, origin=origin)
+        sp_func(
+            a, size=size, footprint=footprint, origin=origin, **extra_kwargs
+        ),
+        da_func(
+            d, size=size, footprint=footprint, origin=origin, **extra_kwargs
+        )
     )
