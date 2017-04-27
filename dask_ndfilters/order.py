@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+import functools
 import numbers
 
 import numpy
@@ -84,26 +85,42 @@ def _get_depth_boundary(footprint, origin):
     return depth, boundary
 
 
-def median_filter(input,
-                  size=None,
-                  footprint=None,
-                  mode='reflect',
-                  cval=0.0,
-                  origin=0):
-    footprint = _get_footprint(input.ndim, size, footprint)
+def _get_normed_args(ndim, size=None, footprint=None, origin=0):
+    footprint = _get_footprint(ndim, size, footprint)
     origin = _get_origin(footprint, origin)
     depth, boundary = _get_depth_boundary(footprint, origin)
 
-    result = input.map_overlap(
-        scipy.ndimage.filters.median_filter,
-        depth=depth,
-        boundary=boundary,
-        dtype=input.dtype,
-        name="median_filter",
-        footprint=footprint,
-        mode=mode,
-        cval=cval,
-        origin=origin
-    )
+    return footprint, origin, depth, boundary
 
-    return result
+
+def _ordering_filter_wrapper(func):
+    @functools.wraps(func)
+    def _wrapped_ordering_filter(input,
+                                 size=None,
+                                 footprint=None,
+                                 mode='reflect',
+                                 cval=0.0,
+                                 origin=0):
+        footprint, origin, depth, boundary = _get_normed_args(input.ndim,
+                                                              size,
+                                                              footprint,
+                                                              origin)
+
+        result = input.map_overlap(
+            func,
+            depth=depth,
+            boundary=boundary,
+            dtype=input.dtype,
+            name=func.__name__,
+            footprint=footprint,
+            mode=mode,
+            cval=cval,
+            origin=origin
+        )
+
+        return result
+
+    return _wrapped_ordering_filter
+
+
+median_filter = _ordering_filter_wrapper(scipy.ndimage.filters.median_filter)
