@@ -161,4 +161,6 @@ def _ordering_filter_wrapper(func):
     return _wrapped_ordering_filter
 
 
+minimum_filter = _ordering_filter_wrapper(scipy.ndimage.filters.minimum_filter)
 median_filter = _ordering_filter_wrapper(scipy.ndimage.filters.median_filter)
+maximum_filter = _ordering_filter_wrapper(scipy.ndimage.filters.maximum_filter)
