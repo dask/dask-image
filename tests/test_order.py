@@ -15,6 +15,14 @@ import dask_ndfilters as da_ndf
 
 
 @pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.minimum_filter,
+        da_ndf.median_filter,
+        da_ndf.maximum_filter,
+    ]
+)
+@pytest.mark.parametrize(
     "err_type, size, footprint, origin",
     [
         (RuntimeError, None, None, 0),
@@ -26,14 +34,22 @@ import dask_ndfilters as da_ndf
         (ValueError, 1, None, 1),
     ]
 )
-def test_median_params(err_type, size, footprint, origin):
+def test_order_filter_params(da_func, err_type, size, footprint, origin):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
     with pytest.raises(err_type):
-        da_ndf.median_filter(d, size=size, footprint=footprint, origin=origin)
+        da_func(d, size=size, footprint=footprint, origin=origin)
 
 
+@pytest.mark.parametrize(
+    "sp_func, da_func",
+    [
+        (sp_ndf.minimum_filter, da_ndf.minimum_filter),
+        (sp_ndf.median_filter, da_ndf.median_filter),
+        (sp_ndf.maximum_filter, da_ndf.maximum_filter),
+    ]
+)
 @pytest.mark.parametrize(
     "size, footprint",
     [
@@ -42,18 +58,26 @@ def test_median_params(err_type, size, footprint, origin):
         (None, np.ones((1, 1))),
     ]
 )
-def test_median_identity(size, footprint):
+def test_ordered_filter_identity(sp_func, da_func, size, footprint):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(d, da_ndf.median_filter(d, size=size, footprint=footprint))
+    dau.assert_eq(d, da_func(d, size=size, footprint=footprint))
 
     dau.assert_eq(
-        sp_ndf.median_filter(a, size=size, footprint=footprint),
-        da_ndf.median_filter(d, size=size, footprint=footprint)
+        sp_func(a, size=size, footprint=footprint),
+        da_func(d, size=size, footprint=footprint)
     )
 
 
+@pytest.mark.parametrize(
+    "sp_func, da_func",
+    [
+        (sp_ndf.minimum_filter, da_ndf.minimum_filter),
+        (sp_ndf.median_filter, da_ndf.median_filter),
+        (sp_ndf.maximum_filter, da_ndf.maximum_filter),
+    ]
+)
 @pytest.mark.parametrize(
     "size, footprint, origin",
     [
@@ -76,11 +100,11 @@ def test_median_identity(size, footprint):
         (5, None, -1.4),
     ]
 )
-def test_median_compare(size, footprint, origin):
+def test_ordered_filter_compare(sp_func, da_func, size, footprint, origin):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
     dau.assert_eq(
-        sp_ndf.median_filter(a, size=size, footprint=footprint, origin=origin),
-        da_ndf.median_filter(d, size=size, footprint=footprint, origin=origin)
+        sp_func(a, size=size, footprint=footprint, origin=origin),
+        da_func(d, size=size, footprint=footprint, origin=origin)
     )
