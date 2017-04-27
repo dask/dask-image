@@ -164,3 +164,61 @@ def _ordering_filter_wrapper(func):
 minimum_filter = _ordering_filter_wrapper(scipy.ndimage.filters.minimum_filter)
 median_filter = _ordering_filter_wrapper(scipy.ndimage.filters.median_filter)
 maximum_filter = _ordering_filter_wrapper(scipy.ndimage.filters.maximum_filter)
+
+
+@_update_wrapper(scipy.ndimage.filters.rank_filter)
+def rank_filter(input,
+                rank,
+                size=None,
+                footprint=None,
+                mode='reflect',
+                cval=0.0,
+                origin=0):
+    footprint, origin, depth, boundary = _get_normed_args(input.ndim,
+                                                          size,
+                                                          footprint,
+                                                          origin)
+
+    result = input.map_overlap(
+        scipy.ndimage.filters.rank_filter,
+        depth=depth,
+        boundary=boundary,
+        dtype=input.dtype,
+        name=scipy.ndimage.filters.rank_filter.__name__,
+        rank=rank,
+        footprint=footprint,
+        mode=mode,
+        cval=cval,
+        origin=origin
+    )
+
+    return result
+
+
+@_update_wrapper(scipy.ndimage.filters.percentile_filter)
+def percentile_filter(input,
+                      percentile,
+                      size=None,
+                      footprint=None,
+                      mode='reflect',
+                      cval=0.0,
+                      origin=0):
+    footprint, origin, depth, boundary = _get_normed_args(input.ndim,
+                                                          size,
+                                                          footprint,
+                                                          origin)
+
+    result = input.map_overlap(
+        scipy.ndimage.filters.percentile_filter,
+        depth=depth,
+        boundary=boundary,
+        dtype=input.dtype,
+        name=scipy.ndimage.filters.percentile_filter.__name__,
+        percentile=percentile,
+        footprint=footprint,
+        mode=mode,
+        cval=cval,
+        origin=origin
+    )
+
+    return result
