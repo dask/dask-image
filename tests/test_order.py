@@ -94,10 +94,6 @@ def test_ordered_filter_identity(sp_func, da_func, size, footprint):
         (10, None, 0),
         (5, None, 2),
         (5, None, -2),
-        (5, None, 2.6),
-        (5, None, 2.4),
-        (5, None, -1.6),
-        (5, None, -1.4),
     ]
 )
 def test_ordered_filter_compare(sp_func, da_func, size, footprint, origin):
@@ -107,4 +103,23 @@ def test_ordered_filter_compare(sp_func, da_func, size, footprint, origin):
     dau.assert_eq(
         sp_func(a, size=size, footprint=footprint, origin=origin),
         da_func(d, size=size, footprint=footprint, origin=origin)
+    )
+
+
+@pytest.mark.parametrize(
+    "size, footprint, origin",
+    [
+        (5, None, 2.6),
+        (5, None, 2.4),
+        (5, None, -1.6),
+        (5, None, -1.4),
+    ]
+)
+def test_median_float_origin_compare(size, footprint, origin):
+    a = np.arange(140.0).reshape(10, 14)
+    d = da.from_array(a, chunks=(5, 7))
+
+    dau.assert_eq(
+        sp_ndf.median_filter(a, size=size, footprint=footprint, origin=origin),
+        da_ndf.median_filter(d, size=size, footprint=footprint, origin=origin)
     )
