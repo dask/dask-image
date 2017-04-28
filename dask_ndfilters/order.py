@@ -18,8 +18,15 @@ def _get_footprint(ndim, size=None, footprint=None):
 
     # Get a footprint based on the size.
     if size is not None:
-        if isinstance(size, numbers.Integral):
+        if isinstance(size, numbers.Number):
             size = ndim * (size,)
+        size = numpy.array(size)
+
+        if size.ndim != 1:
+            raise RuntimeError("The size must have only one dimension.")
+        if not issubclass(size.dtype.type, numbers.Integral):
+            raise TypeError("The size must be of integral type.")
+
         footprint = numpy.ones(size, dtype=bool)
 
     # Validate the footprint.

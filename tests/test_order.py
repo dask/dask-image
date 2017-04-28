@@ -28,6 +28,9 @@ import dask_ndfilters as da_ndf
     "err_type, size, footprint, origin",
     [
         (RuntimeError, None, None, 0),
+        (TypeError, 1.0, None, 0),
+        (RuntimeError, (1,), None, 0),
+        (RuntimeError, [(1,)], None, 0),
         (RuntimeError, 1, np.ones((1,)), 0),
         (RuntimeError, None, np.ones((1,)), 0),
         (RuntimeError, None, np.ones((1, 0)), 0),
