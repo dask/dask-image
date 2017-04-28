@@ -53,10 +53,8 @@ def _get_origin(footprint, origin=0):
 
     origin = numpy.array(origin)
 
-    if not issubclass(origin.dtype.type, numbers.Real):
-        raise TypeError("The origin must be of real type.")
-
-    origin = numpy.fix(origin).astype(int)
+    if not issubclass(origin.dtype.type, numbers.Integral):
+        raise TypeError("The origin must be of integral type.")
 
     # Validate dimensions.
     if origin.ndim != 1:

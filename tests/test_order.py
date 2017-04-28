@@ -37,6 +37,8 @@ import dask_ndfilters as da_ndf
         (RuntimeError, 1, None, (0,)),
         (RuntimeError, 1, None, [(0,)]),
         (ValueError, 1, None, 1),
+        (TypeError, 1, None, 0.0),
+        (TypeError, 1, None, (0.0, 0.0)),
         (TypeError, 1, None, 1+0j),
         (TypeError, 1, None, (0+0j, 1+0j)),
     ]
@@ -128,41 +130,6 @@ def test_ordered_filter_compare(sp_func,
                                 size,
                                 footprint,
                                 origin):
-    a = np.arange(140.0).reshape(10, 14)
-    d = da.from_array(a, chunks=(5, 7))
-
-    dau.assert_eq(
-        sp_func(
-            a, size=size, footprint=footprint, origin=origin, **extra_kwargs
-        ),
-        da_func(
-            d, size=size, footprint=footprint, origin=origin, **extra_kwargs
-        )
-    )
-
-
-@pytest.mark.parametrize(
-    "sp_func, da_func, extra_kwargs",
-    [
-        (sp_ndf.median_filter, da_ndf.median_filter, {}),
-        (sp_ndf.rank_filter, da_ndf.rank_filter, {"rank": 1}),
-    ]
-)
-@pytest.mark.parametrize(
-    "size, footprint, origin",
-    [
-        (5, None, 2.6),
-        (5, None, 2.4),
-        (5, None, -1.6),
-        (5, None, -1.4),
-    ]
-)
-def test_ordered_filter_float_origin_compare(sp_func,
-                                             da_func,
-                                             extra_kwargs,
-                                             size,
-                                             footprint,
-                                             origin):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
