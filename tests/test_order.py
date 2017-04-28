@@ -34,6 +34,8 @@ import dask_ndfilters as da_ndf
         (RuntimeError, 1, None, (0,)),
         (RuntimeError, 1, None, [(0,)]),
         (ValueError, 1, None, 1),
+        (TypeError, 1, None, 1+0j),
+        (TypeError, 1, None, (0+0j, 1+0j)),
     ]
 )
 def test_order_filter_params(da_func,

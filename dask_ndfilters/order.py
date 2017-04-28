@@ -41,10 +41,14 @@ def _get_origin(footprint, origin=0):
     size = numpy.array(footprint.shape)
     ndim = footprint.ndim
 
-    if isinstance(origin, numbers.Real):
+    if isinstance(origin, numbers.Number):
         origin = ndim * (origin,)
 
     origin = numpy.array(origin)
+
+    if not issubclass(origin.dtype.type, numbers.Real):
+        raise TypeError("The origin must be of real type.")
+
     origin = numpy.fix(origin).astype(int)
 
     # Validate dimensions.
