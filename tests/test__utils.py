@@ -30,3 +30,32 @@ def test__get_docstring():
     )
 
     assert result == expected
+
+
+def test__update_wrapper():
+    f = lambda : 0
+
+    @_utils._update_wrapper(f)
+    def g():
+        return f()
+
+
+    assert f.__name__ == g.__name__
+
+    expected = """
+    Wrapped copy of "{mod_name}.{func_name}"
+
+
+    Excludes the output parameter as it would not work Dask arrays.
+
+
+    Original docstring:
+
+    {doc}
+    """.format(
+        mod_name=inspect.getmodule(g).__name__,
+        func_name=g.__name__,
+        doc="",
+    )
+
+    assert g.__doc__ == expected
