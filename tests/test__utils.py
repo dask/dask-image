@@ -5,6 +5,8 @@ from __future__ import absolute_import
 
 import inspect
 
+import pytest
+
 from dask_ndfilters import _utils
 
 
@@ -59,3 +61,27 @@ def test__update_wrapper():
     )
 
     assert g.__doc__ == expected
+
+
+@pytest.mark.parametrize(
+    "err_type, ndim, depth, boundary",
+    [
+        (TypeError, lambda : 0, 1, None),
+        (TypeError, 1.0, 1, None),
+        (ValueError, -1, 1, None),
+        (TypeError, 1, lambda : 0, None),
+        (TypeError, 1, 1.0, None),
+        (ValueError, 1, -1, None),
+        (ValueError, 1, (1, 1), None),
+        (ValueError, 1, {0: 1, 1: 1}, None),
+        (TypeError, 1, {1}, None),
+        (TypeError, 1, 1, 1),
+        (ValueError, 1, 1, (None, None)),
+        (ValueError, 1, 1, {0: None, 1: None}),
+        (TypeError, 1, 1, (1,)),
+        (TypeError, 1, 1, {1}),
+    ]
+)
+def test_errs__get_depth_boundary(err_type, ndim, depth, boundary):
+    with pytest.raises(err_type):
+        _utils._get_depth_boundary(ndim, depth, boundary)
