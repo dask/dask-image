@@ -7,3 +7,7 @@ from dask_ndfilters.order import (
     rank_filter,
     percentile_filter,
 )
+
+from dask_ndfilters.smooth import (
+    gaussian_filter,
+)
