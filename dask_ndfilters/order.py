@@ -80,17 +80,7 @@ def _get_depth_boundary(footprint, origin):
     depth = half_size + abs(origin)
     depth = tuple(depth)
 
-    # Workaround for a bug in Dask with 0 depth.
-    #
-    # ref: https://github.com/dask/dask/issues/2258
-    #
-    boundary = dict()
-    for i in range(len(depth)):
-        d = depth[i]
-        if d == 0:
-            boundary[i] = None
-        else:
-            boundary[i] = "none"
+    depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
     return depth, boundary
 
