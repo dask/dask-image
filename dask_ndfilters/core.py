@@ -10,4 +10,5 @@ from dask_ndfilters.order import (
 
 from dask_ndfilters.smooth import (
     gaussian_filter,
+    uniform_filter,
 )
