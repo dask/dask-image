@@ -6,6 +6,8 @@ import inspect
 import numbers
 import re
 
+import numpy
+
 
 try:
     from itertools import imap, izip
@@ -111,3 +113,25 @@ def _get_depth_boundary(ndim, depth, boundary=None):
             boundary[i] = "reflect"
 
     return depth, boundary
+
+
+def _get_size(ndim, size):
+    if not isinstance(ndim, numbers.Integral):
+        raise TypeError("The ndim must be of integral type.")
+
+    if isinstance(size, numbers.Number):
+        size = ndim * (size,)
+    size = numpy.array(size)
+
+    if size.ndim != 1:
+        raise RuntimeError("The size must have only one dimension.")
+    if len(size) != ndim:
+        raise RuntimeError(
+            "The size must have a length equal to the number of dimensions."
+        )
+    if not issubclass(size.dtype.type, numbers.Integral):
+        raise TypeError("The size must be of integral type.")
+
+    size = tuple(size)
+
+    return size
