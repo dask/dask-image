@@ -135,3 +135,45 @@ def _get_size(ndim, size):
     size = tuple(size)
 
     return size
+
+
+def _get_origin(size, origin=0):
+    size = numpy.array(size)
+    ndim = len(size)
+
+    if isinstance(origin, numbers.Number):
+        origin = ndim * (origin,)
+
+    origin = numpy.array(origin)
+
+    if not issubclass(origin.dtype.type, numbers.Integral):
+        raise TypeError("The origin must be of integral type.")
+
+    # Validate dimensions.
+    if origin.ndim != 1:
+        raise RuntimeError("The origin must have only one dimension.")
+    if len(origin) != ndim:
+        raise RuntimeError(
+            "The origin must have the same length as the number of dimensions"
+            " as the array being filtered."
+        )
+
+    # Validate origin is bounded.
+    if not (origin < ((size + 1) // 2)).all():
+        raise ValueError("The origin must be within the footprint.")
+
+    origin = tuple(origin)
+
+    return origin
+
+
+def _get_depth(size, origin=0):
+    origin = numpy.array(_get_origin(size, origin))
+    size = numpy.array(size)
+
+    half_size = size // 2
+    depth = half_size + abs(origin)
+
+    depth = tuple(depth)
+
+    return depth
