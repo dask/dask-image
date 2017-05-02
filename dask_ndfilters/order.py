@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
-import inspect
 import numbers
-import re
 
 import numpy
 import scipy.ndimage.filters
+
+import dask_ndfilters._utils as _utils
 
 
 def _get_footprint(ndim, size=None, footprint=None):
@@ -80,17 +80,7 @@ def _get_depth_boundary(footprint, origin):
     depth = half_size + abs(origin)
     depth = tuple(depth)
 
-    # Workaround for a bug in Dask with 0 depth.
-    #
-    # ref: https://github.com/dask/dask/issues/2258
-    #
-    boundary = dict()
-    for i in range(len(depth)):
-        d = depth[i]
-        if d == 0:
-            boundary[i] = None
-        else:
-            boundary[i] = "none"
+    depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
     return depth, boundary
 
@@ -103,45 +93,8 @@ def _get_normed_args(ndim, size=None, footprint=None, origin=0):
     return footprint, origin, depth, boundary
 
 
-def _get_docstring(func):
-    # Drop the output parameter from the docstring.
-    split_doc_params = lambda s: \
-        re.subn("(    [A-Za-z]+ : )", "\0\\1", s)[0].split("\0")
-    drop_doc_param = lambda s: not s.startswith("    output : ")
-    cleaned_docstring = "".join([
-        l for l in split_doc_params(func.__doc__) if drop_doc_param(l)
-    ])
-
-    docstring = """
-    Wrapped copy of "{mod_name}.{func_name}"
-
-
-    Excludes the output parameter as it would not work Dask arrays.
-
-
-    Original docstring:
-
-    {doc}
-    """.format(
-        mod_name=inspect.getmodule(func).__name__,
-        func_name=func.__name__,
-        doc=cleaned_docstring,
-    )
-
-    return docstring
-
-
-def _update_wrapper(func):
-    def _updater(wrapper):
-        wrapper.__name__ = func.__name__
-        wrapper.__doc__ = _get_docstring(func)
-        return wrapper
-
-    return _updater
-
-
 def _ordering_filter_wrapper(func):
-    @_update_wrapper(func)
+    @_utils._update_wrapper(func)
     def _wrapped_ordering_filter(input,
                                  size=None,
                                  footprint=None,
@@ -175,7 +128,7 @@ median_filter = _ordering_filter_wrapper(scipy.ndimage.filters.median_filter)
 maximum_filter = _ordering_filter_wrapper(scipy.ndimage.filters.maximum_filter)
 
 
-@_update_wrapper(scipy.ndimage.filters.rank_filter)
+@_utils._update_wrapper(scipy.ndimage.filters.rank_filter)
 def rank_filter(input,
                 rank,
                 size=None,
@@ -204,7 +157,7 @@ def rank_filter(input,
     return result
 
 
-@_update_wrapper(scipy.ndimage.filters.percentile_filter)
+@_utils._update_wrapper(scipy.ndimage.filters.percentile_filter)
 def percentile_filter(input,
                       percentile,
                       size=None,
