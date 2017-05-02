@@ -39,7 +39,7 @@ def _get_docstring(func):
     Wrapped copy of "{mod_name}.{func_name}"
 
 
-    Excludes the output parameter as it would not work Dask arrays.
+    Excludes the output parameter as it would not work with Dask arrays.
 
 
     Original docstring:
