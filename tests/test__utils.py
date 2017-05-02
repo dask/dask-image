@@ -85,3 +85,18 @@ def test__update_wrapper():
 def test_errs__get_depth_boundary(err_type, ndim, depth, boundary):
     with pytest.raises(err_type):
         _utils._get_depth_boundary(ndim, depth, boundary)
+
+
+@pytest.mark.parametrize(
+    "err_type, ndim, size",
+    [
+        (TypeError, 1.0, 1),
+        (RuntimeError, 1, [[1]]),
+        (TypeError, 1, 1.0),
+        (TypeError, 1, [1.0]),
+        (RuntimeError, 1, [1, 1]),
+    ]
+)
+def test_errs__get_size(err_type, ndim, size):
+    with pytest.raises(err_type):
+        _utils._get_size(ndim, size)
