@@ -165,3 +165,15 @@ def _get_origin(size, origin=0):
     origin = tuple(origin)
 
     return origin
+
+
+def _get_depth(size, origin=0):
+    origin = numpy.array(_get_origin(size, origin))
+    size = numpy.array(size)
+
+    half_size = size // 2
+    depth = half_size + abs(origin)
+
+    depth = tuple(depth)
+
+    return depth
