@@ -36,51 +36,11 @@ def _get_footprint(ndim, size=None, footprint=None):
     return footprint
 
 
-def _get_origin(footprint, origin=0):
-    size = numpy.array(footprint.shape)
-    ndim = footprint.ndim
-
-    if isinstance(origin, numbers.Number):
-        origin = ndim * (origin,)
-
-    origin = numpy.array(origin)
-
-    if not issubclass(origin.dtype.type, numbers.Integral):
-        raise TypeError("The origin must be of integral type.")
-
-    # Validate dimensions.
-    if origin.ndim != 1:
-        raise RuntimeError("The origin must have only one dimension.")
-    if len(origin) != ndim:
-        raise RuntimeError(
-            "The origin must have the same length as the number of dimensions"
-            " as the array being filtered."
-        )
-
-    # Validate origin is bounded.
-    if not (origin < ((size + 1) // 2)).all():
-        raise ValueError("The origin must be within the footprint.")
-
-    return origin
-
-
-def _get_depth_boundary(footprint, origin):
-    origin = _get_origin(footprint, origin)
-
-    size = numpy.array(footprint.shape)
-    half_size = size // 2
-    depth = half_size + abs(origin)
-    depth = tuple(depth)
-
-    depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
-
-    return depth, boundary
-
-
 def _get_normed_args(ndim, size=None, footprint=None, origin=0):
     footprint = _get_footprint(ndim, size, footprint)
-    origin = _get_origin(footprint, origin)
-    depth, boundary = _get_depth_boundary(footprint, origin)
+    origin = _utils._get_origin(footprint.shape, origin)
+    depth = _utils._get_depth(footprint.shape, origin)
+    depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
     return footprint, origin, depth, boundary
 
