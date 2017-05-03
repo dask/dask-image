@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from dask_ndfilters.diff import (
+    laplace,
+)
+
 from dask_ndfilters.edge import (
     prewitt,
     sobel,
