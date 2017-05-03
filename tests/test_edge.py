@@ -26,6 +26,7 @@ import dask_ndfilters as da_ndf
     "da_func",
     [
         da_ndf.prewitt,
+        da_ndf.sobel,
     ]
 )
 def test_edge_func_params(da_func, err_type, axis):
@@ -51,6 +52,7 @@ def test_edge_func_params(da_func, err_type, axis):
     "da_func, sp_func",
     [
         (da_ndf.prewitt, sp_ndf.prewitt),
+        (da_ndf.sobel, sp_ndf.sobel),
     ]
 )
 def test_edge_func_compare(da_func, sp_func, axis):
