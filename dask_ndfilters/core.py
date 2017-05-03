@@ -2,6 +2,7 @@
 
 from dask_ndfilters.edge import (
     prewitt,
+    sobel,
 )
 
 from dask_ndfilters.order import (
