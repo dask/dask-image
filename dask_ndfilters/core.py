@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from dask_ndfilters.edge import (
+    prewitt,
+)
+
 from dask_ndfilters.order import (
     minimum_filter,
     median_filter,
