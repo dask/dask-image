@@ -31,3 +31,21 @@ def prewitt(input, axis=-1, mode='reflect', cval=0.0):
     )
 
     return result
+
+
+@_utils._update_wrapper(scipy.ndimage.filters.sobel)
+def sobel(input, axis=-1, mode='reflect', cval=0.0):
+    _validate_axis(input.ndim, axis)
+
+    result = input.map_overlap(
+        scipy.ndimage.filters.sobel,
+        depth=(input.ndim * (1,)),
+        boundary="none",
+        dtype=input.dtype,
+        name=scipy.ndimage.filters.sobel.__name__,
+        axis=axis,
+        mode=mode,
+        cval=cval
+    )
+
+    return result
