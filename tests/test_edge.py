@@ -22,12 +22,18 @@ import dask_ndfilters as da_ndf
         (ValueError, -3),
     ]
 )
-def test_prewitt_params(err_type, axis):
+@pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.prewitt,
+    ]
+)
+def test_edge_func_params(da_func, err_type, axis):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
     with pytest.raises(err_type):
-        da_ndf.prewitt(d, axis)
+        da_func(d, axis)
 
 
 @pytest.mark.parametrize(
@@ -41,12 +47,18 @@ def test_prewitt_params(err_type, axis):
         -3,
     ]
 )
-def test_prewitt_compare(axis):
+@pytest.mark.parametrize(
+    "da_func, sp_func",
+    [
+        (da_ndf.prewitt, sp_ndf.prewitt),
+    ]
+)
+def test_edge_func_compare(da_func, sp_func, axis):
     s = (10, 11, 12)
     a = np.arange(float(np.prod(s))).reshape(s)
     d = da.from_array(a, chunks=(5, 5, 6))
 
     dau.assert_eq(
-        sp_ndf.prewitt(a, axis),
-        da_ndf.prewitt(d, axis)
+        sp_func(a, axis),
+        da_func(d, axis)
     )
