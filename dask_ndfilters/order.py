@@ -9,15 +9,6 @@ import scipy.ndimage.filters
 import dask_ndfilters._utils as _utils
 
 
-def _get_normed_args(ndim, size=None, footprint=None, origin=0):
-    footprint = _utils._get_footprint(ndim, size, footprint)
-    origin = _utils._get_origin(footprint.shape, origin)
-    depth = _utils._get_depth(footprint.shape, origin)
-    depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
-
-    return footprint, origin, depth, boundary
-
-
 def _ordering_filter_wrapper(func):
     @_utils._update_wrapper(func)
     def _wrapped_ordering_filter(input,
@@ -26,10 +17,12 @@ def _ordering_filter_wrapper(func):
                                  mode='reflect',
                                  cval=0.0,
                                  origin=0):
-        footprint, origin, depth, boundary = _get_normed_args(input.ndim,
-                                                              size,
-                                                              footprint,
-                                                              origin)
+        footprint = _utils._get_footprint(input.ndim, size, footprint)
+        origin = _utils._get_origin(footprint.shape, origin)
+        depth = _utils._get_depth(footprint.shape, origin)
+        depth, boundary = _utils._get_depth_boundary(footprint.ndim,
+                                                     depth,
+                                                     "none")
 
         result = input.map_overlap(
             func,
@@ -61,10 +54,10 @@ def rank_filter(input,
                 mode='reflect',
                 cval=0.0,
                 origin=0):
-    footprint, origin, depth, boundary = _get_normed_args(input.ndim,
-                                                          size,
-                                                          footprint,
-                                                          origin)
+    footprint = _utils._get_footprint(input.ndim, size, footprint)
+    origin = _utils._get_origin(footprint.shape, origin)
+    depth = _utils._get_depth(footprint.shape, origin)
+    depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
     result = input.map_overlap(
         scipy.ndimage.filters.rank_filter,
@@ -90,10 +83,10 @@ def percentile_filter(input,
                       mode='reflect',
                       cval=0.0,
                       origin=0):
-    footprint, origin, depth, boundary = _get_normed_args(input.ndim,
-                                                          size,
-                                                          footprint,
-                                                          origin)
+    footprint = _utils._get_footprint(input.ndim, size, footprint)
+    origin = _utils._get_origin(footprint.shape, origin)
+    depth = _utils._get_depth(footprint.shape, origin)
+    depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
     result = input.map_overlap(
         scipy.ndimage.filters.percentile_filter,
