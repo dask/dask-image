@@ -11,19 +11,19 @@ dask-ndmorph
         :target: https://anaconda.org/conda-forge/dask-ndmorph
         :alt: conda-forge
 
-.. image:: https://img.shields.io/travis/jakirkham/dask-ndmorph/master.svg
-        :target: https://travis-ci.org/jakirkham/dask-ndmorph
+.. image:: https://img.shields.io/travis/dask-image/dask-ndmorph/master.svg
+        :target: https://travis-ci.org/dask-image/dask-ndmorph
         :alt: Travis CI
 
 .. image:: https://readthedocs.org/projects/dask-ndmorph/badge/?version=latest
         :target: https://dask-ndmorph.readthedocs.io/en/latest/?badge=latest
         :alt: Read the Docs
 
-.. image:: https://coveralls.io/repos/github/jakirkham/dask-ndmorph/badge.svg
-        :target: https://coveralls.io/github/jakirkham/dask-ndmorph
+.. image:: https://coveralls.io/repos/github/dask-image/dask-ndmorph/badge.svg
+        :target: https://coveralls.io/github/dask-image/dask-ndmorph
         :alt: Coveralls
 
-.. image:: https://img.shields.io/github/license/jakirkham/dask-ndmorph.svg
+.. image:: https://img.shields.io/github/license/dask-image/dask-ndmorph.svg
         :target: ./LICENSE.txt
         :alt: License
 

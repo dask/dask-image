@@ -63,5 +63,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: jakirkham/dask-ndmorph
+    repo: dask-image/dask-ndmorph
     condition: $PYVER == 2.7
