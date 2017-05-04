@@ -110,6 +110,9 @@ def test_gaussian_filters_compare(sp_func, da_func, sigma, truncate):
 @pytest.mark.parametrize(
     "sigma, truncate",
     [
+        (0.0, 0.0),
+        (1.0, 0.0),
+        (0.0, 1.0),
         (1.0, 2.0),
         (1.0, 4.0),
         (2.0, 2.0),
