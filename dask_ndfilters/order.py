@@ -9,35 +9,8 @@ import scipy.ndimage.filters
 import dask_ndfilters._utils as _utils
 
 
-def _get_footprint(ndim, size=None, footprint=None):
-    # Verify that we only got size or footprint.
-    if size is None and footprint is None:
-        raise RuntimeError("Must provide either size or footprint.")
-    if size is not None and footprint is not None:
-        raise RuntimeError("Provide either size or footprint, but not both.")
-
-    # Get a footprint based on the size.
-    if size is not None:
-        size = _utils._get_size(ndim, size)
-        footprint = numpy.ones(size, dtype=bool)
-
-    # Validate the footprint.
-    if footprint.ndim != ndim:
-        raise RuntimeError(
-            "The footprint must have the same number of dimensions as"
-            " the array being filtered."
-        )
-    if footprint.size == 0:
-        raise RuntimeError("The footprint must have only non-zero dimensions.")
-
-    # Convert to Boolean.
-    footprint = (footprint != 0)
-
-    return footprint
-
-
 def _get_normed_args(ndim, size=None, footprint=None, origin=0):
-    footprint = _get_footprint(ndim, size, footprint)
+    footprint = _utils._get_footprint(ndim, size, footprint)
     origin = _utils._get_origin(footprint.shape, origin)
     depth = _utils._get_depth(footprint.shape, origin)
     depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
