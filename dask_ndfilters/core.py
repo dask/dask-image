@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from dask_ndfilters.conv import (
+    convolve,
+    correlate,
+)
+
 from dask_ndfilters.diff import (
     laplace,
 )
