@@ -23,12 +23,18 @@ import dask_ndfilters as da_ndf
         (TypeError, 1.0, 4.0 + 0.0j),
     ]
 )
-def test_gaussian_filter_params(err_type, sigma, truncate):
+@pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.gaussian_filter,
+    ]
+)
+def test_gaussian_filters_params(da_func, err_type, sigma, truncate):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
     with pytest.raises(err_type):
-        da_ndf.gaussian_filter(d, sigma, truncate=truncate)
+        da_func(d, sigma, truncate=truncate)
 
 
 @pytest.mark.parametrize(
@@ -43,7 +49,13 @@ def test_gaussian_filter_params(err_type, sigma, truncate):
 @pytest.mark.parametrize(
     "order", [0, 1, 2, 3]
 )
-def test_gaussian_identity(order, sigma, truncate):
+@pytest.mark.parametrize(
+    "sp_func, da_func",
+    [
+        (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
+    ]
+)
+def test_gaussian_filters_identity(sp_func, da_func, order, sigma, truncate):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
@@ -55,12 +67,12 @@ def test_gaussian_identity(order, sigma, truncate):
         )
 
     dau.assert_eq(
-        d, da_ndf.gaussian_filter(d, sigma, order, truncate=truncate)
+        d, da_func(d, sigma, order, truncate=truncate)
     )
 
     dau.assert_eq(
-        sp_ndf.gaussian_filter(a, sigma, order, truncate=truncate),
-        da_ndf.gaussian_filter(d, sigma, order, truncate=truncate)
+        sp_func(a, sigma, order, truncate=truncate),
+        da_func(d, sigma, order, truncate=truncate)
     )
 
 
@@ -84,12 +96,18 @@ def test_gaussian_identity(order, sigma, truncate):
         (2, 3),
     ]
 )
-def test_gaussian_compare(order, sigma, truncate):
+@pytest.mark.parametrize(
+    "sp_func, da_func",
+    [
+        (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
+    ]
+)
+def test_gaussian_filters_compare(sp_func, da_func, order, sigma, truncate):
     s = (100, 110)
     a = np.arange(float(np.prod(s))).reshape(s)
     d = da.from_array(a, chunks=(50, 55))
 
     dau.assert_eq(
-        sp_ndf.gaussian_filter(a, sigma, order, truncate=truncate),
-        da_ndf.gaussian_filter(d, sigma, order, truncate=truncate)
+        sp_func(a, sigma, order, truncate=truncate),
+        da_func(d, sigma, order, truncate=truncate)
     )
