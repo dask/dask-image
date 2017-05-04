@@ -48,7 +48,7 @@ setup(
     long_description=readme,
     author="John Kirkham",
     author_email="kirkhamj@janelia.hhmi.org",
-    url="https://github.com/jakirkham/dask-ndfilters",
+    url="https://github.com/dask-image/dask-ndfilters",
     cmdclass=cmdclasses,
     packages=setuptools.find_packages(exclude=["tests*"]),
     include_package_data=True,

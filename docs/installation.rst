@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/jakirkham/dask-ndfilters
+    $ git clone git://github.com/dask-image/dask-ndfilters
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/jakirkham/dask-ndfilters/tarball/master
+    $ curl  -OL https://github.com/dask-image/dask-ndfilters/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/jakirkham/dask-ndfilters
-.. _tarball: https://github.com/jakirkham/dask-ndfilters/tarball/master
+.. _Github repo: https://github.com/dask-image/dask-ndfilters
+.. _tarball: https://github.com/dask-image/dask-ndfilters/tarball/master
