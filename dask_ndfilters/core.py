@@ -11,6 +11,7 @@ from dask_ndfilters.edge import (
 
 from dask_ndfilters.gaussian import (
     gaussian_filter,
+    gaussian_gradient_magnitude,
 )
 
 from dask_ndfilters.order import (
