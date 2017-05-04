@@ -27,6 +27,7 @@ import dask_ndfilters as da_ndf
     "da_func",
     [
         da_ndf.gaussian_filter,
+        da_ndf.gaussian_gradient_magnitude,
     ]
 )
 def test_gaussian_filters_params(da_func, err_type, sigma, truncate):
@@ -53,6 +54,7 @@ def test_gaussian_filters_params(da_func, err_type, sigma, truncate):
     "sp_func, da_func",
     [
         (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
+        (sp_ndf.gaussian_gradient_magnitude, da_ndf.gaussian_gradient_magnitude),
     ]
 )
 def test_gaussian_filters_identity(sp_func, da_func, order, sigma, truncate):
@@ -100,6 +102,7 @@ def test_gaussian_filters_identity(sp_func, da_func, order, sigma, truncate):
     "sp_func, da_func",
     [
         (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
+        (sp_ndf.gaussian_gradient_magnitude, da_ndf.gaussian_gradient_magnitude),
     ]
 )
 def test_gaussian_filters_compare(sp_func, da_func, order, sigma, truncate):
