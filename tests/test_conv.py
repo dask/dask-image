@@ -18,6 +18,7 @@ import dask_ndfilters as da_ndf
     "da_func",
     [
         (da_ndf.convolve),
+        (da_ndf.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -51,6 +52,7 @@ def test_convolutions_params(da_func,
     "sp_func, da_func",
     [
         (sp_ndf.convolve, da_ndf.convolve),
+        (sp_ndf.correlate, da_ndf.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -79,6 +81,7 @@ def test_convolutions_identity(sp_func,
     "sp_func, da_func",
     [
         (sp_ndf.convolve, da_ndf.convolve),
+        (sp_ndf.correlate, da_ndf.correlate),
     ]
 )
 @pytest.mark.parametrize(
