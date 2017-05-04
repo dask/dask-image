@@ -27,7 +27,7 @@ setup(
     long_description=readme,
     author="John Kirkham",
     author_email="kirkhamj@janelia.hhmi.org",
-    url="https://github.com/jakirkham/dask-ndmorph",
+    url="https://github.com/dask-image/dask-ndmorph",
     cmdclass=versioneer.get_cmdclass(),
     packages=setuptools.find_packages(exclude=["tests*"]),
     include_package_data=True,
