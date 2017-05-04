@@ -54,7 +54,6 @@ def test_gaussian_filters_params(da_func, err_type, sigma, truncate):
     "sp_func, da_func",
     [
         (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
-        (sp_ndf.gaussian_gradient_magnitude, da_ndf.gaussian_gradient_magnitude),
     ]
 )
 def test_gaussian_filters_identity(sp_func, da_func, order, sigma, truncate):
@@ -89,6 +88,34 @@ def test_gaussian_filters_identity(sp_func, da_func, order, sigma, truncate):
     ]
 )
 @pytest.mark.parametrize(
+    "sp_func, da_func",
+    [
+        (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
+        (sp_ndf.gaussian_gradient_magnitude, da_ndf.gaussian_gradient_magnitude),
+    ]
+)
+def test_gaussian_filters_compare(sp_func, da_func, sigma, truncate):
+    s = (100, 110)
+    a = np.arange(float(np.prod(s))).reshape(s)
+    d = da.from_array(a, chunks=(50, 55))
+
+    dau.assert_eq(
+        sp_func(a, sigma, truncate=truncate),
+        da_func(d, sigma, truncate=truncate)
+    )
+
+
+@pytest.mark.parametrize(
+    "sigma, truncate",
+    [
+        (1.0, 2.0),
+        (1.0, 4.0),
+        (2.0, 2.0),
+        (2.0, 4.0),
+        ((1.0, 2.0), 4.0),
+    ]
+)
+@pytest.mark.parametrize(
     "order", [
         0,
         1,
@@ -102,10 +129,9 @@ def test_gaussian_filters_identity(sp_func, da_func, order, sigma, truncate):
     "sp_func, da_func",
     [
         (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
-        (sp_ndf.gaussian_gradient_magnitude, da_ndf.gaussian_gradient_magnitude),
     ]
 )
-def test_gaussian_filters_compare(sp_func, da_func, order, sigma, truncate):
+def test_gaussian_derivative_filters_compare(sp_func, da_func, order, sigma, truncate):
     s = (100, 110)
     a = np.arange(float(np.prod(s))).reshape(s)
     d = da.from_array(a, chunks=(50, 55))
