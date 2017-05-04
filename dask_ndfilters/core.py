@@ -9,6 +9,12 @@ from dask_ndfilters.edge import (
     sobel,
 )
 
+from dask_ndfilters.gaussian import (
+    gaussian_filter,
+    gaussian_gradient_magnitude,
+    gaussian_laplace,
+)
+
 from dask_ndfilters.order import (
     minimum_filter,
     median_filter,
@@ -18,6 +24,5 @@ from dask_ndfilters.order import (
 )
 
 from dask_ndfilters.smooth import (
-    gaussian_filter,
     uniform_filter,
 )
