@@ -20,6 +20,10 @@ from dask_ndfilters.gaussian import (
     gaussian_laplace,
 )
 
+from dask_ndfilters.generic import (
+    generic_filter,
+)
+
 from dask_ndfilters.order import (
     minimum_filter,
     median_filter,
