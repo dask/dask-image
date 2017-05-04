@@ -11,19 +11,19 @@ dask-ndfilters
         :target: https://anaconda.org/conda-forge/dask-ndfilters
         :alt: conda-forge
 
-.. image:: https://img.shields.io/travis/jakirkham/dask-ndfilters/master.svg
-        :target: https://travis-ci.org/jakirkham/dask-ndfilters
+.. image:: https://img.shields.io/travis/dask-image/dask-ndfilters/master.svg
+        :target: https://travis-ci.org/dask-image/dask-ndfilters
         :alt: Travis CI
 
 .. image:: https://readthedocs.org/projects/dask-ndfilters/badge/?version=latest
         :target: https://dask-ndfilters.readthedocs.io/en/latest/?badge=latest
         :alt: Read the Docs
 
-.. image:: https://coveralls.io/repos/github/jakirkham/dask-ndfilters/badge.svg
-        :target: https://coveralls.io/github/jakirkham/dask-ndfilters
+.. image:: https://coveralls.io/repos/github/dask-image/dask-ndfilters/badge.svg
+        :target: https://coveralls.io/github/dask-image/dask-ndfilters
         :alt: Coveralls
 
-.. image:: https://img.shields.io/github/license/jakirkham/dask-ndfilters.svg
+.. image:: https://img.shields.io/github/license/dask-image/dask-ndfilters.svg
         :target: ./LICENSE.txt
         :alt: License
 
