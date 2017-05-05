@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+import sys
+
 import setuptools
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
@@ -17,7 +20,7 @@ class PyTest(TestCommand):
 
     def run_tests(self):
         import pytest
-        pytest.main(self.test_args)
+        sys.exit(pytest.main(self.test_args))
 
 
 with open("README.rst") as readme_file:
