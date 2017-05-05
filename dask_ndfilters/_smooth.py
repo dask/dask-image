@@ -7,7 +7,7 @@ import numpy
 import scipy.ndimage.filters
 
 import dask_ndfilters._utils as _utils
-from dask_ndfilters.gaussian import gaussian_filter
+from dask_ndfilters._gaussian import gaussian_filter
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.uniform_filter)
