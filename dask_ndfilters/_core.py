@@ -1,30 +1,30 @@
 # -*- coding: utf-8 -*-
 
-from dask_ndfilters.conv import (
+from dask_ndfilters._conv import (
     convolve,
     correlate,
 )
 
-from dask_ndfilters.diff import (
+from dask_ndfilters._diff import (
     laplace,
 )
 
-from dask_ndfilters.edge import (
+from dask_ndfilters._edge import (
     prewitt,
     sobel,
 )
 
-from dask_ndfilters.gaussian import (
+from dask_ndfilters._gaussian import (
     gaussian_filter,
     gaussian_gradient_magnitude,
     gaussian_laplace,
 )
 
-from dask_ndfilters.generic import (
+from dask_ndfilters._generic import (
     generic_filter,
 )
 
-from dask_ndfilters.order import (
+from dask_ndfilters._order import (
     minimum_filter,
     median_filter,
     maximum_filter,
@@ -32,6 +32,6 @@ from dask_ndfilters.order import (
     percentile_filter,
 )
 
-from dask_ndfilters.smooth import (
+from dask_ndfilters._smooth import (
     uniform_filter,
 )
