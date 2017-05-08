@@ -42,7 +42,7 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = "v"
-    cfg.parentdir_prefix = "dask_ndmorph"
+    cfg.parentdir_prefix = "dask-ndmorph"
     cfg.versionfile_source = "dask_ndmorph/_version.py"
     cfg.verbose = False
     return cfg

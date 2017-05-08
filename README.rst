@@ -1,6 +1,6 @@
-===============================
+============
 dask-ndmorph
-===============================
+============
 
 
 .. image:: https://img.shields.io/pypi/v/dask-ndmorph.svg
@@ -43,8 +43,8 @@ Features
 Credits
 ---------
 
-This package was created with Cookiecutter_ and the `nanshe-org/nanshe-cookiecutter`_ project template.
+This package was created with Cookiecutter_ and the `dask-image/dask-image-cookiecutter`_ project template.
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`nanshe-org/nanshe-cookiecutter`: https://github.com/nanshe-org/nanshe-cookiecutter
+.. _`dask-image/dask-image-cookiecutter`: https://github.com/dask-image/dask-image-cookiecutter
 

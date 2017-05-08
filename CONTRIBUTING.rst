@@ -66,8 +66,8 @@ Ready to contribute? Here's how to set up `dask-ndmorph` for local development.
 
 3. Install your local copy into an environment. Assuming you have conda installed, this is how you set up your fork for local development (on Windows drop `source`). Replace `"<some version>"` with the Python version used for testing.::
 
-    $ conda create -n dask_ndmorphenv python="<some version>"
-    $ source activate dask_ndmorphenv
+    $ conda create -n dask-ndmorphenv python="<some version>"
+    $ source activate dask-ndmorphenv
     $ python setup.py develop
 
 4. Create a branch for local development::
@@ -109,5 +109,4 @@ Tips
 
 To run a subset of tests::
 
-
-    $ python -m unittest tests.test_dask_ndmorph
+    $ py.test tests/test_core.py
