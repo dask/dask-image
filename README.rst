@@ -31,7 +31,7 @@ dask-ndfourier
 A library for using N-D Fourier filter with Dask Arrays
 
 
-* Free software: BSD license
+* Free software: BSD 3-Clause
 * Documentation: https://dask-ndfourier.readthedocs.io.
 
 
