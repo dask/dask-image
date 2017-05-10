@@ -49,6 +49,28 @@ def _get_freq_grid(shape, chunks, dtype=float):
     return freq_grid
 
 
+def _norm_args(a, s, n=-1, axis=-1):
+    # Validate and normalize s
+    if isinstance(s, numbers.Number):
+        s = a.ndim * [s]
+    elif not isinstance(s, collections.Sequence):
+        raise TypeError("The `s` must be a number or a sequence.")
+    if len(s) != a.ndim:
+        raise RuntimeError(
+            "The `s` must have a length equal to the input's rank."
+        )
+    if not all(imap(lambda i: isinstance(i, numbers.Real), s)):
+        raise TypeError("The `s` must contain real value(s).")
+    s = numpy.array(s)
+
+    if n != -1:
+        raise NotImplementedError(
+            "Currently `n` other than -1 is unsupported."
+        )
+
+    return (s, n, axis)
+
+
 def fourier_gaussian(input, sigma, n=-1, axis=-1):
     """
     Multi-dimensional Gaussian fourier filter.
@@ -94,23 +116,8 @@ def fourier_gaussian(input, sigma, n=-1, axis=-1):
     if issubclass(input.dtype.type, numbers.Integral):
         input = input.astype(float)
 
-    # Validate and normalize sigma
-    if isinstance(sigma, numbers.Number):
-        sigma = input.ndim * [sigma]
-    elif not isinstance(sigma, collections.Sequence):
-        raise TypeError("The `sigma` must be a number or a sequence.")
-    if len(sigma) != input.ndim:
-        raise RuntimeError(
-            "The `sigma` must have a length equal to the input's rank."
-        )
-    if not all(imap(lambda i: isinstance(i, numbers.Real), sigma)):
-        raise TypeError("The `sigma` must contain real value(s).")
-    sigma = numpy.array(sigma)
-
-    if n != -1:
-        raise NotImplementedError(
-            "Currently `n` other than -1 is unsupported."
-        )
+    # Validate and normalize arguments
+    sigma, n, axis = _norm_args(input, sigma, n=n, axis=axis)
 
     # Compute frequencies
     frequency = _get_freq_grid(
@@ -173,23 +180,8 @@ def fourier_shift(input, shift, n=-1, axis=-1):
     if issubclass(input.dtype.type, numbers.Real):
         input = input.astype(complex)
 
-    # Validate and normalize shift
-    if isinstance(shift, numbers.Number):
-        shift = input.ndim * [shift]
-    elif not isinstance(shift, collections.Sequence):
-        raise TypeError("The `shift` must be a number or a sequence.")
-    if len(shift) != input.ndim:
-        raise RuntimeError(
-            "The `shift` must have a length equal to the input's rank."
-        )
-    if not all(imap(lambda i: isinstance(i, numbers.Real), shift)):
-        raise TypeError("The `shift` must contain real value(s).")
-    shift = numpy.array(shift)
-
-    if n != -1:
-        raise NotImplementedError(
-            "Currently `n` other than -1 is unsupported."
-        )
+    # Validate and normalize arguments
+    shift, n, axis = _norm_args(input, shift, n=n, axis=axis)
 
     # Constants with type converted
     J = input.dtype.type(1j)
