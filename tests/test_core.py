@@ -57,6 +57,7 @@ def test_fourier_filter_err(funcname, err_type, arg1_, n):
 @pytest.mark.parametrize(
     "dtype",
     [
+        int,
         float,
         complex,
     ]
