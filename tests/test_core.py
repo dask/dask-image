@@ -21,7 +21,7 @@ def test_import_core():
 
 
 @pytest.mark.parametrize(
-    "err_type, arg1_, n",
+    "err_type, s, n",
     [
         (NotImplementedError, 0.0, 0),
         (TypeError, 0.0 + 0.0j, 0),
@@ -38,18 +38,18 @@ def test_import_core():
         "fourier_gaussian",
     ]
 )
-def test_fourier_filter_err(funcname, err_type, arg1_, n):
+def test_fourier_filter_err(funcname, err_type, s, n):
     da_func = getattr(da_ndf, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
 
     with pytest.raises(err_type):
-        da_func(d, arg1_, n)
+        da_func(d, s, n)
 
 
 @pytest.mark.parametrize(
-    "arg1_",
+    "s",
     [
         0,
         (0, 0),
@@ -70,21 +70,21 @@ def test_fourier_filter_err(funcname, err_type, arg1_, n):
         "fourier_gaussian",
     ]
 )
-def test_fourier_filter_identity(funcname, arg1_, dtype):
+def test_fourier_filter_identity(funcname, s, dtype):
     da_func = getattr(da_ndf, funcname)
     sp_func = getattr(sp_ndf, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(dtype)
     d = da.from_array(a, chunks=(5, 7))
 
-    x = sp_func(a, arg1_)
+    x = sp_func(a, s)
 
-    dau.assert_eq(d.astype(x.dtype), da_func(d, arg1_))
-    dau.assert_eq(x, da_func(d, arg1_))
+    dau.assert_eq(d.astype(x.dtype), da_func(d, s))
+    dau.assert_eq(x, da_func(d, s))
 
 
 @pytest.mark.parametrize(
-    "arg1_",
+    "s",
     [
         -1,
         (-1, -1),
@@ -99,7 +99,7 @@ def test_fourier_filter_identity(funcname, arg1_, dtype):
         "fourier_gaussian",
     ]
 )
-def test_fourier_filter_negative(funcname, arg1_):
+def test_fourier_filter_negative(funcname, s):
     da_func = getattr(da_ndf, funcname)
     sp_func = getattr(sp_ndf, funcname)
 
@@ -107,12 +107,12 @@ def test_fourier_filter_negative(funcname, arg1_):
     d = da.from_array(a, chunks=(5, 7))
 
     dau.assert_eq(
-        sp_func(a, arg1_), da_func(d, arg1_)
+        sp_func(a, s), da_func(d, s)
     )
 
 
 @pytest.mark.parametrize(
-    "arg1_",
+    "s",
     [
         1,
         0.5,
@@ -129,7 +129,7 @@ def test_fourier_filter_negative(funcname, arg1_):
         "fourier_gaussian",
     ]
 )
-def test_fourier_filter(funcname, arg1_):
+def test_fourier_filter(funcname, s):
     da_func = getattr(da_ndf, funcname)
     sp_func = getattr(sp_ndf, funcname)
 
@@ -137,5 +137,5 @@ def test_fourier_filter(funcname, arg1_):
     d = da.from_array(a, chunks=(5, 7))
 
     dau.assert_eq(
-        sp_func(a, arg1_), da_func(d, arg1_)
+        sp_func(a, s), da_func(d, s)
     )
