@@ -85,7 +85,7 @@ def test_fourier_shift_real():
         (10, -9),
     ]
 )
-def test_fourier_shift_identity(shift):
+def test_fourier_shift(shift):
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
 
