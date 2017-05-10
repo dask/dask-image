@@ -84,16 +84,39 @@ def test_fourier_filter_identity(funcname, arg1_, in_dtype, out_dtype):
 @pytest.mark.parametrize(
     "arg1_",
     [
-        1,
-        0.5,
         -1,
-        (1, 1),
-        (0.8, 1.5),
         (-1, -1),
-        (1, 0),
-        (0, 2),
         (-1, 2),
         (10, -9),
+    ]
+)
+@pytest.mark.parametrize(
+    "funcname",
+    [
+        "fourier_shift",
+    ]
+)
+def test_fourier_filter_negative(funcname, arg1_):
+    da_func = getattr(da_ndf, funcname)
+    sp_func = getattr(sp_ndf, funcname)
+
+    a = np.arange(140.0).reshape(10, 14).astype(complex)
+    d = da.from_array(a, chunks=(5, 7))
+
+    dau.assert_eq(
+        sp_func(a, arg1_), da_func(d, arg1_)
+    )
+
+
+@pytest.mark.parametrize(
+    "arg1_",
+    [
+        1,
+        0.5,
+        (1, 1),
+        (0.8, 1.5),
+        (1, 0),
+        (0, 2),
     ]
 )
 @pytest.mark.parametrize(
