@@ -113,8 +113,14 @@ def _fftfreq(n, d=1.0, chunks=None):
     n_1 = n + 1
     n_2 = n_1 // 2
 
-    l = dask.array.linspace(0, 1, n_1, chunks=chunks)
-    r = dask.array.concatenate([l[:n_2], l[n_2:-1] - 1])
-    r /= d
+    s = dask.array.linspace(0, 1, n_1, chunks=chunks)
 
-    return r
+    l, r = s[:n_2], s[n_2:-1]
+
+    a = l
+    if len(r):
+        a = dask.array.concatenate([l, r - 1])
+
+    a /= d
+
+    return a
