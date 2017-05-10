@@ -104,12 +104,8 @@ def fourier_shift(input, shift, n=-1, axis=-1):
         raise RuntimeError(
             "The `shift` must have a length equal to the input's rank."
         )
-    if all(imap(lambda i: isinstance(i, numbers.Integral), shift)):
-        pass
-    elif all(imap(lambda i: isinstance(i, numbers.Real), shift)):
-        raise NotImplementedError("Real value(s) unsupported in the `shift`.")
-    else:
-        raise TypeError("The `shift` must contain integral value(s).")
+    if not all(imap(lambda i: isinstance(i, numbers.Real), shift)):
+        raise TypeError("The `shift` must contain real value(s).")
     shift = numpy.array(shift)
 
     if n != -1:
