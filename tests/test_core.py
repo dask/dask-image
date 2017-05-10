@@ -35,6 +35,7 @@ def test_import_core():
     "funcname",
     [
         "fourier_shift",
+        "fourier_gaussian",
     ]
 )
 def test_fourier_filter_err(funcname, err_type, arg1_, n):
@@ -66,6 +67,7 @@ def test_fourier_filter_err(funcname, err_type, arg1_, n):
     "funcname",
     [
         "fourier_shift",
+        "fourier_gaussian",
     ]
 )
 def test_fourier_filter_identity(funcname, arg1_, dtype):
@@ -94,6 +96,7 @@ def test_fourier_filter_identity(funcname, arg1_, dtype):
     "funcname",
     [
         "fourier_shift",
+        "fourier_gaussian",
     ]
 )
 def test_fourier_filter_negative(funcname, arg1_):
@@ -123,6 +126,7 @@ def test_fourier_filter_negative(funcname, arg1_):
     "funcname",
     [
         "fourier_shift",
+        "fourier_gaussian",
     ]
 )
 def test_fourier_filter(funcname, arg1_):

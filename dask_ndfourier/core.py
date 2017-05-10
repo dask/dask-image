@@ -49,6 +49,84 @@ def _get_freq_grid(shape, chunks, dtype=float):
     return freq_grid
 
 
+def fourier_gaussian(input, sigma, n=-1, axis=-1):
+    """
+    Multi-dimensional Gaussian fourier filter.
+
+    The array is multiplied with the fourier transform of a Gaussian
+    kernel.
+
+    Parameters
+    ----------
+    input : array_like
+        The input array.
+    sigma : float or sequence
+        The sigma of the Gaussian kernel. If a float, `sigma` is the same for
+        all axes. If a sequence, `sigma` has to contain one value for each
+        axis.
+    n : int, optional
+        If `n` is negative (default), then the input is assumed to be the
+        result of a complex fft.
+        If `n` is larger than or equal to zero, the input is assumed to be the
+        result of a real fft, and `n` gives the length of the array before
+        transformation along the real transform direction.
+    axis : int, optional
+        The axis of the real transform.
+
+    Returns
+    -------
+    fourier_gaussian : Dask Array
+
+    Examples
+    --------
+    >>> from scipy import ndimage, misc
+    >>> import numpy.fft
+    >>> import matplotlib.pyplot as plt
+    >>> fig, (ax1, ax2) = plt.subplots(1, 2)
+    >>> plt.gray()  # show the filtered result in grayscale
+    >>> ascent = misc.ascent()
+    >>> input_ = numpy.fft.fft2(ascent)
+    >>> result = ndimage.fourier_gaussian(input_, sigma=4)
+    >>> result = numpy.fft.ifft2(result)
+    >>> ax1.imshow(ascent)
+    """
+
+    if issubclass(input.dtype.type, numbers.Integral):
+        input = input.astype(float)
+
+    # Validate and normalize sigma
+    if isinstance(sigma, numbers.Number):
+        sigma = input.ndim * [sigma]
+    elif not isinstance(sigma, collections.Sequence):
+        raise TypeError("The `sigma` must be a number or a sequence.")
+    if len(sigma) != input.ndim:
+        raise RuntimeError(
+            "The `sigma` must have a length equal to the input's rank."
+        )
+    if not all(imap(lambda i: isinstance(i, numbers.Real), sigma)):
+        raise TypeError("The `sigma` must contain real value(s).")
+    sigma = numpy.array(sigma)
+
+    if n != -1:
+        raise NotImplementedError(
+            "Currently `n` other than -1 is unsupported."
+        )
+
+    # Compute frequencies
+    frequency = _get_freq_grid(
+        input.shape, input.chunks, dtype=input.real.dtype
+    )
+
+    # Compute Fourier transformed Gaussian
+    gaussian = dask.array.exp(
+        - dask.array.tensordot(sigma ** 2, frequency ** 2, axes=1) / 2
+    )
+
+    result = input * gaussian
+
+    return result
+
+
 def fourier_shift(input, shift, n=-1, axis=-1):
     """
     Multi-dimensional fourier shift filter.
