@@ -2,6 +2,7 @@
 
 
 import collections
+import itertools
 import numbers
 
 import numpy
@@ -14,6 +15,38 @@ try:
     from itertools import imap
 except ImportError:
     imap = map
+
+try:
+    irange = xrange
+except NameError:
+    irange = range
+
+
+def _get_freq_grid(shape, chunks, dtype=float):
+    assert len(shape) == len(chunks)
+
+    shape = tuple(shape)
+    ndim = len(shape)
+    dtype = numpy.dtype(dtype)
+
+    pi = dtype.type(numpy.pi).real
+
+    freq_grid = []
+    for i in irange(ndim):
+        sl = ndim * [None]
+        sl[i] = slice(None)
+        sl = tuple(sl)
+
+        freq_grid_i = _compat._fftfreq(shape[i], chunks=chunks[i])[sl]
+        for j in itertools.chain(range(i), range(i + 1, ndim)):
+            freq_grid_i = freq_grid_i.repeat(shape[j], axis=j)
+
+        freq_grid.append(freq_grid_i)
+
+    freq_grid = dask.array.stack(freq_grid)
+    freq_grid *= 2 * pi
+
+    return freq_grid
 
 
 def fourier_shift(input, shift, n=-1, axis=-1):
@@ -85,24 +118,16 @@ def fourier_shift(input, shift, n=-1, axis=-1):
         )
 
     # Constants with type converted
-    pi = input.dtype.type(numpy.pi)
     J = input.dtype.type(1j)
 
-    # Compute the wave vector for this data
-    wave_vector = numpy.array(input.shape, dtype=input.dtype)
-    wave_vector = numpy.reciprocal(wave_vector, out=wave_vector)
-    wave_vector *= 2 * pi
-    wave_vector = dask.array.from_array(wave_vector, chunks=wave_vector.shape)
-
-    # Determine the unit shift in Fourier space for each dimension
-    fourier_unit_shift = _compat._indices(
+    # Get the grid of frequencies
+    freq_grid = _get_freq_grid(
         input.shape, dtype=input.dtype, chunks=input.chunks
     )
-    fourier_unit_shift *= -wave_vector[(slice(None),) + input.ndim * (None,)]
 
     # Apply shift
     phase_shift = dask.array.exp(
-        J * dask.array.tensordot(shift, fourier_unit_shift, axes=1)
+        - J * dask.array.tensordot(shift, freq_grid, axes=1)
     )
     result = input * phase_shift
 
