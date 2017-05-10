@@ -31,12 +31,20 @@ def test_import_core():
         (NotImplementedError, 0, 0),
     ]
 )
-def test_fourier_shift_err(err_type, arg1_, n):
+@pytest.mark.parametrize(
+    "funcname",
+    [
+        "fourier_shift",
+    ]
+)
+def test_fourier_filter_err(funcname, err_type, arg1_, n):
+    da_func = getattr(da_ndf, funcname)
+
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
 
     with pytest.raises(err_type):
-        da_ndf.fourier_shift(d, arg1_, n)
+        da_func(d, arg1_, n)
 
 
 @pytest.mark.parametrize(
@@ -53,14 +61,23 @@ def test_fourier_shift_err(err_type, arg1_, n):
         (float, complex),
     ]
 )
-def test_fourier_shift_identity(arg1_, in_dtype, out_dtype):
+@pytest.mark.parametrize(
+    "funcname",
+    [
+        "fourier_shift",
+    ]
+)
+def test_fourier_filter_identity(funcname, arg1_, in_dtype, out_dtype):
+    da_func = getattr(da_ndf, funcname)
+    sp_func = getattr(sp_ndf, funcname)
+
     a = np.arange(140.0).reshape(10, 14).astype(in_dtype)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(d.astype(out_dtype), da_ndf.fourier_shift(d, arg1_))
+    dau.assert_eq(d.astype(out_dtype), da_func(d, arg1_))
 
     dau.assert_eq(
-        sp_ndf.fourier_shift(a, arg1_), da_ndf.fourier_shift(d, arg1_)
+        sp_func(a, arg1_), da_func(d, arg1_)
     )
 
 
@@ -79,10 +96,19 @@ def test_fourier_shift_identity(arg1_, in_dtype, out_dtype):
         (10, -9),
     ]
 )
-def test_fourier_shift(arg1_):
+@pytest.mark.parametrize(
+    "funcname",
+    [
+        "fourier_shift",
+    ]
+)
+def test_fourier_filter(funcname, arg1_):
+    da_func = getattr(da_ndf, funcname)
+    sp_func = getattr(sp_ndf, funcname)
+
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
 
     dau.assert_eq(
-        sp_ndf.fourier_shift(a, arg1_), da_ndf.fourier_shift(d, arg1_)
+        sp_func(a, arg1_), da_func(d, arg1_)
     )
