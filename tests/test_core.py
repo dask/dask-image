@@ -46,24 +46,18 @@ def test_fourier_shift_err(err_type, shift, n):
         (0, 0),
     ]
 )
-def test_fourier_shift_identity(shift):
-    a = np.arange(140.0).reshape(10, 14).astype(complex)
+@pytest.mark.parametrize(
+    "in_dtype, out_dtype",
+    [
+        (complex, complex),
+        (float, complex),
+    ]
+)
+def test_fourier_shift_identity(shift, in_dtype, out_dtype):
+    a = np.arange(140.0).reshape(10, 14).astype(in_dtype)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(d, da_ndf.fourier_shift(d, shift))
-
-    dau.assert_eq(
-        sp_ndf.fourier_shift(a, shift), da_ndf.fourier_shift(d, shift)
-    )
-
-
-def test_fourier_shift_real():
-    shift = 0
-
-    a = np.arange(140.0).reshape(10, 14)
-    d = da.from_array(a, chunks=(5, 7))
-
-    dau.assert_eq(d.astype(complex), da_ndf.fourier_shift(d, shift))
+    dau.assert_eq(d.astype(out_dtype), da_ndf.fourier_shift(d, shift))
 
     dau.assert_eq(
         sp_ndf.fourier_shift(a, shift), da_ndf.fourier_shift(d, shift)
