@@ -55,10 +55,10 @@ def test_fourier_filter_err(funcname, err_type, arg1_, n):
     ]
 )
 @pytest.mark.parametrize(
-    "in_dtype, out_dtype",
+    "dtype",
     [
-        (complex, complex),
-        (float, complex),
+        float,
+        complex,
     ]
 )
 @pytest.mark.parametrize(
@@ -67,18 +67,17 @@ def test_fourier_filter_err(funcname, err_type, arg1_, n):
         "fourier_shift",
     ]
 )
-def test_fourier_filter_identity(funcname, arg1_, in_dtype, out_dtype):
+def test_fourier_filter_identity(funcname, arg1_, dtype):
     da_func = getattr(da_ndf, funcname)
     sp_func = getattr(sp_ndf, funcname)
 
-    a = np.arange(140.0).reshape(10, 14).astype(in_dtype)
+    a = np.arange(140.0).reshape(10, 14).astype(dtype)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(d.astype(out_dtype), da_func(d, arg1_))
+    x = sp_func(a, arg1_)
 
-    dau.assert_eq(
-        sp_func(a, arg1_), da_func(d, arg1_)
-    )
+    dau.assert_eq(d.astype(x.dtype), da_func(d, arg1_))
+    dau.assert_eq(x, da_func(d, arg1_))
 
 
 @pytest.mark.parametrize(
