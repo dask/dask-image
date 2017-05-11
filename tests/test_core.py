@@ -13,13 +13,6 @@ import dask.array.utils as dau
 import dask_ndfourier as da_ndf
 
 
-def test_import_core():
-    try:
-        from dask_ndfourier import core
-    except ImportError:
-        pytest.fail("Unable to import `core`.")
-
-
 @pytest.mark.parametrize(
     "err_type, s, n",
     [
