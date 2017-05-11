@@ -56,6 +56,24 @@ def test_fourier_filter_err(funcname, err_type, s, n):
     ]
 )
 @pytest.mark.parametrize(
+    "funcname",
+    [
+        "fourier_shift",
+        "fourier_gaussian",
+    ]
+)
+def test_fourier_filter_identity(funcname, s):
+    da_func = getattr(da_ndf, funcname)
+    sp_func = getattr(sp_ndf, funcname)
+
+    a = np.arange(140.0).reshape(10, 14).astype(complex)
+    d = da.from_array(a, chunks=(5, 7))
+
+    dau.assert_eq(d, da_func(d, s))
+    dau.assert_eq(sp_func(a, s), da_func(d, s))
+
+
+@pytest.mark.parametrize(
     "dtype",
     [
         int,
@@ -70,17 +88,16 @@ def test_fourier_filter_err(funcname, err_type, s, n):
         "fourier_gaussian",
     ]
 )
-def test_fourier_filter_identity(funcname, s, dtype):
+def test_fourier_filter_identity(funcname, dtype):
+    s = 1
+
     da_func = getattr(da_ndf, funcname)
     sp_func = getattr(sp_ndf, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(dtype)
     d = da.from_array(a, chunks=(5, 7))
 
-    x = sp_func(a, s)
-
-    dau.assert_eq(d.astype(x.dtype), da_func(d, s))
-    dau.assert_eq(x, da_func(d, s))
+    dau.assert_eq(sp_func(a, s), da_func(d, s))
 
 
 @pytest.mark.parametrize(
