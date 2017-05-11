@@ -63,3 +63,6 @@ def _fftfreq(n, d=1.0, chunks=None):
     a /= d
 
     return a
+
+
+_sinc = dask.array.ufunc.wrap_elemwise(numpy.sinc)
