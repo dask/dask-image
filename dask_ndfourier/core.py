@@ -29,8 +29,6 @@ def _get_freq_grid(shape, chunks, dtype=float):
     ndim = len(shape)
     dtype = numpy.dtype(dtype)
 
-    pi = dtype.type(numpy.pi).real
-
     freq_grid = []
     for i in irange(ndim):
         sl = ndim * [None]
@@ -44,9 +42,19 @@ def _get_freq_grid(shape, chunks, dtype=float):
         freq_grid.append(freq_grid_i)
 
     freq_grid = dask.array.stack(freq_grid)
-    freq_grid *= 2 * pi
 
     return freq_grid
+
+
+def _get_ang_freq_grid(shape, chunks, dtype=float):
+    dtype = numpy.dtype(dtype)
+
+    pi = dtype.type(numpy.pi).real
+
+    freq_grid = _get_freq_grid(shape, chunks, dtype=dtype)
+    ang_freq_grid = 2 * pi * freq_grid
+
+    return ang_freq_grid
 
 
 def _norm_args(a, s, n=-1, axis=-1):
@@ -120,13 +128,13 @@ def fourier_gaussian(input, sigma, n=-1, axis=-1):
     sigma, n, axis = _norm_args(input, sigma, n=n, axis=axis)
 
     # Compute frequencies
-    frequency = _get_freq_grid(
+    ang_freq_grid = _get_ang_freq_grid(
         input.shape, input.chunks, dtype=input.real.dtype
     )
 
     # Compute Fourier transformed Gaussian
     gaussian = dask.array.exp(
-        - dask.array.tensordot(sigma ** 2, frequency ** 2, axes=1) / 2
+        - dask.array.tensordot(sigma ** 2, ang_freq_grid ** 2, axes=1) / 2
     )
 
     result = input * gaussian
@@ -187,13 +195,13 @@ def fourier_shift(input, shift, n=-1, axis=-1):
     J = input.dtype.type(1j)
 
     # Get the grid of frequencies
-    freq_grid = _get_freq_grid(
+    ang_freq_grid = _get_ang_freq_grid(
         input.shape, dtype=input.dtype, chunks=input.chunks
     )
 
     # Apply shift
     phase_shift = dask.array.exp(
-        - J * dask.array.tensordot(shift, freq_grid, axes=1)
+        - J * dask.array.tensordot(shift, ang_freq_grid, axes=1)
     )
     result = input * phase_shift
 
@@ -257,12 +265,9 @@ def fourier_uniform(input, size, n=-1, axis=-1):
         input.shape, dtype=input.dtype, chunks=input.chunks
     )
 
-    # Constants with type converted
-    pi = input.dtype.type(numpy.pi).real
-
     # Compute uniform filter
     uniform = _compat._sinc(
-        size[(slice(None),) + input.ndim * (None,)] * freq_grid / (2 * pi)
+        size[(slice(None),) + input.ndim * (None,)] * freq_grid
     )
     uniform = dask.array.prod(uniform, axis=0)
 
