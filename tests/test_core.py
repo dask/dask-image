@@ -90,6 +90,8 @@ def test_fourier_filter_identity(funcname, s, dtype):
         (-1, -1),
         (-1, 2),
         (10, -9),
+        (1, 0),
+        (0, 2),
     ]
 )
 @pytest.mark.parametrize(
@@ -99,7 +101,7 @@ def test_fourier_filter_identity(funcname, s, dtype):
         "fourier_gaussian",
     ]
 )
-def test_fourier_filter_negative(funcname, s):
+def test_fourier_filter_non_positive(funcname, s):
     da_func = getattr(da_ndf, funcname)
     sp_func = getattr(sp_ndf, funcname)
 
@@ -118,8 +120,6 @@ def test_fourier_filter_negative(funcname, s):
         0.5,
         (1, 1),
         (0.8, 1.5),
-        (1, 0),
-        (0, 2),
     ]
 )
 @pytest.mark.parametrize(
