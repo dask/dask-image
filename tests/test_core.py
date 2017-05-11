@@ -88,7 +88,7 @@ def test_fourier_filter_identity(funcname, s):
         "fourier_gaussian",
     ]
 )
-def test_fourier_filter_identity(funcname, dtype):
+def test_fourier_filter_type(funcname, dtype):
     s = 1
 
     da_func = getattr(da_ndf, funcname)
