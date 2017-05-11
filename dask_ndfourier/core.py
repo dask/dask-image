@@ -22,12 +22,11 @@ except NameError:
     irange = range
 
 
-def _get_freq_grid(shape, chunks, dtype=float):
+def _get_freq_grid(shape, chunks):
     assert len(shape) == len(chunks)
 
     shape = tuple(shape)
     ndim = len(shape)
-    dtype = numpy.dtype(dtype)
 
     freq_grid = []
     for i in irange(ndim):
@@ -46,13 +45,9 @@ def _get_freq_grid(shape, chunks, dtype=float):
     return freq_grid
 
 
-def _get_ang_freq_grid(shape, chunks, dtype=float):
-    dtype = numpy.dtype(dtype)
-
-    pi = dtype.type(numpy.pi).real
-
-    freq_grid = _get_freq_grid(shape, chunks, dtype=dtype)
-    ang_freq_grid = 2 * pi * freq_grid
+def _get_ang_freq_grid(shape, chunks):
+    freq_grid = _get_freq_grid(shape, chunks)
+    ang_freq_grid = 2 * numpy.pi * freq_grid
 
     return ang_freq_grid
 
@@ -129,7 +124,7 @@ def fourier_gaussian(input, sigma, n=-1, axis=-1):
 
     # Compute frequencies
     ang_freq_grid = _get_ang_freq_grid(
-        input.shape, input.chunks, dtype=input.real.dtype
+        input.shape, chunks=input.chunks
     )
 
     # Compute Fourier transformed Gaussian
@@ -196,7 +191,7 @@ def fourier_shift(input, shift, n=-1, axis=-1):
 
     # Get the grid of frequencies
     ang_freq_grid = _get_ang_freq_grid(
-        input.shape, dtype=input.dtype, chunks=input.chunks
+        input.shape, chunks=input.chunks
     )
 
     # Apply shift
@@ -262,7 +257,7 @@ def fourier_uniform(input, size, n=-1, axis=-1):
 
     # Get the grid of frequencies
     freq_grid = _get_freq_grid(
-        input.shape, dtype=input.dtype, chunks=input.chunks
+        input.shape, chunks=input.chunks
     )
 
     # Compute uniform filter
