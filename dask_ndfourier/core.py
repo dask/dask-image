@@ -1,77 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
-import collections
-import itertools
 import numbers
-
-import numpy
 
 import dask.array
 
 from dask_ndfourier import _compat
-
-try:
-    from itertools import imap
-except ImportError:
-    imap = map
-
-try:
-    irange = xrange
-except NameError:
-    irange = range
-
-
-def _get_freq_grid(shape, chunks):
-    assert len(shape) == len(chunks)
-
-    shape = tuple(shape)
-    ndim = len(shape)
-
-    freq_grid = []
-    for i in irange(ndim):
-        sl = ndim * [None]
-        sl[i] = slice(None)
-        sl = tuple(sl)
-
-        freq_grid_i = _compat._fftfreq(shape[i], chunks=chunks[i])[sl]
-        for j in itertools.chain(range(i), range(i + 1, ndim)):
-            freq_grid_i = freq_grid_i.repeat(shape[j], axis=j)
-
-        freq_grid.append(freq_grid_i)
-
-    freq_grid = dask.array.stack(freq_grid)
-
-    return freq_grid
-
-
-def _get_ang_freq_grid(shape, chunks):
-    freq_grid = _get_freq_grid(shape, chunks)
-    ang_freq_grid = 2 * numpy.pi * freq_grid
-
-    return ang_freq_grid
-
-
-def _norm_args(a, s, n=-1, axis=-1):
-    # Validate and normalize s
-    if isinstance(s, numbers.Number):
-        s = a.ndim * [s]
-    elif not isinstance(s, collections.Sequence):
-        raise TypeError("The `s` must be a number or a sequence.")
-    if len(s) != a.ndim:
-        raise RuntimeError(
-            "The `s` must have a length equal to the input's rank."
-        )
-    if not all(imap(lambda i: isinstance(i, numbers.Real), s)):
-        raise TypeError("The `s` must contain real value(s).")
-    s = numpy.array(s)
-
-    if n != -1:
-        raise NotImplementedError(
-            "Currently `n` other than -1 is unsupported."
-        )
-
-    return (s, n, axis)
+from dask_ndfourier import _utils
 
 
 def fourier_gaussian(input, sigma, n=-1, axis=-1):
@@ -120,10 +55,10 @@ def fourier_gaussian(input, sigma, n=-1, axis=-1):
         input = input.astype(float)
 
     # Validate and normalize arguments
-    sigma, n, axis = _norm_args(input, sigma, n=n, axis=axis)
+    sigma, n, axis = _utils._norm_args(input, sigma, n=n, axis=axis)
 
     # Compute frequencies
-    ang_freq_grid = _get_ang_freq_grid(
+    ang_freq_grid = _utils._get_ang_freq_grid(
         input.shape, chunks=input.chunks
     )
 
@@ -184,13 +119,13 @@ def fourier_shift(input, shift, n=-1, axis=-1):
         input = input.astype(complex)
 
     # Validate and normalize arguments
-    shift, n, axis = _norm_args(input, shift, n=n, axis=axis)
+    shift, n, axis = _utils._norm_args(input, shift, n=n, axis=axis)
 
     # Constants with type converted
     J = input.dtype.type(1j)
 
     # Get the grid of frequencies
-    ang_freq_grid = _get_ang_freq_grid(
+    ang_freq_grid = _utils._get_ang_freq_grid(
         input.shape, chunks=input.chunks
     )
 
@@ -253,10 +188,10 @@ def fourier_uniform(input, size, n=-1, axis=-1):
         input = input.astype(float)
 
     # Validate and normalize arguments
-    size, n, axis = _norm_args(input, size, n=n, axis=axis)
+    size, n, axis = _utils._norm_args(input, size, n=n, axis=axis)
 
     # Get the grid of frequencies
-    freq_grid = _get_freq_grid(
+    freq_grid = _utils._get_freq_grid(
         input.shape, chunks=input.chunks
     )
 
