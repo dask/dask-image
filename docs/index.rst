@@ -12,7 +12,6 @@ Contents:
    api
    contributing
    authors
-   history
 
 Indices and tables
 ==================

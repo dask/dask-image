@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/jakirkham/dask-ndmeasure
+    $ git clone git://github.com/dask-image/dask-ndmeasure
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/jakirkham/dask-ndmeasure/tarball/master
+    $ curl  -OL https://github.com/dask-image/dask-ndmeasure/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/jakirkham/dask-ndmeasure
-.. _tarball: https://github.com/jakirkham/dask-ndmeasure/tarball/master
+.. _Github repo: https://github.com/dask-image/dask-ndmeasure
+.. _tarball: https://github.com/dask-image/dask-ndmeasure/tarball/master

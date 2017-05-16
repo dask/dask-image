@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* John Kirkham <kirkhamj@janelia.hhmi.org>
+* John Kirkham, Howard Hughes Medical Institute <kirkhamj@janelia.hhmi.org>
 
 Contributors
 ------------

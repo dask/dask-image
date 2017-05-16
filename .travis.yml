@@ -63,5 +63,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: jakirkham/dask-ndmeasure
+    repo: dask-image/dask-ndmeasure
     condition: $PYVER == 2.7

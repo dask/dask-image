@@ -11,19 +11,19 @@ dask-ndmeasure
         :target: https://anaconda.org/conda-forge/dask-ndmeasure
         :alt: conda-forge
 
-.. image:: https://img.shields.io/travis/jakirkham/dask-ndmeasure/master.svg
-        :target: https://travis-ci.org/jakirkham/dask-ndmeasure
+.. image:: https://img.shields.io/travis/dask-image/dask-ndmeasure/master.svg
+        :target: https://travis-ci.org/dask-image/dask-ndmeasure
         :alt: Travis CI
 
 .. image:: https://readthedocs.org/projects/dask-ndmeasure/badge/?version=latest
         :target: https://dask-ndmeasure.readthedocs.io/en/latest/?badge=latest
         :alt: Read the Docs
 
-.. image:: https://coveralls.io/repos/github/jakirkham/dask-ndmeasure/badge.svg
-        :target: https://coveralls.io/github/jakirkham/dask-ndmeasure
+.. image:: https://coveralls.io/repos/github/dask-image/dask-ndmeasure/badge.svg
+        :target: https://coveralls.io/github/dask-image/dask-ndmeasure
         :alt: Coveralls
 
-.. image:: https://img.shields.io/github/license/jakirkham/dask-ndmeasure.svg
+.. image:: https://img.shields.io/github/license/dask-image/dask-ndmeasure.svg
         :target: ./LICENSE.txt
         :alt: License
 
@@ -31,7 +31,7 @@ dask-ndmeasure
 A library for computing N-D measurements on labeled Dask Arrays
 
 
-* Free software: BSD license
+* Free software: BSD 3-Clause
 * Documentation: https://dask-ndmeasure.readthedocs.io.
 
 
