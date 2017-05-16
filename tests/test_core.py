@@ -133,6 +133,7 @@ def test_fourier_filter_non_positive(funcname, s):
         0.5,
         (1, 1),
         (0.8, 1.5),
+        np.ones((2,)),
     ]
 )
 @pytest.mark.parametrize(
