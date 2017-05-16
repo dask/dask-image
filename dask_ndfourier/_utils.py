@@ -53,18 +53,17 @@ def _get_ang_freq_grid(shape, chunks):
 
 
 def _norm_args(a, s, n=-1, axis=-1):
-    # Validate and normalize s
     if isinstance(s, numbers.Number):
-        s = a.ndim * [s]
-    elif not isinstance(s, collections.Sequence):
-        raise TypeError("The `s` must be a number or a sequence.")
-    if len(s) != a.ndim:
-        raise RuntimeError(
-            "The `s` must have a length equal to the input's rank."
-        )
-    if not all(imap(lambda i: isinstance(i, numbers.Real), s)):
+        s = numpy.array(a.ndim * [s])
+    elif not isinstance(s, dask.array.Array):
+        s = numpy.array(s)
+
+    if not issubclass(s.dtype.type, numbers.Real):
         raise TypeError("The `s` must contain real value(s).")
-    s = numpy.array(s)
+    if s.shape != (a.ndim,):
+        raise RuntimeError(
+            "Shape of `s` must be 1-D and equal to the input's rank."
+        )
 
     if n != -1:
         raise NotImplementedError(
