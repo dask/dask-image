@@ -20,6 +20,7 @@ import dask_ndfourier as da_ndf
         (TypeError, 0.0 + 0.0j, 0),
         (TypeError, {}, 0),
         (RuntimeError, [0.0], 0),
+        (RuntimeError, [[0.0], [0.0]], 0),
         (TypeError, [0.0, 0.0 + 0.0j], 0),
         (NotImplementedError, 0, 0),
     ]
