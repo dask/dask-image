@@ -1,0 +1,11 @@
+name: dask_ndmeasure_env
+
+channels:
+  - conda-forge
+
+dependencies:
+  - pip==9.0.1
+  - wheel==0.29.0
+  - coverage==4.0.3
+  - python-coveralls==2.7.0
+  - pytest==3.0.5
