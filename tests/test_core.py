@@ -20,6 +20,7 @@ import dask_ndfourier as da_ndf
         (TypeError, 0.0 + 0.0j, 0),
         (TypeError, {}, 0),
         (RuntimeError, [0.0], 0),
+        (RuntimeError, [[0.0], [0.0]], 0),
         (TypeError, [0.0, 0.0 + 0.0j], 0),
         (NotImplementedError, 0, 0),
     ]
@@ -132,6 +133,8 @@ def test_fourier_filter_non_positive(funcname, s):
         0.5,
         (1, 1),
         (0.8, 1.5),
+        np.ones((2,)),
+        da.ones((2,), chunks=(2,)),
     ]
 )
 @pytest.mark.parametrize(
