@@ -22,10 +22,15 @@ except NameError:
     irange = range
 
 
-def _get_freq_grid(shape, chunks):
+def _get_freq_grid(shape, chunks, dtype=float):
     assert len(shape) == len(chunks)
 
     shape = tuple(shape)
+    dtype = numpy.dtype(dtype).type
+
+    assert (issubclass(dtype, numbers.Real) and
+            not issubclass(dtype, numbers.Integral))
+
     ndim = len(shape)
 
     freq_grid = []
@@ -34,7 +39,8 @@ def _get_freq_grid(shape, chunks):
         sl[i] = slice(None)
         sl = tuple(sl)
 
-        freq_grid_i = _compat._fftfreq(shape[i], chunks=chunks[i])[sl]
+        freq_grid_i = _compat._fftfreq(shape[i],
+                                       chunks=chunks[i]).astype(dtype)[sl]
         for j in itertools.chain(range(i), range(i + 1, ndim)):
             freq_grid_i = freq_grid_i.repeat(shape[j], axis=j)
 
