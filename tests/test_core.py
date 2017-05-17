@@ -3,6 +3,8 @@
 
 from __future__ import absolute_import
 
+import numbers
+
 import pytest
 
 import numpy as np
@@ -72,19 +74,21 @@ def test_fourier_filter_identity(funcname, s):
     "dtype",
     [
         np.int64,
+        np.float32,
         np.float64,
+        np.complex64,
         np.complex128,
     ]
 )
 @pytest.mark.parametrize(
-    "funcname",
+    "funcname, upcast_type",
     [
-        "fourier_shift",
-        "fourier_gaussian",
-        "fourier_uniform",
+        ("fourier_shift", numbers.Real),
+        ("fourier_gaussian", numbers.Integral),
+        ("fourier_uniform", numbers.Integral),
     ]
 )
-def test_fourier_filter_type(funcname, dtype):
+def test_fourier_filter_type(funcname, upcast_type, dtype):
     dtype = np.dtype(dtype).type
 
     s = 1
@@ -96,6 +100,11 @@ def test_fourier_filter_type(funcname, dtype):
     d = da.from_array(a, chunks=(5, 7))
 
     dau.assert_eq(sp_func(a, s), da_func(d, s))
+
+    if issubclass(dtype, upcast_type):
+        assert da_func(d, s).real.dtype.type is np.float64
+    else:
+        assert da_func(d, s).dtype.type is dtype
 
 
 @pytest.mark.parametrize(

@@ -64,7 +64,8 @@ def fourier_gaussian(input, sigma, n=-1, axis=-1):
     # Compute frequencies
     ang_freq_grid = _utils._get_ang_freq_grid(
         input.shape,
-        chunks=input.chunks
+        chunks=input.chunks,
+        dtype=sigma.dtype
     )
 
     # Compute Fourier transformed Gaussian
@@ -132,7 +133,8 @@ def fourier_shift(input, shift, n=-1, axis=-1):
     # Get the grid of frequencies
     ang_freq_grid = _utils._get_ang_freq_grid(
         input.shape,
-        chunks=input.chunks
+        chunks=input.chunks,
+        dtype=shift.dtype
     )
 
     # Apply shift
@@ -196,7 +198,8 @@ def fourier_uniform(input, size, n=-1, axis=-1):
     # Get the grid of frequencies
     freq_grid = _utils._get_freq_grid(
         input.shape,
-        chunks=input.chunks
+        chunks=input.chunks,
+        dtype=size.dtype
     )
 
     # Compute uniform filter
