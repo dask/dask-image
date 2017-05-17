@@ -53,6 +53,9 @@ def _get_ang_freq_grid(shape, chunks):
 
 
 def _norm_args(a, s, n=-1, axis=-1):
+    if issubclass(a.dtype.type, numbers.Integral):
+        a = a.astype(float)
+
     if isinstance(s, numbers.Number):
         s = numpy.array(a.ndim * [s])
     elif not isinstance(s, dask.array.Array):
@@ -70,4 +73,4 @@ def _norm_args(a, s, n=-1, axis=-1):
             "Currently `n` other than -1 is unsupported."
         )
 
-    return (s, n, axis)
+    return (a, s, n, axis)
