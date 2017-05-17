@@ -58,11 +58,8 @@ def fourier_gaussian(input, sigma, n=-1, axis=-1):
     >>> ax1.imshow(ascent)
     """
 
-    if issubclass(input.dtype.type, numbers.Integral):
-        input = input.astype(float)
-
     # Validate and normalize arguments
-    sigma, n, axis = _utils._norm_args(input, sigma, n=n, axis=axis)
+    input, sigma, n, axis = _utils._norm_args(input, sigma, n=n, axis=axis)
 
     # Compute frequencies
     ang_freq_grid = _utils._get_ang_freq_grid(
@@ -126,7 +123,7 @@ def fourier_shift(input, shift, n=-1, axis=-1):
         input = input.astype(complex)
 
     # Validate and normalize arguments
-    shift, n, axis = _utils._norm_args(input, shift, n=n, axis=axis)
+    input, shift, n, axis = _utils._norm_args(input, shift, n=n, axis=axis)
 
     # Constants with type converted
     J = input.dtype.type(1j)
@@ -191,11 +188,8 @@ def fourier_uniform(input, size, n=-1, axis=-1):
     >>> plt.show()
     """
 
-    if issubclass(input.dtype.type, numbers.Integral):
-        input = input.astype(float)
-
     # Validate and normalize arguments
-    size, n, axis = _utils._norm_args(input, size, n=n, axis=axis)
+    input, size, n, axis = _utils._norm_args(input, size, n=n, axis=axis)
 
     # Get the grid of frequencies
     freq_grid = _utils._get_freq_grid(
