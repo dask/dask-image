@@ -71,9 +71,9 @@ def test_fourier_filter_identity(funcname, s):
 @pytest.mark.parametrize(
     "dtype",
     [
-        int,
-        float,
-        complex,
+        np.int64,
+        np.float64,
+        np.complex128,
     ]
 )
 @pytest.mark.parametrize(
@@ -85,6 +85,8 @@ def test_fourier_filter_identity(funcname, s):
     ]
 )
 def test_fourier_filter_type(funcname, dtype):
+    dtype = np.dtype(dtype).type
+
     s = 1
 
     da_func = getattr(da_ndf, funcname)
