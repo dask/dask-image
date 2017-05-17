@@ -85,6 +85,8 @@ def test_fourier_filter_identity(funcname, s):
     ]
 )
 def test_fourier_filter_type(funcname, dtype):
+    dtype = np.dtype(dtype).type
+
     s = 1
 
     da_func = getattr(da_ndf, funcname)
