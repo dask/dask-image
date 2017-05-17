@@ -51,9 +51,16 @@ def _get_freq_grid(shape, chunks, dtype=float):
     return freq_grid
 
 
-def _get_ang_freq_grid(shape, chunks):
-    freq_grid = _get_freq_grid(shape, chunks)
-    ang_freq_grid = 2 * numpy.pi * freq_grid
+def _get_ang_freq_grid(shape, chunks, dtype=float):
+    dtype = numpy.dtype(dtype).type
+
+    assert (issubclass(dtype, numbers.Real) and
+            not issubclass(dtype, numbers.Integral))
+
+    pi = dtype(numpy.pi)
+
+    freq_grid = _get_freq_grid(shape, chunks, dtype=dtype)
+    ang_freq_grid = 2 * pi * freq_grid
 
     return ang_freq_grid
 
