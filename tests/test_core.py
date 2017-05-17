@@ -71,9 +71,9 @@ def test_fourier_filter_identity(funcname, s):
 @pytest.mark.parametrize(
     "dtype",
     [
-        int,
-        float,
-        complex,
+        np.int64,
+        np.float64,
+        np.complex128,
     ]
 )
 @pytest.mark.parametrize(
