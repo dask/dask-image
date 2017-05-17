@@ -74,7 +74,9 @@ def _norm_args(a, s, n=-1, axis=-1):
     elif not isinstance(s, dask.array.Array):
         s = numpy.array(s)
 
-    if not issubclass(s.dtype.type, numbers.Real):
+    if issubclass(s.dtype.type, numbers.Integral):
+        s = s.astype(a.real.dtype)
+    elif not issubclass(s.dtype.type, numbers.Real):
         raise TypeError("The `s` must contain real value(s).")
     if s.shape != (a.ndim,):
         raise RuntimeError(
