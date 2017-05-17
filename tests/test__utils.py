@@ -17,6 +17,7 @@ import dask_ndfourier._utils
     ]
 )
 def test_norm_args(a, s, n, axis):
-    s2, n2, axis2 = dask_ndfourier._utils._norm_args(a, s, n=n, axis=axis)
+    a2, s2, n2, axis2 = dask_ndfourier._utils._norm_args(a, s, n=n, axis=axis)
 
+    assert isinstance(a2, da.Array)
     assert isinstance(s2, da.Array)
