@@ -121,6 +121,29 @@ def test_ordered_filter_identity(sp_func,
 
 
 @pytest.mark.parametrize(
+    "da_func, kwargs",
+    [
+        (da_ndf.minimum_filter, {"size": 1}),
+        (da_ndf.median_filter, {"size": 1}),
+        (da_ndf.maximum_filter, {"size": 1}),
+        (da_ndf.rank_filter, {"size": 1, "rank": 0}),
+        (da_ndf.percentile_filter, {"size": 1, "percentile": 0}),
+    ]
+)
+def test_order_comprehensions(da_func, kwargs):
+    np.random.seed(0)
+
+    a = np.random.random((3, 12, 14))
+    d = da.from_array(a, chunks=(3, 6, 7))
+
+    l2s = [da_func(d[i], **kwargs) for i in range(len(d))]
+    l2c = [da_func(d[i], **kwargs)[None] for i in range(len(d))]
+
+    dau.assert_eq(np.stack(l2s), da.stack(l2s))
+    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
+
+
+@pytest.mark.parametrize(
     "sp_func, da_func, extra_kwargs",
     [
         (sp_ndf.minimum_filter, da_ndf.minimum_filter, {}),

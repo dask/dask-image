@@ -47,6 +47,21 @@ def test_uniform_shape_type():
     assert all([(type(s) is int) for s in d2.shape])
 
 
+def test_uniform_comprehensions():
+    da_func = lambda arr: da_ndf.uniform_filter(arr, 1, origin=0)
+
+    np.random.seed(0)
+
+    a = np.random.random((3, 12, 14))
+    d = da.from_array(a, chunks=(3, 6, 7))
+
+    l2s = [da_func(d[i]) for i in range(len(d))]
+    l2c = [da_func(d[i])[None] for i in range(len(d))]
+
+    dau.assert_eq(np.stack(l2s), da.stack(l2s))
+    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
+
+
 @pytest.mark.parametrize(
     "size, origin",
     [

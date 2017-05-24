@@ -69,6 +69,28 @@ def test_convolutions_shape_type(da_func):
 
 
 @pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.convolve,
+        da_ndf.correlate,
+    ]
+)
+def test_convolutions_comprehensions(da_func):
+    np.random.seed(0)
+
+    a = np.random.random((3, 12, 14))
+    d = da.from_array(a, chunks=(3, 6, 7))
+
+    weights = np.ones((1, 1))
+
+    l2s = [da_func(d[i], weights) for i in range(len(d))]
+    l2c = [da_func(d[i], weights)[None] for i in range(len(d))]
+
+    dau.assert_eq(np.stack(l2s), da.stack(l2s))
+    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
+
+
+@pytest.mark.parametrize(
     "sp_func, da_func",
     [
         (sp_ndf.convolve, da_ndf.convolve),
