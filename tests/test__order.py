@@ -61,6 +61,30 @@ def test_order_filter_params(da_func,
 
 
 @pytest.mark.parametrize(
+    "da_func, extra_kwargs",
+    [
+        (da_ndf.minimum_filter, {}),
+        (da_ndf.median_filter, {}),
+        (da_ndf.maximum_filter, {}),
+        (da_ndf.rank_filter, {"rank": 0}),
+        (da_ndf.percentile_filter, {"percentile": 0}),
+    ]
+)
+def test_ordered_filter_shape_type(da_func,
+                                   extra_kwargs):
+    size = 1
+
+    a = np.arange(140.0).reshape(10, 14)
+    d = da.from_array(a, chunks=(5, 7))
+
+    assert all([(type(s) is int) for s in d.shape])
+
+    d2 = da_func(d, size=size, **extra_kwargs)
+
+    assert all([(type(s) is int) for s in d2.shape])
+
+
+@pytest.mark.parametrize(
     "sp_func, da_func, extra_kwargs",
     [
         (sp_ndf.minimum_filter, da_ndf.minimum_filter, {}),

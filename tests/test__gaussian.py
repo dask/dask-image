@@ -79,6 +79,28 @@ def test_gaussian_filters_identity(sp_func, da_func, order, sigma, truncate):
 
 
 @pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.gaussian_filter,
+        da_ndf.gaussian_gradient_magnitude,
+        da_ndf.gaussian_laplace,
+    ]
+)
+def test_gaussian_filter_shape_type(da_func):
+    sigma = 1.0
+    truncate = 4.0
+
+    a = np.arange(140.0).reshape(10, 14)
+    d = da.from_array(a, chunks=(5, 7))
+
+    assert all([(type(s) is int) for s in d.shape])
+
+    d2 = da_func(d, sigma=sigma, truncate=truncate)
+
+    assert all([(type(s) is int) for s in d2.shape])
+
+
+@pytest.mark.parametrize(
     "sigma, truncate",
     [
         (1.0, 2.0),

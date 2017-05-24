@@ -49,6 +49,26 @@ def test_convolutions_params(da_func,
 
 
 @pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.convolve,
+        da_ndf.correlate,
+    ]
+)
+def test_convolutions_shape_type(da_func):
+    weights = np.ones((1, 1))
+
+    a = np.arange(140.0).reshape(10, 14)
+    d = da.from_array(a, chunks=(5, 7))
+
+    assert all([(type(s) is int) for s in d.shape])
+
+    d2 = da_func(d, weights)
+
+    assert all([(type(s) is int) for s in d2.shape])
+
+
+@pytest.mark.parametrize(
     "sp_func, da_func",
     [
         (sp_ndf.convolve, da_ndf.convolve),

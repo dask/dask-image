@@ -57,6 +57,26 @@ def test_generic_filters_params(da_func,
 
 
 @pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.generic_filter,
+    ]
+)
+def test_generic_filter_shape_type(da_func):
+    function = lambda x: x
+    size = 1
+
+    a = np.arange(140.0).reshape(10, 14)
+    d = da.from_array(a, chunks=(5, 7))
+
+    assert all([(type(s) is int) for s in d.shape])
+
+    d2 = da_func(d, function, size=size)
+
+    assert all([(type(s) is int) for s in d2.shape])
+
+
+@pytest.mark.parametrize(
     "sp_func, da_func",
     [
         (sp_ndf.generic_filter, da_ndf.generic_filter),
