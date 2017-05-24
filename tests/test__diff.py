@@ -6,10 +6,14 @@ from __future__ import absolute_import
 import numpy as np
 import scipy.ndimage.filters as sp_ndf
 
+import dask
 import dask.array as da
 import dask.array.utils as dau
 
 import dask_ndfilters as da_ndf
+
+
+assert dask
 
 
 def test_laplace_comprehensions():
