@@ -33,6 +33,20 @@ def test_uniform_filter_params(err_type, size, origin):
         da_ndf.uniform_filter(d, size, origin=origin)
 
 
+def test_uniform_shape_type():
+    size = 1
+    origin = 0
+
+    a = np.arange(140.0).reshape(10, 14)
+    d = da.from_array(a, chunks=(5, 7))
+
+    assert all([(type(s) is int) for s in d.shape])
+
+    d2 = da_ndf.uniform_filter(d, size, origin=origin)
+
+    assert all([(type(s) is int) for s in d2.shape])
+
+
 @pytest.mark.parametrize(
     "size, origin",
     [
