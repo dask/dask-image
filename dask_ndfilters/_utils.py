@@ -87,6 +87,8 @@ def _get_depth_boundary(ndim, depth, boundary=None):
     if not all(map(lambda d: d >= 0, depth.values())):
         raise ValueError("Expected positive semidefinite values for `depth`.")
 
+    depth = dict([(a, int(d)) for a, d in depth.items()])
+
     if (boundary is None) or isinstance(boundary, strlike):
         boundary = ndim * (boundary,)
     if not isinstance(boundary, collections.Sized):
