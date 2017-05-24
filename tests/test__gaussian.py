@@ -8,10 +8,14 @@ import pytest
 import numpy as np
 import scipy.ndimage.filters as sp_ndf
 
+import dask
 import dask.array as da
 import dask.array.utils as dau
 
 import dask_ndfilters as da_ndf
+
+
+assert dask
 
 
 @pytest.mark.parametrize(
@@ -98,6 +102,29 @@ def test_gaussian_filter_shape_type(da_func):
     d2 = da_func(d, sigma=sigma, truncate=truncate)
 
     assert all([(type(s) is int) for s in d2.shape])
+
+
+@pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.gaussian_filter,
+        da_ndf.gaussian_gradient_magnitude,
+        da_ndf.gaussian_laplace,
+    ]
+)
+def test_gaussian_filter_comprehensions(da_func):
+    da_wfunc = lambda arr: da_func(arr, 1.0, truncate=4.0)
+
+    np.random.seed(0)
+
+    a = np.random.random((3, 12, 14))
+    d = da.from_array(a, chunks=(3, 6, 7))
+
+    l2s = [da_wfunc(d[i]) for i in range(len(d))]
+    l2c = [da_wfunc(d[i])[None] for i in range(len(d))]
+
+    dau.assert_eq(np.stack(l2s), da.stack(l2s))
+    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
 
 
 @pytest.mark.parametrize(

@@ -8,10 +8,14 @@ import pytest
 import numpy as np
 import scipy.ndimage.filters as sp_ndf
 
+import dask
 import dask.array as da
 import dask.array.utils as dau
 
 import dask_ndfilters as da_ndf
+
+
+assert dask
 
 
 @pytest.mark.parametrize(
@@ -106,6 +110,27 @@ def test_generic_filter_identity(sp_func,
         sp_func(a, function, size=size, footprint=footprint),
         da_func(d, function, size=size, footprint=footprint),
     )
+
+
+@pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.generic_filter,
+    ]
+)
+def test_generic_filter_comprehensions(da_func):
+    da_wfunc = lambda arr: da_func(arr, lambda x: x, 1)
+
+    np.random.seed(0)
+
+    a = np.random.random((3, 12, 14))
+    d = da.from_array(a, chunks=(3, 6, 7))
+
+    l2s = [da_wfunc(d[i]) for i in range(len(d))]
+    l2c = [da_wfunc(d[i])[None] for i in range(len(d))]
+
+    dau.assert_eq(np.stack(l2s), da.stack(l2s))
+    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
 
 
 @pytest.mark.parametrize(

@@ -24,7 +24,6 @@ def prewitt(input, axis=-1, mode='reflect', cval=0.0):
         depth=(input.ndim * (1,)),
         boundary="none",
         dtype=input.dtype,
-        name=scipy.ndimage.filters.prewitt.__name__,
         axis=axis,
         mode=mode,
         cval=cval
@@ -42,7 +41,6 @@ def sobel(input, axis=-1, mode='reflect', cval=0.0):
         depth=(input.ndim * (1,)),
         boundary="none",
         dtype=input.dtype,
-        name=scipy.ndimage.filters.sobel.__name__,
         axis=axis,
         mode=mode,
         cval=cval

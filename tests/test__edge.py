@@ -8,10 +8,14 @@ import pytest
 import numpy as np
 import scipy.ndimage.filters as sp_ndf
 
+import dask
 import dask.array as da
 import dask.array.utils as dau
 
 import dask_ndfilters as da_ndf
+
+
+assert dask
 
 
 @pytest.mark.parametrize(
@@ -35,6 +39,26 @@ def test_edge_func_params(da_func, err_type, axis):
 
     with pytest.raises(err_type):
         da_func(d, axis)
+
+
+@pytest.mark.parametrize(
+    "da_func",
+    [
+        da_ndf.prewitt,
+        da_ndf.sobel,
+    ]
+)
+def test_edge_comprehensions(da_func):
+    np.random.seed(0)
+
+    a = np.random.random((3, 12, 14))
+    d = da.from_array(a, chunks=(3, 6, 7))
+
+    l2s = [da_func(d[i]) for i in range(len(d))]
+    l2c = [da_func(d[i])[None] for i in range(len(d))]
+
+    dau.assert_eq(np.stack(l2s), da.stack(l2s))
+    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
 
 
 @pytest.mark.parametrize(

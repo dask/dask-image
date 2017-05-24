@@ -15,7 +15,6 @@ def laplace(input, mode='reflect', cval=0.0):
         depth=(input.ndim * (1,)),
         boundary="none",
         dtype=input.dtype,
-        name=scipy.ndimage.filters.laplace.__name__,
         mode=mode,
         cval=cval
     )
