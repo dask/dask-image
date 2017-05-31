@@ -109,4 +109,4 @@ Tips
 
 To run a subset of tests::
 
-    $ py.test tests/test_core.py
+    $ py.test tests/test_dask_ndmorph.py

@@ -6,8 +6,8 @@ from __future__ import absolute_import
 import pytest
 
 
-def test_import_core():
+def test_import_toplevel():
     try:
-        from dask_ndmorph import core
+        import dask_ndmorph
     except ImportError:
-        pytest.fail("Unable to import `core`.")
+        pytest.fail("Unable to import `dask_ndmorph`.")
