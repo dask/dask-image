@@ -144,3 +144,15 @@ def test_errs__get_footprint(err_type, ndim, size, footprint):
 )
 def test__get_depth_boundary(expected, ndim, depth, boundary):
     assert expected == _utils._get_depth_boundary(ndim, depth, boundary)
+
+
+@pytest.mark.parametrize(
+    "expected, ndim, size",
+    [
+        ((1,), 1, 1),
+        ((3, 3), 2, 3),
+        ((2, 4), 2, (2, 4)),
+    ]
+)
+def test__get_size(expected, ndim, size):
+    assert expected == _utils._get_size(ndim, size)
