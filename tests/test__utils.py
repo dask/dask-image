@@ -156,3 +156,15 @@ def test__get_depth_boundary(expected, ndim, depth, boundary):
 )
 def test__get_size(expected, ndim, size):
     assert expected == _utils._get_size(ndim, size)
+
+
+@pytest.mark.parametrize(
+    "expected, size, origin",
+    [
+        ((0,), (1,), 0),
+        ((1,), (3,), 1),
+        ((1, 2), (3, 5), (1, 2)),
+    ]
+)
+def test__get_origin(expected, size, origin):
+    assert expected == _utils._get_origin(size, origin)
