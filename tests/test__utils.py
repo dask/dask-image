@@ -9,7 +9,7 @@ import pytest
 
 import numpy
 
-from dask_ndfilters import _utils
+from dask_ndmorph import _utils
 
 
 def test__get_docstring():
