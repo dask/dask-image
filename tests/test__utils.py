@@ -168,3 +168,16 @@ def test__get_size(expected, ndim, size):
 )
 def test__get_origin(expected, size, origin):
     assert expected == _utils._get_origin(size, origin)
+
+
+@pytest.mark.parametrize(
+    "expected, size, origin",
+    [
+        ((0,), (1,), 0),
+        ((1,), (3,), 0),
+        ((2,), (3,), 1),
+        ((2, 4), (3, 5), (1, 2)),
+    ]
+)
+def test__get_depth(expected, size, origin):
+    assert expected == _utils._get_depth(size, origin)
