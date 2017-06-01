@@ -7,6 +7,8 @@ import inspect
 
 import pytest
 
+import numpy
+
 from dask_ndfilters import _utils
 
 
@@ -115,3 +117,17 @@ def test_errs__get_size(err_type, ndim, size):
 def test_errs__get_origin(err_type, size, origin):
     with pytest.raises(err_type):
         _utils._get_origin(size, origin)
+
+
+@pytest.mark.parametrize(
+    "err_type, ndim, size, footprint",
+    [
+        (RuntimeError, 1, None, None),
+        (RuntimeError, 1, [2], numpy.ones((2,), dtype=bool)),
+        (RuntimeError, 1, None, numpy.ones((1, 2), dtype=bool)),
+        (RuntimeError, 1, None, numpy.ones([0], dtype=bool)),
+    ]
+)
+def test_errs__get_footprint(err_type, ndim, size, footprint):
+    with pytest.raises(err_type):
+        _utils._get_footprint(ndim, size=size, footprint=footprint)
