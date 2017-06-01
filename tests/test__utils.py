@@ -181,3 +181,14 @@ def test__get_origin(expected, size, origin):
 )
 def test__get_depth(expected, size, origin):
     assert expected == _utils._get_depth(size, origin)
+
+
+@pytest.mark.parametrize(
+    "expected, ndim, size, footprint",
+    [
+        (numpy.ones((2,), dtype=bool), 1, 2, None),
+        (numpy.ones((2,), dtype=bool), 1, None, numpy.ones((2,), dtype=bool)),
+    ]
+)
+def test__get_footprint(expected, ndim, size, footprint):
+    assert (expected == _utils._get_footprint(ndim, size, footprint)).all()
