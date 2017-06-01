@@ -131,3 +131,16 @@ def test_errs__get_origin(err_type, size, origin):
 def test_errs__get_footprint(err_type, ndim, size, footprint):
     with pytest.raises(err_type):
         _utils._get_footprint(ndim, size=size, footprint=footprint)
+
+
+@pytest.mark.parametrize(
+    "expected, ndim, depth, boundary",
+    [
+        (({0: 0}, {0: "reflect"}), 1, 0, "none"),
+        (({0: 0}, {0: "reflect"}), 1, 0, "reflect"),
+        (({0: 0}, {0: "periodic"}), 1, 0, "periodic"),
+        (({0: 1}, {0: "none"}), 1, 1, "none"),
+    ]
+)
+def test__get_depth_boundary(expected, ndim, depth, boundary):
+    assert expected == _utils._get_depth_boundary(ndim, depth, boundary)
