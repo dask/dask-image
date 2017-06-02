@@ -255,3 +255,17 @@ def _get_mask(input, mask):
         raise TypeError("`mask` must be a Boolean or an array.")
 
     return mask
+
+
+def _get_brute_force(brute_force):
+    if brute_force is not False:
+        if brute_force is True:
+            raise NotImplementedError(
+                "`brute_force` other than `False` is not yet supported."
+            )
+        else:
+            raise TypeError(
+                "`brute_force` must be `bool`."
+            )
+
+    return brute_force

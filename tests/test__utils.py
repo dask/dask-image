@@ -175,6 +175,18 @@ def test_errs__get_mask(err_type, input, mask):
 
 
 @pytest.mark.parametrize(
+    "err_type, brute_force",
+    [
+        (NotImplementedError, True),
+        (TypeError, 1),
+    ]
+)
+def test_errs__get_brute_force(err_type, brute_force):
+    with pytest.raises(err_type):
+        _utils._get_brute_force(brute_force)
+
+
+@pytest.mark.parametrize(
     "expected, ndim, depth, boundary",
     [
         (({0: 0}, {0: "reflect"}), 1, 0, "none"),
@@ -314,3 +326,13 @@ def test__get_mask(expected, input, mask):
         assert numpy.array((expected == result).all())[()]
     else:
         assert expected == result
+
+
+@pytest.mark.parametrize(
+    "expected, brute_force",
+    [
+        (False, False),
+    ]
+)
+def test__get_brute_force(expected, brute_force):
+    assert expected == _utils._get_brute_force(brute_force)
