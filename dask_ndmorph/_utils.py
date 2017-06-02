@@ -233,6 +233,17 @@ def _get_structure(input, structure):
     return structure
 
 
+def _get_iterations(iterations):
+    if not isinstance(iterations, numbers.Integral):
+        raise TypeError("`iterations` must be of integral type.")
+    if iterations < 1:
+        raise NotImplementedError(
+            "`iterations` must be equal to 1 or greater not less."
+        )
+
+    return iterations
+
+
 def _get_dtype(a):
     # Get the dtype of a value or an array.
     # Even handle non-NumPy types.

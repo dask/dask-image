@@ -155,6 +155,18 @@ def test_errs__get_structure(err_type, input, structure):
 
 
 @pytest.mark.parametrize(
+    "err_type, iterations",
+    [
+        (TypeError, 0.0),
+        (NotImplementedError, 0),
+    ]
+)
+def test_errs__get_iterations(err_type, iterations):
+    with pytest.raises(err_type):
+        _utils._get_iterations(iterations)
+
+
+@pytest.mark.parametrize(
     "err_type, input, mask",
     [
         (
@@ -272,6 +284,17 @@ def test__get_structure(expected, input, structure):
 
     assert expected.dtype.type == result.dtype.type
     assert numpy.array((expected == result).all())[()]
+
+
+@pytest.mark.parametrize(
+    "expected, iterations",
+    [
+        (1, 1),
+        (4, 4),
+    ]
+)
+def test__get_iterations(expected, iterations):
+    assert expected == _utils._get_iterations(iterations)
 
 
 @pytest.mark.parametrize(
