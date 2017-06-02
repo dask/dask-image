@@ -135,6 +135,26 @@ def test_errs__get_footprint(err_type, ndim, size, footprint):
 
 
 @pytest.mark.parametrize(
+    "err_type, input, structure",
+    [
+        (
+            RuntimeError,
+            dask.array.ones([1, 2], dtype=bool, chunks=(1, 2,)),
+            dask.array.arange(2, dtype=bool, chunks=(2,))
+        ),
+        (
+            TypeError,
+            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            2.0
+        ),
+    ]
+)
+def test_errs__get_structure(err_type, input, structure):
+    with pytest.raises(err_type):
+        _utils._get_structure(input, structure)
+
+
+@pytest.mark.parametrize(
     "err_type, input, mask",
     [
         (
@@ -213,6 +233,33 @@ def test__get_depth(expected, size, origin):
 )
 def test__get_footprint(expected, ndim, size, footprint):
     assert (expected == _utils._get_footprint(ndim, size, footprint)).all()
+
+
+@pytest.mark.parametrize(
+    "expected, input, structure",
+    [
+        (
+            numpy.array([0, 1, 0], dtype=bool),
+            (dask.array.arange(10, dtype=int, chunks=(10,)) % 2).astype(bool),
+            None
+        ),
+        (
+            numpy.array([1, 1, 1], dtype=bool),
+            (dask.array.arange(10, dtype=int, chunks=(10,)) % 2).astype(bool),
+            numpy.array([1, 1, 1], dtype=int)
+        ),
+        (
+            numpy.array([1, 1, 1], dtype=bool),
+            (dask.array.arange(10, dtype=int, chunks=(10,)) % 2).astype(bool),
+            numpy.array([1, 1, 1], dtype=bool)
+        ),
+    ]
+)
+def test__get_structure(expected, input, structure):
+    result = _utils._get_structure(input, structure)
+
+    assert expected.dtype.type == result.dtype.type
+    assert numpy.array((expected == result).all())[()]
 
 
 @pytest.mark.parametrize(

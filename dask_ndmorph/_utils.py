@@ -210,6 +210,29 @@ def _get_footprint(ndim, size=None, footprint=None):
     return footprint
 
 
+def _get_structure(input, structure):
+    # Create square connectivity as default
+    if structure is None:
+        structure = numpy.zeros(input.ndim * (3,), dtype=bool)
+        for i in irange(structure.ndim):
+            s = structure.ndim * [slice(None)]
+            s[i] = 1
+            s = tuple(s)
+
+            structure[s] = True
+    elif isinstance(structure, (numpy.ndarray, dask.array.Array)):
+        if structure.ndim != input.ndim:
+            raise RuntimeError(
+                "`structure` must have the same rank as `input`."
+            )
+        if not issubclass(structure.dtype.type, numpy.bool8):
+            structure = (structure != 0)
+    else:
+        raise TypeError("`structure` must be an array.")
+
+    return structure
+
+
 def _get_dtype(a):
     # Get the dtype of a value or an array.
     # Even handle non-NumPy types.
