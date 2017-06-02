@@ -8,6 +8,7 @@ import inspect
 import pytest
 
 import numpy
+import dask.array
 
 from dask_ndmorph import _utils
 
@@ -134,6 +135,26 @@ def test_errs__get_footprint(err_type, ndim, size, footprint):
 
 
 @pytest.mark.parametrize(
+    "err_type, input, mask",
+    [
+        (
+            RuntimeError,
+            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            dask.array.arange(1, dtype=bool, chunks=(2,))
+        ),
+        (
+            TypeError,
+            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            2.0
+        ),
+    ]
+)
+def test_errs__get_mask(err_type, input, mask):
+    with pytest.raises(err_type):
+        _utils._get_mask(input, mask)
+
+
+@pytest.mark.parametrize(
     "expected, ndim, depth, boundary",
     [
         (({0: 0}, {0: "reflect"}), 1, 0, "none"),
@@ -207,3 +228,42 @@ def test__get_footprint(expected, ndim, size, footprint):
 )
 def test__get_dtype(expected, a):
     assert expected == _utils._get_dtype(a)
+
+
+@pytest.mark.parametrize(
+    "expected, input, mask",
+    [
+        (True, dask.array.arange(2, dtype=bool, chunks=(2,)), None),
+        (True, dask.array.arange(2, dtype=bool, chunks=(2,)), True),
+        (False, dask.array.arange(2, dtype=bool, chunks=(2,)), False),
+        (
+            True,
+            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            numpy.bool8(True)
+        ),
+        (
+            False,
+            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            numpy.bool8(False)
+        ),
+        (
+            numpy.arange(2, dtype=bool),
+            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            numpy.arange(2, dtype=bool)
+        ),
+        (
+            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            dask.array.arange(2, dtype=int, chunks=(2,))
+        ),
+    ]
+)
+def test__get_mask(expected, input, mask):
+    result = _utils._get_mask(input, mask)
+
+    assert type(expected) == type(result)
+
+    if isinstance(expected, (numpy.ndarray, dask.array.Array)):
+        assert numpy.array((expected == result).all())[()]
+    else:
+        assert expected == result

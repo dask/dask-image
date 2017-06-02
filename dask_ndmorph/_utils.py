@@ -8,6 +8,8 @@ import re
 
 import numpy
 
+import dask.array
+
 
 try:
     from itertools import imap, izip
@@ -212,3 +214,21 @@ def _get_dtype(a):
     # Get the dtype of a value or an array.
     # Even handle non-NumPy types.
     return getattr(a, "dtype", numpy.dtype(type(a)))
+
+
+def _get_mask(input, mask):
+    if mask is None:
+        mask = True
+
+    mask_type = _get_dtype(mask).type
+    if isinstance(mask, (numpy.ndarray, dask.array.Array)):
+        if mask.shape != input.shape:
+            raise RuntimeError("`mask` must have the same shape as `input`.")
+        if not issubclass(mask_type, numpy.bool8):
+            mask = (mask != 0)
+    elif issubclass(mask_type, numpy.bool8):
+        mask = bool(mask)
+    else:
+        raise TypeError("`mask` must be a Boolean or an array.")
+
+    return mask
