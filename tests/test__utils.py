@@ -192,3 +192,18 @@ def test__get_depth(expected, size, origin):
 )
 def test__get_footprint(expected, ndim, size, footprint):
     assert (expected == _utils._get_footprint(ndim, size, footprint)).all()
+
+
+@pytest.mark.parametrize(
+    "expected, a",
+    [
+        (numpy.bool8, False),
+        (numpy.int64, 2),
+        (numpy.float64, 3.1),
+        (numpy.complex128, 1 + 2j),
+        (numpy.int16, numpy.int16(6)),
+        (numpy.uint32, numpy.arange(3, dtype=numpy.uint32)),
+    ]
+)
+def test__get_dtype(expected, a):
+    assert expected == _utils._get_dtype(a)

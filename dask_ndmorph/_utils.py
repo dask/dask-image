@@ -206,3 +206,9 @@ def _get_footprint(ndim, size=None, footprint=None):
     footprint = (footprint != 0)
 
     return footprint
+
+
+def _get_dtype(a):
+    # Get the dtype of a value or an array.
+    # Even handle non-NumPy types.
+    return getattr(a, "dtype", numpy.dtype(type(a)))
