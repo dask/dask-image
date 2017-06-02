@@ -268,6 +268,15 @@ def _get_mask(input, mask):
     return mask
 
 
+def _get_border_value(border_value):
+    if not isinstance(border_value, numbers.Integral):
+        raise TypeError("`border_value` must be of integral type.")
+
+    border_value = (border_value != 0)
+
+    return border_value
+
+
 def _get_brute_force(brute_force):
     if brute_force is not False:
         if brute_force is True:
