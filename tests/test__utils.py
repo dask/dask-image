@@ -276,17 +276,17 @@ def test__get_footprint(expected, ndim, size, footprint):
     [
         (
             numpy.array([0, 1, 0], dtype=bool),
-            (dask.array.arange(10, dtype=int, chunks=(10,)) % 2).astype(bool),
+            (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
             None
         ),
         (
             numpy.array([1, 1, 1], dtype=bool),
-            (dask.array.arange(10, dtype=int, chunks=(10,)) % 2).astype(bool),
+            (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
             numpy.array([1, 1, 1], dtype=int)
         ),
         (
             numpy.array([1, 1, 1], dtype=bool),
-            (dask.array.arange(10, dtype=int, chunks=(10,)) % 2).astype(bool),
+            (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
             numpy.array([1, 1, 1], dtype=bool)
         ),
     ]
