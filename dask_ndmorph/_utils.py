@@ -7,6 +7,7 @@ import numbers
 import re
 
 import numpy
+import scipy.ndimage
 
 import dask.array
 
@@ -213,13 +214,7 @@ def _get_footprint(ndim, size=None, footprint=None):
 def _get_structure(input, structure):
     # Create square connectivity as default
     if structure is None:
-        structure = numpy.zeros(input.ndim * (3,), dtype=bool)
-        for i in irange(structure.ndim):
-            s = structure.ndim * [slice(None)]
-            s[i] = 1
-            s = tuple(s)
-
-            structure[s] = True
+        structure = scipy.ndimage.generate_binary_structure(input.ndim, 1)
     elif isinstance(structure, (numpy.ndarray, dask.array.Array)):
         if structure.ndim != input.ndim:
             raise RuntimeError(
