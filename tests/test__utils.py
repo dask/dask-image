@@ -275,7 +275,7 @@ def test__get_footprint(expected, ndim, size, footprint):
     "expected, input, structure",
     [
         (
-            numpy.array([0, 1, 0], dtype=bool),
+            numpy.array([1, 1, 1], dtype=bool),
             (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
             None
         ),
