@@ -54,6 +54,6 @@ def _binary_op(func,
             origin=origin,
             **kwargs
         )
-        result = dask.array.where(mask, iter_result, result)
+        result = _where(mask, iter_result, result)
 
     return result
