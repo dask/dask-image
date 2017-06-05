@@ -8,13 +8,13 @@ __version__ = get_versions()['version']
 del get_versions
 
 
-import scipy.ndimage.morphology
+import scipy.ndimage
 
 import dask_ndmorph._utils as _utils
 import dask_ndmorph._ops as _ops
 
 
-@_utils._update_wrapper(scipy.ndimage.morphology.binary_closing)
+@_utils._update_wrapper(scipy.ndimage.binary_closing)
 def binary_closing(input,
                    structure=None,
                    iterations=1,
@@ -36,7 +36,7 @@ def binary_closing(input,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.morphology.binary_dilation)
+@_utils._update_wrapper(scipy.ndimage.binary_dilation)
 def binary_dilation(input,
                     structure=None,
                     iterations=1,
@@ -47,7 +47,7 @@ def binary_dilation(input,
     border_value = _utils._get_border_value(border_value)
 
     result = _ops._binary_op(
-        scipy.ndimage.morphology.binary_dilation,
+        scipy.ndimage.binary_dilation,
         input,
         structure=structure,
         iterations=iterations,
@@ -60,7 +60,7 @@ def binary_dilation(input,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.morphology.binary_erosion)
+@_utils._update_wrapper(scipy.ndimage.binary_erosion)
 def binary_erosion(input,
                    structure=None,
                    iterations=1,
@@ -71,7 +71,7 @@ def binary_erosion(input,
     border_value = _utils._get_border_value(border_value)
 
     result = _ops._binary_op(
-        scipy.ndimage.morphology.binary_erosion,
+        scipy.ndimage.binary_erosion,
         input,
         structure=structure,
         iterations=iterations,
@@ -84,7 +84,7 @@ def binary_erosion(input,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.morphology.binary_opening)
+@_utils._update_wrapper(scipy.ndimage.binary_opening)
 def binary_opening(input,
                    structure=None,
                    iterations=1,
