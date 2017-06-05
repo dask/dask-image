@@ -36,3 +36,27 @@ def binary_dilation(input,
     )
 
     return result
+
+
+@_utils._update_wrapper(scipy.ndimage.morphology.binary_erosion)
+def binary_erosion(input,
+                   structure=None,
+                   iterations=1,
+                   mask=None,
+                   border_value=0,
+                   origin=0,
+                   brute_force=False):
+    border_value = _utils._get_border_value(border_value)
+
+    result = _ops._binary_op(
+        scipy.ndimage.morphology.binary_erosion,
+        input,
+        structure=structure,
+        iterations=iterations,
+        mask=mask,
+        origin=origin,
+        brute_force=brute_force,
+        border_value=border_value
+    )
+
+    return result

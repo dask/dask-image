@@ -17,6 +17,7 @@ import dask_ndmorph as da_ndm
     "funcname",
     [
         "binary_dilation",
+        "binary_erosion",
     ]
 )
 @pytest.mark.parametrize(
@@ -61,6 +62,7 @@ def test_errs_binary_ops(funcname,
     "funcname",
     [
         "binary_dilation",
+        "binary_erosion",
     ]
 )
 @pytest.mark.parametrize(
@@ -103,6 +105,7 @@ def test_errs_binary_ops_iter(funcname,
     "funcname",
     [
         "binary_dilation",
+        "binary_erosion",
     ]
 )
 @pytest.mark.parametrize(
@@ -168,6 +171,7 @@ def test_errs_binary_ops_expanded(funcname,
     "funcname",
     [
         "binary_dilation",
+        "binary_erosion",
     ]
 )
 @pytest.mark.parametrize(
@@ -281,6 +285,7 @@ def test_binary_ops(funcname,
     "funcname",
     [
         "binary_dilation",
+        "binary_erosion",
     ]
 )
 @pytest.mark.parametrize(
@@ -359,6 +364,7 @@ def test_binary_ops_iter(funcname,
     "funcname",
     [
         "binary_dilation",
+        "binary_erosion",
     ]
 )
 @pytest.mark.parametrize(
