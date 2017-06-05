@@ -14,6 +14,28 @@ import dask_ndmorph._utils as _utils
 import dask_ndmorph._ops as _ops
 
 
+@_utils._update_wrapper(scipy.ndimage.morphology.binary_closing)
+def binary_closing(input,
+                   structure=None,
+                   iterations=1,
+                   origin=0):
+    input = (input != 0)
+
+    structure = _utils._get_structure(input, structure)
+    iterations = _utils._get_iterations(iterations)
+    origin = _utils._get_origin(structure.shape, origin)
+
+    result = input
+    result = binary_dilation(
+        result, structure=structure, iterations=iterations, origin=origin
+    )
+    result = binary_erosion(
+        result, structure=structure, iterations=iterations, origin=origin
+    )
+
+    return result
+
+
 @_utils._update_wrapper(scipy.ndimage.morphology.binary_dilation)
 def binary_dilation(input,
                     structure=None,
