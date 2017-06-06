@@ -318,7 +318,7 @@ def test__get_iterations(expected, iterations):
     "expected, a",
     [
         (numpy.bool8, False),
-        (numpy.int64, 2),
+        (numpy.int_, 2),
         (numpy.float64, 3.1),
         (numpy.complex128, 1 + 2j),
         (numpy.int16, numpy.int16(6)),
