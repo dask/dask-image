@@ -31,7 +31,7 @@ dask-imread
 A library for loading image data into Dask
 
 
-* Free software: BSD license
+* Free software: BSD 3-Clause
 * Documentation: https://dask-imread.readthedocs.io.
 
 

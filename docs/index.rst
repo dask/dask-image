@@ -1,5 +1,5 @@
 Welcome to dask-imread's documentation!
-======================================
+=======================================
 
 Contents:
 
@@ -12,7 +12,6 @@ Contents:
    api
    contributing
    authors
-   history
 
 Indices and tables
 ==================
