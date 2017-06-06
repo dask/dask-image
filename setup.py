@@ -43,7 +43,7 @@ cmdclasses.update(versioneer.get_cmdclass())
 setup(
     name="dask-ndmorph",
     version=versioneer.get_version(),
-    description="A library for using N-D filters with Dask Arrays",
+    description="A library of N-D morphological operations for Dask Arrays",
     long_description=readme,
     author="John Kirkham",
     author_email="kirkhamj@janelia.hhmi.org",
