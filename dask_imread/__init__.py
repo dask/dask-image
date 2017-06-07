@@ -20,18 +20,17 @@ import numpy
 import pims
 
 
-try:
-    irange = xrange
-except NameError:
-    irange = range
-
-try:
-    izip = itertools.izip
-except AttributeError:
-    izip = zip
-
-
 def imread(fn, nframes=1):
+    try:
+        irange = xrange
+    except NameError:
+        irange = range
+
+    try:
+        izip = itertools.izip
+    except AttributeError:
+        izip = zip
+
     if not isinstance(nframes, numbers.Integral):
         raise ValueError("`nframes` must be an integer.")
     if not (nframes > 0):
