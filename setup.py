@@ -33,6 +33,7 @@ requirements = [
 
 test_requirements = [
     "pytest",
+    "scikit-image",
 ]
 
 cmdclasses = {
