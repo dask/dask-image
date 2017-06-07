@@ -9,3 +9,4 @@ dependencies:
   - coverage==4.0.3
   - python-coveralls==2.7.0
   - pytest==3.0.5
+  - dask==0.13.0
