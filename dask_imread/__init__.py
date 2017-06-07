@@ -16,6 +16,12 @@ import numpy
 import pims
 
 
+try:
+    irange = xrange
+except NameError:
+    irange = range
+
+
 def imread(fn):
     with pims.open(fn) as imgs:
         shape = (len(imgs),) + imgs.frame_shape
@@ -26,7 +32,7 @@ def imread(fn):
             return imgs[i]
 
     a = []
-    for i in range(shape[0]):
+    for i in irange(shape[0]):
         a.append(dask.array.from_delayed(
             dask.delayed(_read_frame)(fn, i),
             shape[1:],
