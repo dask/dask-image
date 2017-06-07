@@ -7,3 +7,8 @@ dependencies:
   - pip==9.0.1
   - wheel==0.29.0
   - Sphinx==1.5.1
+  - dask==0.13.0
+  - numpy==1.11.3
+  - pims==0.3.3
+  - pip:
+    - slicerator==0.9.8
