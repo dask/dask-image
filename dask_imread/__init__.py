@@ -25,7 +25,7 @@ try:
 except ImportError:
     try:
         from skimage.external import tifffile
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pass
 
 
