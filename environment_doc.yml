@@ -10,3 +10,4 @@ dependencies:
   - dask==0.13.0
   - numpy==1.11.3
   - pims==0.3.3
+  - slicerator==0.9.8
