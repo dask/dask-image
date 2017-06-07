@@ -11,3 +11,4 @@ dependencies:
   - pytest==3.0.5
   - dask==0.13.0
   - numpy==1.11.3
+  - pims==0.3.3

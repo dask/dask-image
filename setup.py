@@ -28,6 +28,7 @@ with open("README.rst") as readme_file:
 requirements = [
     "dask",
     "numpy",
+    "pims",
 ]
 
 test_requirements = [
