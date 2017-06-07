@@ -10,3 +10,4 @@ dependencies:
   - python-coveralls==2.7.0
   - pytest==3.0.5
   - dask==0.13.0
+  - numpy==1.11.3
