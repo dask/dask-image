@@ -35,6 +35,25 @@ if pims.tiff_stack.tifffile is None:
 
 
 def imread(fname, nframes=1):
+    """
+    Read image data into a Dask Array.
+
+    Provides a simple, fast mechanism to ingest image data into a
+    Dask Array.
+
+    Parameters
+    ----------
+    fname : str
+        A glob like string that may match one or multiple filenames.
+    nframes : int, optional
+        Number of the frames to include in each chunk (default: 1).
+
+    Returns
+    -------
+    array : dask.array.Array
+        A Dask Array representing the contents of all image files.
+    """
+
     try:
         irange = xrange
     except NameError:
