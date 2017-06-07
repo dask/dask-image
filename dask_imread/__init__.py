@@ -34,7 +34,7 @@ if pims.tiff_stack.tifffile is None:
     pims.tiff_stack.tifffile = tifffile
 
 
-def imread(fn, nframes=1):
+def imread(fname, nframes=1):
     try:
         irange = xrange
     except NameError:
@@ -50,7 +50,7 @@ def imread(fn, nframes=1):
     if not (nframes > 0):
         raise ValueError("`nframes` must be greater than zero.")
 
-    with pims.open(fn) as imgs:
+    with pims.open(fname) as imgs:
         shape = (len(imgs),) + imgs.frame_shape
         dtype = numpy.dtype(imgs.pixel_type)
 
@@ -80,7 +80,7 @@ def imread(fn, nframes=1):
     a = []
     for i, j in izip(lower_iter, upper_iter):
         a.append(dask.array.from_delayed(
-            dask.delayed(_read_frame)(fn, slice(i, j)),
+            dask.delayed(_read_frame)(fname, slice(i, j)),
             (j - i,) + shape[1:],
             dtype
         ))
