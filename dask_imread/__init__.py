@@ -61,7 +61,6 @@ def imread(fn, nframes=1):
         irange(0, shape[0], nframes),
         [shape[0]]
     ))
-
     next(upper_iter)
 
     a = []
