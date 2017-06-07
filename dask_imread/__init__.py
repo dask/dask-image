@@ -29,6 +29,11 @@ except ImportError:
         pass
 
 
+# Monkey patch pims to use the available tifffile.
+if pims.tiff_stack.tifffile is None:
+    pims.tiff_stack.tifffile = tifffile
+
+
 def imread(fn, nframes=1):
     try:
         irange = xrange
