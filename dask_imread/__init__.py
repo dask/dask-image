@@ -19,6 +19,15 @@ import dask.delayed
 import numpy
 import pims
 
+tifffile = None
+try:
+    import tifffile
+except ImportError:
+    try:
+        from skimage.external import tifffile
+    except ImportError:
+        pass
+
 
 def imread(fn, nframes=1):
     try:
