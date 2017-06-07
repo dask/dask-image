@@ -3,6 +3,11 @@ branch = True
 source = dask_imread
 [report]
 exclude_lines =
+    # Include the no cover pragma as it needs to be listed explicitly when
+    # using exclude_lines.
+    # ( http://coverage.readthedocs.io/en/coverage-4.1/excluding.html#advanced-exclusion )
+    pragma: no cover
+
     # Ignore coverage of code that requires the module to be executed.
     if __name__ == .__main__.:
 
