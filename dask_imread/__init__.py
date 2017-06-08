@@ -73,6 +73,9 @@ def imread(fname, nframes=1):
         shape = (len(imgs),) + imgs.frame_shape
         dtype = numpy.dtype(imgs.pixel_type)
 
+    if nframes == -1:
+        nframes = shape[0]
+
     if nframes > shape[0]:
         warnings.warn(
             "`nframes` larger than number of frames in file."
