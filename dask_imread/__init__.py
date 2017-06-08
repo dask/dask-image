@@ -66,7 +66,7 @@ def imread(fname, nframes=1):
 
     if not isinstance(nframes, numbers.Integral):
         raise ValueError("`nframes` must be an integer.")
-    if not (nframes > 0):
+    if (nframes != -1) and not (nframes > 0):
         raise ValueError("`nframes` must be greater than zero.")
 
     with pims.open(fname) as imgs:
