@@ -21,6 +21,7 @@ import dask_imread
         (ValueError, 1.0),
         (ValueError, 0),
         (ValueError, -1),
+        (ValueError, -2),
     ]
 )
 def test_errs_imread(err_type, nframes):
