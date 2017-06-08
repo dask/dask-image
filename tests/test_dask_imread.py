@@ -87,5 +87,3 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, dtype):
         assert (shape[0] % nframes) == d.chunks[0][-1]
 
     dau.assert_eq(a, d)
-
-    dirpth.remove()
