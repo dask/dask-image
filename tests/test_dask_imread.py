@@ -20,7 +20,6 @@ import dask_imread
     [
         (ValueError, 1.0),
         (ValueError, 0),
-        (ValueError, -1),
         (ValueError, -2),
     ]
 )
@@ -40,12 +39,14 @@ def test_errs_imread(err_type, nframes):
     "nframes, shape",
     [
         (1, (1, 4, 3)),
+        (-1, (1, 4, 3)),
         (3, (1, 4, 3)),
         (1, (5, 4, 3)),
         (2, (5, 4, 3)),
         (1, (10, 5, 4, 3)),
         (5, (10, 5, 4, 3)),
         (10, (10, 5, 4, 3)),
+        (-1, (10, 5, 4, 3)),
     ]
 )
 @pytest.mark.parametrize(
@@ -74,6 +75,9 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, dtype):
             fh.save(a[i])
 
     d = dask_imread.imread(fn, nframes=nframes)
+
+    if nframes == -1:
+        nframes = shape[0]
 
     assert min(nframes, shape[0]) == max(d.chunks[0])
 
