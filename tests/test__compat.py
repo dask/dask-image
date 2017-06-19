@@ -9,6 +9,7 @@ import pytest
 
 import numpy as np
 
+import dask.array.core as dac
 import dask.array.utils as dau
 
 import dask_ndfourier._compat
@@ -19,7 +20,10 @@ import dask_ndfourier._compat
 @pytest.mark.parametrize("c", [lambda m: m, lambda m: (1, m - 1)])
 def test_fftfreq(n, d, c):
     c = c(n)
-    dau.assert_eq(
-        dask_ndfourier._compat._fftfreq(n, d, chunks=c),
-        np.fft.fftfreq(n, d)
-    )
+
+    r1 = np.fft.fftfreq(n, d)
+    r2 = dask_ndfourier._compat._fftfreq(n, d, chunks=c)
+
+    assert dac.normalize_chunks(c, r2.shape) == r2.chunks
+
+    dau.assert_eq(r1, r2)
