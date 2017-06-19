@@ -66,8 +66,13 @@ def test_fourier_filter_identity(funcname, s):
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(d, da_func(d, s))
-    dau.assert_eq(sp_func(a, s), da_func(d, s))
+    r_a = sp_func(a, s)
+    r_d = da_func(d, s)
+
+    assert d.chunks == r_d.chunks
+
+    dau.assert_eq(d, r_d)
+    dau.assert_eq(r_a, r_d)
 
 
 @pytest.mark.parametrize(
@@ -99,12 +104,17 @@ def test_fourier_filter_type(funcname, upcast_type, dtype):
     a = np.arange(140.0).reshape(10, 14).astype(dtype)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(sp_func(a, s), da_func(d, s))
+    r_a = sp_func(a, s)
+    r_d = da_func(d, s)
+
+    assert d.chunks == r_d.chunks
+
+    dau.assert_eq(r_a, r_d)
 
     if issubclass(dtype, upcast_type):
-        assert da_func(d, s).real.dtype.type is np.float64
+        assert r_d.real.dtype.type is np.float64
     else:
-        assert da_func(d, s).dtype.type is dtype
+        assert r_d.dtype.type is dtype
 
 
 @pytest.mark.parametrize(
@@ -132,9 +142,12 @@ def test_fourier_filter_non_positive(funcname, s):
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(
-        sp_func(a, s), da_func(d, s)
-    )
+    r_a = sp_func(a, s)
+    r_d = da_func(d, s)
+
+    assert d.chunks == r_d.chunks
+
+    dau.assert_eq(r_a, r_d)
 
 
 @pytest.mark.parametrize(
@@ -163,6 +176,9 @@ def test_fourier_filter(funcname, s):
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(
-        sp_func(a, s), da_func(d, s)
-    )
+    r_a = sp_func(a, s)
+    r_d = da_func(d, s)
+
+    assert d.chunks == r_d.chunks
+
+    dau.assert_eq(r_a, r_d)
