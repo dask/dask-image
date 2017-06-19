@@ -51,18 +51,21 @@ def _fftfreq(n, d=1.0, chunks=None):
     Borrowed from my Dask Array contribution.
     """
     n = int(n)
-    chunks = dask.array.core.normalize_chunks(chunks, (n,))[0] + (1,)
+    chunks = dask.array.core.normalize_chunks(chunks, (n,))
 
     n_1 = n + 1
     n_2 = n_1 // 2
 
-    s = dask.array.linspace(0, 1, n_1, chunks=chunks)
+    s = dask.array.linspace(0, 1, n_1, chunks=(chunks[0] + (1,),))
 
     l, r = s[:n_2], s[n_2:-1]
 
     a = l
     if len(r):
         a = dask.array.concatenate([l, r - 1])
+
+    if a.chunks != chunks:
+        a = a.rechunk(chunks)
 
     a /= d
 
