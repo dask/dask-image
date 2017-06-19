@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+Content here is borrowed from our contributions to Dask.
+"""
+
 
 import pytest
 
