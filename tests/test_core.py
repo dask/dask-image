@@ -118,6 +118,43 @@ def test_fourier_filter_type(funcname, upcast_type, dtype):
 
 
 @pytest.mark.parametrize(
+    "shape, chunks",
+    [
+        ((10, 14), (10, 14)),
+        ((10, 14), (5, 7)),
+        ((10, 14), (6, 8)),
+        ((10, 14), (4, 6)),
+        ((16,), (3, 6, 2, 5)),
+    ]
+)
+@pytest.mark.parametrize(
+    "funcname",
+    [
+        "fourier_shift",
+        "fourier_gaussian",
+        "fourier_uniform",
+    ]
+)
+def test_fourier_filter_chunks(funcname, shape, chunks):
+    dtype = np.dtype(complex).type
+
+    s = 1
+
+    da_func = getattr(da_ndf, funcname)
+    sp_func = getattr(sp_ndf, funcname)
+
+    a = np.arange(np.prod(shape)).reshape(shape).astype(dtype)
+    d = da.from_array(a, chunks=chunks)
+
+    r_a = sp_func(a, s)
+    r_d = da_func(d, s)
+
+    assert d.chunks == r_d.chunks
+
+    dau.assert_eq(r_a, r_d)
+
+
+@pytest.mark.parametrize(
     "s",
     [
         -1,
