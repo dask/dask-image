@@ -5,11 +5,16 @@ Content here is borrowed from our contributions to Dask.
 """
 
 
-import itertools
-
 import numpy
 
 import dask.array
+
+
+def _fftfreq_block(i, n, d):
+    r = i.copy()
+    r[i >= (n + 1) // 2] -= n
+    r /= n * d
+    return r
 
 
 def _fftfreq(n, d=1.0, chunks=None):
@@ -51,25 +56,11 @@ def _fftfreq(n, d=1.0, chunks=None):
     Borrowed from my Dask Array contribution.
     """
     n = int(n)
-    chunks = dask.array.core.normalize_chunks(chunks, (n,))
+    d = float(d)
 
-    n_1 = n + 1
-    n_2 = n_1 // 2
+    r = dask.array.arange(n, dtype=float, chunks=chunks)
 
-    s = dask.array.linspace(0, 1, n_1, chunks=(chunks[0] + (1,),))
-
-    l, r = s[:n_2], s[n_2:-1]
-
-    a = l
-    if len(r):
-        a = dask.array.concatenate([l, r - 1])
-
-    if a.chunks != chunks:
-        a = a.rechunk(chunks)
-
-    a /= d
-
-    return a
+    return r.map_blocks(_fftfreq_block, dtype=float, n=n, d=d)
 
 
 _sinc = dask.array.ufunc.wrap_elemwise(numpy.sinc)
