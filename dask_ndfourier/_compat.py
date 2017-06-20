@@ -5,8 +5,6 @@ Content here is borrowed from our contributions to Dask.
 """
 
 
-import itertools
-
 import numpy
 
 import dask.array
