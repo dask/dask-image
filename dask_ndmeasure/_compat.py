@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+import functools
 import itertools
 
 import numpy
@@ -87,3 +88,17 @@ def _isnonzero(a):
         return a.map_blocks(_isnonzero_vec, dtype=bool)
     else:
         return a.astype(bool)
+
+
+@functools.wraps(numpy.argwhere)
+def _argwhere(a):
+    nz = _isnonzero(a).flatten()
+
+    ind = _indices(a.shape, dtype=numpy.int64, chunks=a.chunks)
+    if ind.ndim > 1:
+        ind = dask.array.stack(
+            [ind[i].ravel() for i in range(len(ind))], axis=1
+        )
+    ind = dask.array.compress(nz, ind, axis=0)
+
+    return ind

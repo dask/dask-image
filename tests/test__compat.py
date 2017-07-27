@@ -8,6 +8,7 @@ import pytest
 import numpy as np
 
 import dask
+import dask.array as da
 import dask.array.utils as dau
 
 import dask_ndmeasure._compat
@@ -69,3 +70,34 @@ def test_indicies():
     darr = dask_ndmeasure._compat._indices((2, 3), chunks=(1, 2))
     nparr = np.indices((2, 3))
     dau.assert_eq(darr, nparr)
+
+
+def test_argwhere():
+    for shape, chunks in [(0, ()), ((0, 0), (0, 0)), ((15, 16), (4, 5))]:
+        x = np.random.randint(10, size=shape)
+        d = da.from_array(x, chunks=chunks)
+
+        x_nz = np.argwhere(x)
+        d_nz = dask_ndmeasure._compat._argwhere(d)
+
+        dau.assert_eq(d_nz, x_nz)
+
+
+def test_argwhere_obj():
+    x = np.random.randint(10, size=(15, 16)).astype(object)
+    d = da.from_array(x, chunks=(4, 5))
+
+    x_nz = np.argwhere(x)
+    d_nz = dask_ndmeasure._compat._argwhere(d)
+
+    dau.assert_eq(d_nz, x_nz)
+
+
+def test_argwhere_str():
+    x = np.array(list("Hello world"))
+    d = da.from_array(x, chunks=(4,))
+
+    x_nz = np.argwhere(x)
+    d_nz = dask_ndmeasure._compat._argwhere(d)
+
+    dau.assert_eq(d_nz, x_nz)
