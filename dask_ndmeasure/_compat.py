@@ -77,7 +77,9 @@ _isnonzero_vec = numpy.vectorize(_isnonzero_vec, otypes=[bool])
 
 
 def _isnonzero(a):
-    a = dask.array.asarray(a)
+    if not isinstance(a, dask.array.Array):
+        a = numpy.asarray(a)
+        a = dask.array.from_array(a, a.shape)
 
     try:
         numpy.zeros(tuple(), dtype=a.dtype).astype(bool)
