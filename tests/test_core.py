@@ -6,8 +6,8 @@ from __future__ import absolute_import
 import pytest
 
 
-def test_import_core():
+def test_import():
     try:
-        from dask_ndmeasure import core
+        import dask_ndmeasure
     except ImportError:
-        pytest.fail("Unable to import `core`.")
+        pytest.fail("Unable to import `dask_ndmeasure`.")
