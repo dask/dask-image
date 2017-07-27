@@ -74,3 +74,14 @@ def _isnonzero_vec(v):
 
 
 _isnonzero_vec = numpy.vectorize(_isnonzero_vec, otypes=[bool])
+
+
+def _isnonzero(a):
+    a = dask.array.asarray(a)
+
+    try:
+        numpy.zeros(tuple(), dtype=a.dtype).astype(bool)
+    except ValueError:
+        return a.map_blocks(_isnonzero_vec, dtype=bool)
+    else:
+        return a.astype(bool)
