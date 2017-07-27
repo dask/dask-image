@@ -67,3 +67,10 @@ def _indices(dimensions, dtype=int, chunks=None):
         )
 
     return grid
+
+
+def _isnonzero_vec(v):
+    return bool(numpy.count_nonzero(v))
+
+
+_isnonzero_vec = numpy.vectorize(_isnonzero_vec, otypes=[bool])
