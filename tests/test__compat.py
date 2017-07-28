@@ -14,7 +14,8 @@ import dask.array.utils as dau
 import dask_ndmeasure._compat
 
 
-old_dask = ver.LooseVersion(dask.__version__) <= ver.LooseVersion("0.13.0")
+dask_0_14_0 = ver.LooseVersion(dask.__version__) >= ver.LooseVersion("0.14.0")
+dask_0_14_1 = ver.LooseVersion(dask.__version__) >= ver.LooseVersion("0.14.1")
 
 
 def test_indices_no_chunks():
@@ -46,7 +47,7 @@ def test_empty_indicies(dimensions, dtype, chunks):
     try:
         dau.assert_eq(darr, nparr)
     except IndexError:
-        if len(dimensions) and old_dask:
+        if len(dimensions) and not dask_0_14_0:
             pytest.skip(
                 "Dask pre-0.14.0 is unable to compute this empty array."
             )
@@ -76,6 +77,11 @@ def test_indicies():
     (0, ()), ((0, 0), (0, 0)), ((15, 16), (4, 5))
 ])
 def test_argwhere(shape, chunks):
+    if not np.prod(shape) and not dask_0_14_1:
+        pytest.skip(
+            "Dask pre-0.14.1 is unable to compute this empty array."
+        )
+
     x = np.random.randint(10, size=shape)
     d = da.from_array(x, chunks=chunks)
 
@@ -85,6 +91,10 @@ def test_argwhere(shape, chunks):
     dau.assert_eq(d_nz, x_nz)
 
 
+@pytest.mark.skipif(
+    not dask_0_14_1,
+    reason="Dask pre-0.14.1 is unable to compute this object array."
+)
 def test_argwhere_obj():
     x = np.random.randint(10, size=(15, 16)).astype(object)
     d = da.from_array(x, chunks=(4, 5))
