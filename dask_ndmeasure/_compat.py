@@ -9,6 +9,27 @@ import numpy
 import dask.array
 
 
+def _asarray(a):
+    """
+    Creates a Dask array based on ``a``.
+
+    Parameters
+    ----------
+    a : array-like
+        Object to convert to a Dask Array.
+
+    Returns
+    -------
+    a : Dask Array
+    """
+
+    if not isinstance(a, dask.array.Array):
+        a = numpy.asarray(a)
+        a = dask.array.from_array(a, a.shape)
+
+    return a
+
+
 def _indices(dimensions, dtype=int, chunks=None):
     """
     Implements NumPy's ``indices`` for Dask Arrays.
@@ -88,9 +109,7 @@ def _isnonzero(a):
 
 @functools.wraps(numpy.argwhere)
 def _argwhere(a):
-    if not isinstance(a, dask.array.Array):
-        a = numpy.asarray(a)
-        a = dask.array.from_array(a, a.shape)
+    a = _asarray(a)
 
     nz = _isnonzero(a).flatten()
 
