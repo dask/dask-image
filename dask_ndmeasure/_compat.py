@@ -99,6 +99,21 @@ def _argwhere(a):
         ind = dask.array.stack(
             [ind[i].ravel() for i in range(len(ind))], axis=1
         )
-    ind = dask.array.compress(nz, ind, axis=0)
+
+    axis = 0
+    axes = tuple(range(ind.ndim))
+
+    ind = dask.array.atop(
+        numpy.compress, axes,
+        nz, (axis,),
+        ind, axes,
+        axis=axis,
+        dtype=ind.dtype,
+    )
+    ind._chunks = (
+        ind.chunks[:axis] +
+        (len(ind.chunks[axis]) * (numpy.nan,),) +
+        ind.chunks[axis+1:]
+    )
 
     return ind
