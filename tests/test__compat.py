@@ -18,6 +18,22 @@ dask_0_14_0 = ver.LooseVersion(dask.__version__) >= ver.LooseVersion("0.14.0")
 dask_0_14_1 = ver.LooseVersion(dask.__version__) >= ver.LooseVersion("0.14.1")
 
 
+@pytest.mark.parametrize("x", [
+    list(range(5)),
+    np.random.randint(10, size=(15, 16)),
+    da.random.randint(10, size=(15, 16), chunks=(5, 5)),
+])
+def test_asarray(x):
+    d = dask_ndmeasure._compat._asarray(x)
+
+    assert isinstance(d, da.Array)
+
+    if not isinstance(x, (np.ndarray, da.Array)):
+        x = np.asarray(x)
+
+    dau.assert_eq(d, x)
+
+
 def test_indices_no_chunks():
     with pytest.raises(ValueError):
         dask_ndmeasure._compat._indices((1,))
