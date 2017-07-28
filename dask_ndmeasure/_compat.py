@@ -78,10 +78,6 @@ _isnonzero_vec = numpy.vectorize(_isnonzero_vec, otypes=[bool])
 
 
 def _isnonzero(a):
-    if not isinstance(a, dask.array.Array):
-        a = numpy.asarray(a)
-        a = dask.array.from_array(a, a.shape)
-
     try:
         numpy.zeros(tuple(), dtype=a.dtype).astype(bool)
     except ValueError:
@@ -92,6 +88,10 @@ def _isnonzero(a):
 
 @functools.wraps(numpy.argwhere)
 def _argwhere(a):
+    if not isinstance(a, dask.array.Array):
+        a = numpy.asarray(a)
+        a = dask.array.from_array(a, a.shape)
+
     nz = _isnonzero(a).flatten()
 
     ind = _indices(a.shape, dtype=numpy.int64, chunks=a.chunks)
