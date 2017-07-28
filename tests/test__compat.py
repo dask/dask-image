@@ -74,7 +74,7 @@ def test_indicies():
 
 
 @pytest.mark.parametrize("shape, chunks", [
-    (0, ()), ((0, 0), (0, 0)), ((15, 16), (4, 5))
+    (0, ()), ((0, 0), (0, 0)), ((15, 16), (15, 16))
 ])
 def test_argwhere(shape, chunks):
     if not np.prod(shape) and not dask_0_14_1:
