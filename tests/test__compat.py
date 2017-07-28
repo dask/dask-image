@@ -91,6 +91,15 @@ def test_argwhere(shape, chunks):
     dau.assert_eq(d_nz, x_nz)
 
 
+def test_argwhere_arr():
+    x = np.random.randint(10, size=(15, 16)).astype(object)
+
+    x_nz = np.argwhere(x)
+    d_nz = dask_ndmeasure._compat._argwhere(x)
+
+    dau.assert_eq(d_nz, x_nz)
+
+
 @pytest.mark.skipif(
     not dask_0_14_1,
     reason="Dask pre-0.14.1 is unable to compute this object array."
