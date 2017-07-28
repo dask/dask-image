@@ -72,15 +72,17 @@ def test_indicies():
     dau.assert_eq(darr, nparr)
 
 
-def test_argwhere():
-    for shape, chunks in [(0, ()), ((0, 0), (0, 0)), ((15, 16), (4, 5))]:
-        x = np.random.randint(10, size=shape)
-        d = da.from_array(x, chunks=chunks)
+@pytest.mark.parametrize("shape, chunks", [
+    (0, ()), ((0, 0), (0, 0)), ((15, 16), (4, 5))
+])
+def test_argwhere(shape, chunks):
+    x = np.random.randint(10, size=shape)
+    d = da.from_array(x, chunks=chunks)
 
-        x_nz = np.argwhere(x)
-        d_nz = dask_ndmeasure._compat._argwhere(d)
+    x_nz = np.argwhere(x)
+    d_nz = dask_ndmeasure._compat._argwhere(d)
 
-        dau.assert_eq(d_nz, x_nz)
+    dau.assert_eq(d_nz, x_nz)
 
 
 def test_argwhere_obj():
