@@ -8,6 +8,8 @@ import numpy
 
 import dask.array
 
+from . import _pycompat
+
 
 def _asarray(a):
     """
@@ -68,7 +70,7 @@ def _indices(dimensions, dtype=int, chunks=None):
 
     grid = []
     if numpy.prod(dimensions):
-        for i in range(len(dimensions)):
+        for i in _pycompat.irange(len(dimensions)):
             s = len(dimensions) * [None]
             s[i] = slice(None)
             s = tuple(s)
@@ -76,7 +78,8 @@ def _indices(dimensions, dtype=int, chunks=None):
             r = dask.array.arange(dimensions[i], dtype=dtype, chunks=chunks[i])
             r = r[s]
 
-            for j in itertools.chain(range(i), range(i + 1, len(dimensions))):
+            for j in itertools.chain(_pycompat.irange(i),
+                                     _pycompat.irange(i + 1, len(dimensions))):
                 r = r.repeat(dimensions[j], axis=j)
 
             grid.append(r)
@@ -116,11 +119,11 @@ def _argwhere(a):
     ind = _indices(a.shape, dtype=numpy.int64, chunks=a.chunks)
     if ind.ndim > 1:
         ind = dask.array.stack(
-            [ind[i].ravel() for i in range(len(ind))], axis=1
+            [ind[i].ravel() for i in _pycompat.irange(len(ind))], axis=1
         )
 
     axis = 0
-    axes = tuple(range(ind.ndim))
+    axes = tuple(_pycompat.irange(ind.ndim))
 
     ind = dask.array.atop(
         numpy.compress, axes,
