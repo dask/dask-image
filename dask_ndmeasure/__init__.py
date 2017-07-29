@@ -14,6 +14,7 @@ del get_versions
 
 import numpy
 
+from . import _pycompat
 from . import _utils
 
 
@@ -56,10 +57,10 @@ def center_of_mass(input, labels=None, index=None):
     input_mtch = input_mtch.astype(numpy.float64)
 
     com_lbl = input_i_mtch_wt.sum(
-        axis=tuple(range(1 + index.ndim, input_i_mtch_wt.ndim))
+        axis=tuple(_pycompat.irange(1 + index.ndim, input_i_mtch_wt.ndim))
     )
     input_mtch_sum = input_mtch.sum(
-        axis=tuple(range(index.ndim, input_mtch.ndim))
+        axis=tuple(_pycompat.irange(index.ndim, input_mtch.ndim))
     )
     com_lbl /= input_mtch_sum[index.ndim * (slice(None),) + (None,)]
 
