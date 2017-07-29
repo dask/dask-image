@@ -84,8 +84,8 @@ def center_of_mass(input, labels=None, index=None):
         input_i_mtch
     )
 
-    input_mtch = input_mtch.astype(numpy.float64)
     input_i_mtch_wt = input_i_mtch_wt.astype(numpy.float64)
+    input_mtch = input_mtch.astype(numpy.float64)
 
     com_lbl = input_i_mtch_wt.sum(
         axis=tuple(range(1 + index.ndim, input_i_mtch_wt.ndim))
