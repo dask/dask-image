@@ -12,6 +12,8 @@ __version__ = get_versions()['version']
 del get_versions
 
 
+import operator
+
 import numpy
 import dask.array
 
@@ -63,8 +65,9 @@ def center_of_mass(input, labels=None, index=None):
 
     input_ind = _compat._indices(input.shape, chunks=input.chunks)
 
-    lbl_mtch = (
-        index[(Ellipsis,) + labels.ndim * (None,)] == labels[index.ndim * (None,)]
+    lbl_mtch = operator.eq(
+        index[(Ellipsis,) + labels.ndim * (None,)],
+        labels[index.ndim * (None,)]
     )
     lbl_mtch = lbl_mtch.astype(input.dtype)
 
