@@ -12,12 +12,9 @@ __version__ = get_versions()['version']
 del get_versions
 
 
-import operator
-
 import numpy
-import dask.array
 
-from . import _compat
+from . import _utils
 
 
 def center_of_mass(input, labels=None, index=None):
@@ -42,41 +39,12 @@ def center_of_mass(input, labels=None, index=None):
         Coordinates of centers-of-mass.
     """
 
-    input = _compat._asarray(input)
-
-    if labels is None:
-        labels = (input != 0).astype(numpy.int64)
-        index = None
-
-    if index is None:
-        labels = (labels > 0).astype(numpy.int64)
-        index = dask.array.ones(tuple(), dtype=numpy.int64, chunks=tuple())
-
-    labels = _compat._asarray(labels)
-    index = _compat._asarray(index)
-
-    # SciPy transposes these for some reason.
-    # So we do the same thing here.
-    # This only matters if index is some array.
-    index = index.T
-
-    if input.shape != labels.shape:
-        raise ValueError("The input and labels arrays must be the same shape.")
-
-    input_i = _compat._indices(input.shape, chunks=input.chunks)
-
-    lbl_mtch = operator.eq(
-        index[(Ellipsis,) + labels.ndim * (None,)],
-        labels[index.ndim * (None,)]
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
     )
 
-    input_i_mtch = dask.array.where(
-        lbl_mtch[index.ndim * (slice(None),) + (None,)],
-        input_i[index.ndim * (None,)],
-        input.dtype.type(0)
-    )
-    input_mtch = dask.array.where(
-        lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
+    lbl_mtch, input_i_mtch, input_mtch = _utils._get_label_matches(
+        input, labels, index
     )
 
     input_i_mtch_wt = (
