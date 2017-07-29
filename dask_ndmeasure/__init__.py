@@ -79,16 +79,16 @@ def center_of_mass(input, labels=None, index=None):
         lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
     )
 
-    input_mtch_ind_wt = (
+    input_i_mtch_wt = (
         input_mtch[index.ndim * (slice(None),) + (None,)] *
         input_i_mtch
     )
 
     input_mtch = input_mtch.astype(numpy.float64)
-    input_mtch_ind_wt = input_mtch_ind_wt.astype(numpy.float64)
+    input_i_mtch_wt = input_i_mtch_wt.astype(numpy.float64)
 
-    com_lbl = input_mtch_ind_wt.sum(
-        axis=tuple(range(1 + index.ndim, input_mtch_ind_wt.ndim))
+    com_lbl = input_i_mtch_wt.sum(
+        axis=tuple(range(1 + index.ndim, input_i_mtch_wt.ndim))
     )
     input_mtch_sum = input_mtch.sum(
         axis=tuple(range(index.ndim, input_mtch.ndim))
