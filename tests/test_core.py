@@ -16,6 +16,24 @@ import dask_ndmeasure
 import dask_ndmeasure._test_utils
 
 
+def test_center_of_mass_err():
+    shape = (15, 16)
+    chunks = (4, 5)
+    ind = None
+
+    a = np.random.random(shape)
+    d = da.from_array(a, chunks=chunks)
+
+    lbls = (a < 0.5).astype(np.int64)
+    d_lbls = da.from_array(lbls, chunks=d.chunks)
+
+    lbls = lbls[:-1]
+    d_lbls = d_lbls[:-1]
+
+    with pytest.raises(ValueError):
+        dask_ndmeasure.center_of_mass(d, lbls, ind)
+
+
 @pytest.mark.parametrize(
     "shape, chunks, has_lbls, ind", [
         ((15, 16), (4, 5), False, None),
