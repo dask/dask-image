@@ -47,20 +47,8 @@ def center_of_mass(input, labels=None, index=None):
         input, labels, index
     )
 
-    input_i = _compat._indices(input.shape, chunks=input.chunks)
-
-    lbl_mtch = operator.eq(
-        index[(Ellipsis,) + labels.ndim * (None,)],
-        labels[index.ndim * (None,)]
-    )
-
-    input_i_mtch = dask.array.where(
-        lbl_mtch[index.ndim * (slice(None),) + (None,)],
-        input_i[index.ndim * (None,)],
-        input.dtype.type(0)
-    )
-    input_mtch = dask.array.where(
-        lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
+    lbl_mtch, input_i_mtch, input_mtch = _utils._get_label_matches(
+        input, labels, index
     )
 
     input_i_mtch_wt = (
