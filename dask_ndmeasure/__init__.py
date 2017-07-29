@@ -63,19 +63,25 @@ def center_of_mass(input, labels=None, index=None):
     if input.shape != labels.shape:
         raise ValueError("The input and labels arrays must be the same shape.")
 
-    input_ind = _compat._indices(input.shape, chunks=input.chunks)
+    input_i = _compat._indices(input.shape, chunks=input.chunks)
 
     lbl_mtch = operator.eq(
         index[(Ellipsis,) + labels.ndim * (None,)],
         labels[index.ndim * (None,)]
     )
-    lbl_mtch = lbl_mtch.astype(input.dtype)
 
-    input_mtch = lbl_mtch * input[index.ndim * (None,)]
+    input_i_mtch = dask.array.where(
+        lbl_mtch[index.ndim * (slice(None),) + (None,)],
+        input_i[index.ndim * (None,)],
+        input.dtype.type(0)
+    )
+    input_mtch = dask.array.where(
+        lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
+    )
 
     input_mtch_ind_wt = (
         input_mtch[index.ndim * (slice(None),) + (None,)] *
-        input_ind[index.ndim * (None,)]
+        input_i_mtch
     )
 
     input_mtch = input_mtch.astype(numpy.float64)
