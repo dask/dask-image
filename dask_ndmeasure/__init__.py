@@ -70,13 +70,18 @@ def center_of_mass(input, labels=None, index=None):
         labels[index.ndim * (None,)]
     )
 
+    input_i_mtch = dask.array.where(
+        lbl_mtch[index.ndim * (slice(None),) + (None,)],
+        input_i[index.ndim * (None,)],
+        input.dtype.type(0)
+    )
     input_mtch = dask.array.where(
         lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
     )
 
     input_mtch_ind_wt = (
         input_mtch[index.ndim * (slice(None),) + (None,)] *
-        input_i[index.ndim * (None,)]
+        input_i_mtch
     )
 
     input_mtch = input_mtch.astype(numpy.float64)
