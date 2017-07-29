@@ -12,12 +12,8 @@ __version__ = get_versions()['version']
 del get_versions
 
 
-import operator
-
 import numpy
-import dask.array
 
-from . import _compat
 from . import _utils
 
 
