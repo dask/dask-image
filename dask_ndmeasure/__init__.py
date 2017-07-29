@@ -68,21 +68,22 @@ def center_of_mass(input, labels=None, index=None):
     )
     lbl_mtch = lbl_mtch.astype(input.dtype)
 
-    input_lbl_wt = lbl_mtch * input[index.ndim * (None,)]
-    input_lbl_wt_ind = (
-        input_lbl_wt[index.ndim * (slice(None),) + (None,)] *
+    input_mtch = lbl_mtch * input[index.ndim * (None,)]
+
+    input_mtch_ind_wt = (
+        input_mtch[index.ndim * (slice(None),) + (None,)] *
         input_ind[index.ndim * (None,)]
     )
 
-    input_lbl_wt = input_lbl_wt.astype(numpy.float64)
-    input_lbl_wt_ind = input_lbl_wt_ind.astype(numpy.float64)
+    input_mtch = input_mtch.astype(numpy.float64)
+    input_mtch_ind_wt = input_mtch_ind_wt.astype(numpy.float64)
 
-    com_lbl = input_lbl_wt_ind.sum(
-        axis=tuple(range(1 + index.ndim, input_lbl_wt_ind.ndim))
+    com_lbl = input_mtch_ind_wt.sum(
+        axis=tuple(range(1 + index.ndim, input_mtch_ind_wt.ndim))
     )
-    input_lbl_sum_wt = input_lbl_wt.sum(
-        axis=tuple(range(index.ndim, input_lbl_wt.ndim))
+    input_mtch_sum = input_mtch.sum(
+        axis=tuple(range(index.ndim, input_mtch.ndim))
     )
-    com_lbl /= input_lbl_sum_wt[index.ndim * (slice(None),) + (None,)]
+    com_lbl /= input_mtch_sum[index.ndim * (slice(None),) + (None,)]
 
     return com_lbl
