@@ -69,9 +69,8 @@ def center_of_mass(input, labels=None, index=None):
         index[(Ellipsis,) + labels.ndim * (None,)],
         labels[index.ndim * (None,)]
     )
-    lbl_mtch = lbl_mtch.astype(input.dtype)
 
-    input_mtch = lbl_mtch * input[index.ndim * (None,)]
+    input_mtch = lbl_mtch.astype(input.dtype) * input[index.ndim * (None,)]
 
     input_mtch_ind_wt = (
         input_mtch[index.ndim * (slice(None),) + (None,)] *
