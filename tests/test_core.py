@@ -16,7 +16,18 @@ import dask_ndmeasure
 import dask_ndmeasure._test_utils
 
 
-def test_center_of_mass_err():
+@pytest.mark.parametrize(
+    "funcname", [
+        "center_of_mass",
+        "mean",
+        "standard_deviation",
+        "sum",
+        "variance",
+    ]
+)
+def test_measure_props_err(funcname):
+    da_func = getattr(dask_ndmeasure, funcname)
+
     shape = (15, 16)
     chunks = (4, 5)
     ind = None
@@ -31,7 +42,7 @@ def test_center_of_mass_err():
     d_lbls = d_lbls[:-1]
 
     with pytest.raises(ValueError):
-        dask_ndmeasure.center_of_mass(d, lbls, ind)
+        da_func(d, lbls, ind)
 
 
 @pytest.mark.parametrize(
