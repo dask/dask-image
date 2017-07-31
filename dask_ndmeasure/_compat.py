@@ -3,6 +3,7 @@
 
 import functools
 import itertools
+import numbers
 
 import numpy
 
@@ -139,3 +140,48 @@ def _argwhere(a):
     )
 
     return ind
+
+
+@functools.wraps(numpy.compress)
+def _compress(condition, a, axis=None):
+    condition = _asarray(condition)
+    a = _asarray(a)
+
+    if condition.ndim > 1:
+        raise ValueError("condition must be 1-D.")
+
+    if axis is None:
+        axis = 0
+        a = a.flatten()
+
+    if not isinstance(axis, numbers.Integral):
+        raise ValueError("axis must be an integer.")
+
+    if (axis < -a.ndim) or (axis >= a.ndim):
+        raise ValueError("axis is out of bounds.")
+
+    if len(condition) > a.shape[axis]:
+        raise IndexError("condition is too long.")
+
+    axes = tuple(_pycompat.irange(a.ndim))
+
+    # Shrink `axis` in `a` to the length of `condition`.
+    sl = tuple(
+        slice(0, len(condition), 1) if i == axis else slice(None) for i in axes
+    )
+    a = a[sl]
+
+    r = dask.array.atop(
+        numpy.compress, axes,
+        condition, (axis,),
+        a, axes,
+        axis=axis,
+        dtype=a.dtype,
+    )
+    r._chunks = (
+        r.chunks[:axis] +
+        (len(r.chunks[axis]) * (numpy.nan,),) +
+        r.chunks[axis+1:]
+    )
+
+    return r
