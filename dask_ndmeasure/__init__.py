@@ -200,6 +200,46 @@ def mean(input, labels=None, index=None):
     return com_lbl
 
 
+def minimum(input, labels=None, index=None):
+    """
+    Calculate the minimum of the values of an array over labeled regions.
+
+    Parameters
+    ----------
+    input : array_like
+        Array_like of values. For each region specified by `labels`, the
+        minimal values of `input` over the region is computed.
+    labels : array_like, optional
+        An array_like of integers marking different regions over which the
+        minimum value of `input` is to be computed. `labels` must have the
+        same shape as `input`. If `labels` is not specified, the minimum
+        over the whole array is returned.
+    index : array_like, optional
+        A list of region labels that are taken into account for computing the
+        minima. If index is None, the minimum over all elements where `labels`
+        is non-zero is returned.
+
+    Returns
+    -------
+    minimum : array of floats
+        List of minima of `input` over the regions determined by `labels` and
+        whose index is in `index`. If `index` or `labels` are not specified, a
+        float is returned: the minimal value of `input` if `labels` is None,
+        and the minimal value of elements where `labels` is greater than zero
+        if `index` is None.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    min_lbl = labeled_comprehension(
+        input, labels, index, numpy.min, input.dtype, 0
+    )
+
+    return min_lbl
+
+
 def standard_deviation(input, labels=None, index=None):
     """
     Calculate the standard deviation of the values of an n-D image array,
