@@ -111,6 +111,38 @@ def mean(input, labels=None, index=None):
     return com_lbl
 
 
+def standard_deviation(input, labels=None, index=None):
+    """
+    Calculate the standard deviation of the values of an n-D image array,
+    optionally at specified sub-regions.
+
+    Parameters
+    ----------
+    input : array_like
+        Nd-image data to process.
+    labels : array_like, optional
+        Labels to identify sub-regions in `input`.
+        If not None, must be same shape as `input`.
+    index : int or sequence of ints, optional
+        `labels` to include in output.  If None (default), all values where
+        `labels` is non-zero are used.
+
+    Returns
+    -------
+    standard_deviation : float or ndarray
+        Values of standard deviation, for each sub-region if `labels` and
+        `index` are specified.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    std_lbl = dask.array.sqrt(variance(input, labels, index))
+
+    return std_lbl
+
+
 def sum(input, labels=None, index=None):
     """
     Calculate the sum of the values of the array.
