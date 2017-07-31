@@ -139,3 +139,97 @@ def test_argwhere_str():
     d_nz = dask_ndmeasure._compat._argwhere(d)
 
     dau.assert_eq(d_nz, x_nz)
+
+
+@pytest.mark.parametrize("axis", [
+    None, 0, 1,
+])
+def test_compress_err_condition(axis):
+    shape = (15, 16)
+    chunks = (15, 16)
+
+    x = np.random.randint(10, size=shape)
+    d = da.from_array(x, chunks=chunks)
+
+    m = (x < 5)
+    d_m = da.from_array(m, chunks=chunks)
+
+    with pytest.raises(ValueError):
+        d_nz = dask_ndmeasure._compat._compress(d_m, d, axis)
+
+
+@pytest.mark.parametrize("axis", [
+    0.5, -3, 2,
+])
+def test_compress_err_axis(axis):
+    shape = (15, 16)
+    chunks = (15, 16)
+
+    x = np.random.randint(10, size=shape)
+    d = da.from_array(x, chunks=chunks)
+
+    m = (x < 5)
+    d_m = da.from_array(m, chunks=chunks)
+    if axis is None:
+        m = m.flatten()
+        d_m = d_m.flatten()
+    else:
+        sl = tuple(slice(None) if i == axis else 0 for i in range(m.ndim))
+        m = m[sl]
+        d_m = d_m[sl]
+
+    with pytest.raises(ValueError):
+        d_nz = dask_ndmeasure._compat._compress(d_m, d, axis)
+
+
+@pytest.mark.parametrize("axis", [
+    0, 1,
+])
+def test_compress_err_len(axis):
+    shape = (15, 16)
+    chunks = (15, 16)
+
+    x = np.random.randint(10, size=shape)
+    d = da.from_array(x, chunks=chunks)
+
+    m = (x < 5)
+    d_m = da.from_array(m, chunks=chunks)
+    m = m.flatten()
+    d_m = d_m.flatten()
+
+    with pytest.raises(IndexError):
+        d_nz = dask_ndmeasure._compat._compress(d_m, d, axis)
+
+
+@pytest.mark.parametrize("shape, chunks, axis", [
+    (0, (), None),
+    ((0, 0), (0, 0), None),
+    ((0, 0), (0, 0), 0),
+    ((0, 0), (0, 0), 1),
+    ((15, 16), (15, 16), None),
+    ((15, 16), (15, 16), 0),
+    ((15, 16), (15, 16), 1),
+])
+def test_compress(shape, chunks, axis):
+    if not np.prod(shape) and not dask_0_14_1:
+        pytest.skip(
+            "Dask pre-0.14.1 is unable to compute this empty array."
+        )
+
+    x = np.random.randint(10, size=shape)
+    d = da.from_array(x, chunks=chunks)
+
+    m = (x < 5)
+    d_m = da.from_array(m, chunks=chunks)
+    if axis is None:
+        m = m.flatten()
+        d_m = d_m.flatten()
+    else:
+        sl = tuple(slice(None) if i == axis else 0 for i in range(m.ndim))
+        m = m[sl]
+        d_m = d_m[sl]
+
+    x_nz = np.compress(m, x, axis)
+    d_nz = dask_ndmeasure._compat._compress(d_m, d, axis)
+
+    dau.assert_eq(d_nz, x_nz)
