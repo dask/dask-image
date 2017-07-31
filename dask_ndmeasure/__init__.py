@@ -70,6 +70,47 @@ def center_of_mass(input, labels=None, index=None):
     return com_lbl
 
 
+def mean(input, labels=None, index=None):
+    """
+    Calculate the mean of the values of an array at labels.
+
+    Parameters
+    ----------
+    input : array_like
+        Array on which to compute the mean of elements over distinct
+        regions.
+    labels : array_like, optional
+        Array of labels of same shape, or broadcastable to the same shape as
+        `input`. All elements sharing the same label form one region over
+        which the mean of the elements is computed.
+    index : int or sequence of ints, optional
+        Labels of the objects over which the mean is to be computed.
+        Default is None, in which case the mean for all values where label is
+        greater than 0 is calculated.
+
+    Returns
+    -------
+    out : array_like
+        Sequence of same length as `index`, with the mean of the different
+        regions labeled by the labels in `index`.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    input_sum = sum(input, labels, index)
+    input_norm = sum(
+        dask.array.ones(input.shape, dtype=input.dtype, chunks=input.chunks),
+        labels,
+        index
+    )
+
+    com_lbl = input_sum / input_norm
+
+    return com_lbl
+
+
 def sum(input, labels=None, index=None):
     """
     Calculate the sum of the values of the array.
