@@ -152,3 +152,38 @@ def sum(input, labels=None, index=None):
     )
 
     return sum_lbl
+
+
+def variance(input, labels=None, index=None):
+    """
+    Calculate the variance of the values of an n-D image array, optionally at
+    specified sub-regions.
+
+    Parameters
+    ----------
+    input : array_like
+        Nd-image data to process.
+    labels : array_like, optional
+        Labels defining sub-regions in `input`.
+        If not None, must be same shape as `input`.
+    index : int or sequence of ints, optional
+        `labels` to include in output.  If None (default), all values where
+        `labels` is non-zero are used.
+
+    Returns
+    -------
+    variance : array-like
+        Values of variance, for each sub-region if `labels` and `index` are
+        specified.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    input_2_mean = mean(dask.array.square(input), labels, index)
+    input_mean_2 = dask.array.square(mean(input, labels, index))
+
+    var_lbl = input_2_mean - input_mean_2
+
+    return var_lbl
