@@ -81,3 +81,46 @@ def center_of_mass(input, labels=None, index=None):
     com_lbl /= input_mtch_sum[index.ndim * (slice(None),) + (None,)]
 
     return com_lbl
+
+
+def sum(input, labels=None, index=None):
+    """
+    Calculate the sum of the values of the array.
+
+    Parameters
+    ----------
+    input : array_like
+        Values of `input` inside the regions defined by `labels`
+        are summed together.
+    labels : array_like of ints, optional
+        Assign labels to the values of the array. Has to have the same shape as
+        `input`.
+    index : array_like, optional
+        A single label number or a sequence of label numbers of
+        the objects to be measured.
+
+    Returns
+    -------
+    sum : ndarray or scalar
+        An array of the sums of values of `input` inside the regions defined
+        by `labels` with the same shape as `index`. If 'index' is None or scalar,
+        a scalar is returned.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    lbl_mtch = _utils._get_label_matches(labels, index)
+
+    input_mtch = dask.array.where(
+        lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
+    )
+
+    input_mtch = input_mtch.astype(numpy.float64)
+
+    sum_lbl = input_mtch.sum(
+        axis=tuple(_pycompat.irange(index.ndim, input_mtch.ndim))
+    )
+
+    return sum_lbl
