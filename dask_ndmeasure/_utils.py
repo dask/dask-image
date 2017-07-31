@@ -39,24 +39,10 @@ def _norm_input_labels_index(input, labels=None, index=None):
     return (input, labels, index)
 
 
-def _get_label_matches(input, labels, index):
-    input_i = _compat._indices(
-        input.shape, dtype=numpy.int64, chunks=input.chunks
-    )
-
+def _get_label_matches(labels, index):
     lbl_mtch = operator.eq(
         index[(Ellipsis,) + labels.ndim * (None,)],
         labels[index.ndim * (None,)]
     )
 
-    input_i_mtch = dask.array.where(
-        lbl_mtch[index.ndim * (slice(None),) + (None,)],
-        input_i[index.ndim * (None,)],
-        input_i.dtype.type(0)
-    )
-
-    input_mtch = dask.array.where(
-        lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
-    )
-
-    return (lbl_mtch, input_i_mtch, input_mtch)
+    return lbl_mtch

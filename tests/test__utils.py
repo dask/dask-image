@@ -95,14 +95,8 @@ def test__get_label_matches(shape, chunks, ind):
     )
     input_mtch = lbl_mtch.astype(a.dtype) * a[ind.ndim * (None,)]
 
-    d_lbl_mtch, d_input_i_mtch, d_input_mtch = dask_ndmeasure._utils._get_label_matches(
-        d, d_lbls, ind
-    )
+    d_lbl_mtch = dask_ndmeasure._utils._get_label_matches(d_lbls, ind)
 
     assert issubclass(d_lbl_mtch.dtype.type, np.bool8)
-    assert issubclass(d_input_i_mtch.dtype.type, np.int64)
-    assert issubclass(d_input_mtch.dtype.type, a.dtype.type)
 
     dau.assert_eq(d_lbl_mtch, lbl_mtch)
-    dau.assert_eq(d_input_i_mtch, input_i_mtch)
-    dau.assert_eq(d_input_mtch, input_mtch)
