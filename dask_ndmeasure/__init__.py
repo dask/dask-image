@@ -47,6 +47,11 @@ def center_of_mass(input, labels=None, index=None):
         input, labels, index
     )
 
+    # SciPy transposes these for some reason.
+    # So we do the same thing here.
+    # This only matters if index is some array.
+    index = index.T
+
     input_i = _compat._indices(
         input.shape, dtype=numpy.int64, chunks=input.chunks
     )

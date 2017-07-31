@@ -28,11 +28,6 @@ def _norm_input_labels_index(input, labels=None, index=None):
     labels = _compat._asarray(labels)
     index = _compat._asarray(index)
 
-    # SciPy transposes these for some reason.
-    # So we do the same thing here.
-    # This only matters if index is some array.
-    index = index.T
-
     if input.shape != labels.shape:
         raise ValueError("The input and labels arrays must be the same shape.")
 
