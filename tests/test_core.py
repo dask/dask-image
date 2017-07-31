@@ -89,6 +89,6 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
         d_lbls = da.from_array(lbls, chunks=d.chunks)
 
     a_cm = np.array(sp_func(a, lbls, ind))
-    d_cm = da_func(d, lbls, ind)
+    d_cm = da_func(d, d_lbls, ind)
 
     dask_ndmeasure._test_utils._assert_eq_nan(a_cm, d_cm)
