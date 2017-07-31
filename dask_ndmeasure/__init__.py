@@ -159,6 +159,46 @@ def labeled_comprehension(input,
     return result
 
 
+def maximum(input, labels=None, index=None):
+    """
+    Calculate the maximum of the values of an array over labeled regions.
+
+    Parameters
+    ----------
+    input : ndarray
+        Array_like of values. For each region specified by `labels`, the
+        maximal values of `input` over the region is computed.
+    labels : ndarray, optional
+        An array of integers marking different regions over which the
+        maximum value of `input` is to be computed. `labels` must have the
+        same shape as `input`. If `labels` is not specified, the maximum
+        over the whole array is returned.
+    index : array-like, optional
+        A list of region labels that are taken into account for computing the
+        maxima. If index is None, the maximum over all elements where `labels`
+        is non-zero is returned.
+
+    Returns
+    -------
+    output : array of floats
+        List of maxima of `input` over the regions determined by `labels` and
+        whose index is in `index`. If `index` or `labels` are not specified, a
+        float is returned: the maximal value of `input` if `labels` is None,
+        and the maximal value of elements where `labels` is greater than zero
+        if `index` is None.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    max_lbl = labeled_comprehension(
+        input, labels, index, numpy.max, input.dtype, 0
+    )
+
+    return max_lbl
+
+
 def mean(input, labels=None, index=None):
     """
     Calculate the mean of the values of an array at labels.
