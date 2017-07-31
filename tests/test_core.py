@@ -122,6 +122,43 @@ def test_mean(shape, chunks, has_lbls, ind):
         ((15, 16), (4, 5), True, [[[1], [2], [3], [4]]]),
     ]
 )
+def test_standard_deviation(shape, chunks, has_lbls, ind):
+    a = np.random.random(shape)
+    d = da.from_array(a, chunks=chunks)
+
+    lbls = None
+    d_lbls = None
+
+    if has_lbls:
+        lbls = np.zeros(a.shape, dtype=np.int64)
+        lbls += (
+            (d < 0.5).astype(lbls.dtype) +
+            (d < 0.25).astype(lbls.dtype) +
+            (d < 0.125).astype(lbls.dtype) +
+            (d < 0.0625).astype(lbls.dtype)
+        )
+        d_lbls = da.from_array(lbls, chunks=d.chunks)
+
+    a_cm = np.array(spnd.standard_deviation(a, lbls, ind))
+    d_cm = dask_ndmeasure.standard_deviation(d, lbls, ind)
+
+    dask_ndmeasure._test_utils._assert_eq_nan(a_cm, d_cm)
+
+
+@pytest.mark.parametrize(
+    "shape, chunks, has_lbls, ind", [
+        ((15, 16), (4, 5), False, None),
+        ((15, 16), (4, 5), True, None),
+        ((15, 16), (4, 5), True, 0),
+        ((15, 16), (4, 5), True, 1),
+        ((15, 16), (4, 5), True, [1]),
+        ((15, 16), (4, 5), True, [1, 2]),
+        ((15, 16), (4, 5), True, [1, 100]),
+        ((15, 16), (4, 5), True, [[1, 2, 3, 4]]),
+        ((15, 16), (4, 5), True, [[1, 2], [3, 4]]),
+        ((15, 16), (4, 5), True, [[[1], [2], [3], [4]]]),
+    ]
+)
 def test_sum(shape, chunks, has_lbls, ind):
     a = np.random.random(shape)
     d = da.from_array(a, chunks=chunks)
