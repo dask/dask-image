@@ -122,22 +122,7 @@ def _argwhere(a):
         ind = dask.array.stack(
             [ind[i].ravel() for i in _pycompat.irange(len(ind))], axis=1
         )
-
-    axis = 0
-    axes = tuple(_pycompat.irange(ind.ndim))
-
-    ind = dask.array.atop(
-        numpy.compress, axes,
-        nz, (axis,),
-        ind, axes,
-        axis=axis,
-        dtype=ind.dtype,
-    )
-    ind._chunks = (
-        ind.chunks[:axis] +
-        (len(ind.chunks[axis]) * (numpy.nan,),) +
-        ind.chunks[axis+1:]
-    )
+    ind = _compress(nz, ind, 0)
 
     return ind
 
