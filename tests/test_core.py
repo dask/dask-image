@@ -19,6 +19,7 @@ import dask_ndmeasure._test_utils
     "funcname", [
         "center_of_mass",
         "mean",
+        "minimum",
         "standard_deviation",
         "sum",
         "variance",
@@ -48,6 +49,7 @@ def test_measure_props_err(funcname):
     "funcname", [
         "center_of_mass",
         "mean",
+        "minimum",
         "standard_deviation",
         "sum",
         "variance",
