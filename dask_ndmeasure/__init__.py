@@ -52,32 +52,62 @@ def center_of_mass(input, labels=None, index=None):
     # This only matters if index is some array.
     index = index.T
 
+    input_mtch_sum = sum(input, labels, index)
+
     input_i = _compat._indices(
         input.shape, dtype=numpy.int64, chunks=input.chunks
     )
+
     input_i_wt = input[None] * input_i
 
-    lbl_mtch = _utils._get_label_matches(labels, index)
+    input_i_wt_mtch_sum = []
+    for i in _pycompat.irange(len(input_i_wt)):
+        input_i_wt_mtch_sum.append(sum(input_i_wt[i], labels, index))
+    input_i_wt_mtch_sum = dask.array.stack(input_i_wt_mtch_sum, axis=-1)
 
-    input_i_wt_mtch = dask.array.where(
-        lbl_mtch[index.ndim * (slice(None),) + (None,)],
-        input_i_wt[index.ndim * (None,)],
-        input_i_wt.dtype.type(0)
+    com_lbl = input_i_wt_mtch_sum / input_mtch_sum[..., None]
+
+    return com_lbl
+
+
+def sum(input, labels=None, index=None):
+    """
+    Calculate the sum of the values of the array.
+
+    Parameters
+    ----------
+    input : array_like
+        Values of `input` inside the regions defined by `labels`
+        are summed together.
+    labels : array_like of ints, optional
+        Assign labels to the values of the array. Has to have the same shape as
+        `input`.
+    index : array_like, optional
+        A single label number or a sequence of label numbers of
+        the objects to be measured.
+
+    Returns
+    -------
+    sum : ndarray or scalar
+        An array of the sums of values of `input` inside the regions defined
+        by `labels` with the same shape as `index`. If 'index' is None or scalar,
+        a scalar is returned.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
     )
+
+    lbl_mtch = _utils._get_label_matches(labels, index)
 
     input_mtch = dask.array.where(
         lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
     )
 
-    input_i_wt_mtch = input_i_wt_mtch.astype(numpy.float64)
     input_mtch = input_mtch.astype(numpy.float64)
 
-    com_lbl = input_i_wt_mtch.sum(
-        axis=tuple(_pycompat.irange(1 + index.ndim, input_i_wt_mtch.ndim))
-    )
-    input_mtch_sum = input_mtch.sum(
+    sum_lbl = input_mtch.sum(
         axis=tuple(_pycompat.irange(index.ndim, input_mtch.ndim))
     )
-    com_lbl /= input_mtch_sum[index.ndim * (slice(None),) + (None,)]
 
-    return com_lbl
+    return sum_lbl
