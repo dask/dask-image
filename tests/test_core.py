@@ -35,6 +35,11 @@ def test_center_of_mass_err():
 
 
 @pytest.mark.parametrize(
+    "funcname", [
+        "center_of_mass",
+    ]
+)
+@pytest.mark.parametrize(
     "shape, chunks, has_lbls, ind", [
         ((15, 16), (4, 5), False, None),
         ((15, 16), (4, 5), True, None),
@@ -48,7 +53,10 @@ def test_center_of_mass_err():
         ((15, 16), (4, 5), True, [[[1], [2], [3], [4]]]),
     ]
 )
-def test_center_of_mass(shape, chunks, has_lbls, ind):
+def test_center_of_mass(funcname, shape, chunks, has_lbls, ind):
+    sp_func = getattr(spnd, funcname)
+    da_func = getattr(dask_ndmeasure, funcname)
+
     a = np.random.random(shape)
     d = da.from_array(a, chunks=chunks)
 
@@ -65,8 +73,8 @@ def test_center_of_mass(shape, chunks, has_lbls, ind):
         )
         d_lbls = da.from_array(lbls, chunks=d.chunks)
 
-    a_cm = np.array(spnd.center_of_mass(a, lbls, ind))
-    d_cm = dask_ndmeasure.center_of_mass(d, lbls, ind)
+    a_cm = np.array(sp_func(a, lbls, ind))
+    d_cm = da_func(d, lbls, ind)
 
     dask_ndmeasure._test_utils._assert_eq_nan(a_cm, d_cm)
 
