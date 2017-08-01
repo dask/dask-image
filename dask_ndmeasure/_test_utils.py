@@ -9,6 +9,9 @@ def _assert_eq_nan(a, b, **kwargs):
     a = a.copy()
     b = b.copy()
 
+    a = a[...]
+    b = b[...]
+
     a_nan = (a != a)
     b_nan = (b != b)
 

@@ -15,6 +15,11 @@ nan = np.nan
 
 
 @pytest.mark.parametrize("match, a, b", [
+    [True] + 2 * [np.array(2)[()]],
+    [True] + 2 * [np.array(nan)[()]],
+    [True] + 2 * [np.array(2)],
+    [True] + 2 * [np.array(nan)],
+    [True] + [np.array(1.0), da.ones(tuple(), chunks=tuple())],
     [True] + 2 * [np.random.randint(10, size=(15, 16))],
     [True] + 2 * [da.random.randint(10, size=(15, 16), chunks=(5, 5))],
     [True, np.array([2, nan]), np.array([2, nan])],
