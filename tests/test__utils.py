@@ -100,3 +100,20 @@ def test__get_label_matches(shape, chunks, ind):
     assert issubclass(d_lbl_mtch.dtype.type, np.bool8)
 
     dau.assert_eq(d_lbl_mtch, lbl_mtch)
+
+
+@pytest.mark.parametrize(
+    "shape, chunks", [
+        ((15,), (4,)),
+        ((15, 16), (4, 5)),
+        ((15, 1, 16), (4, 1, 5)),
+        ((15, 12, 16), (4, 5, 6)),
+    ]
+)
+def test___ravel_shape_indices(shape, chunks):
+    a = np.arange(int(np.prod(shape)), dtype=np.int64).reshape(shape)
+    d = dask_ndmeasure._utils._ravel_shape_indices(
+        shape, dtype=np.int64, chunks=chunks
+    )
+
+    dau.assert_eq(d, a)
