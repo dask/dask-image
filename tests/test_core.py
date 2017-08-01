@@ -143,4 +143,6 @@ def test_labeled_comprehension(shape, chunks, ind, default, pass_positions):
         d, d_lbls, ind, func, np.float64, default, pass_positions
     )
 
-    dask_ndmeasure._test_utils._assert_eq_nan(a_cm, d_cm)
+    assert a_cm.dtype == d_cm.dtype
+    assert a_cm.shape == d_cm.shape
+    assert np.allclose(np.array(a_cm), np.array(d_cm), equal_nan=True)
