@@ -8,6 +8,7 @@ import numpy
 import dask.array
 
 from . import _compat
+from . import _pycompat
 
 
 def _norm_input_labels_index(input, labels=None, index=None):
@@ -41,3 +42,27 @@ def _get_label_matches(labels, index):
     )
 
     return lbl_mtch
+
+
+def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
+    """
+    Gets the raveled indices shaped like input.
+
+    Normally this could have been solved with `arange` and `reshape`.
+    Unfortunately that doesn't work out of the box with older versions
+    of Dask. So we try to solve this by using indices and computing
+    the raveled index from that.
+    """
+
+    dtype = numpy.dtype(dtype)
+
+    indices = _compat._indices(
+        dimensions, dtype=dtype, chunks=chunks
+    )
+
+    indices = list(indices)
+    for i in _pycompat.irange(len(indices)):
+        indices[i] *= dtype.type(numpy.prod(indices[i].shape[i + 1:]))
+    indices = dask.array.stack(indices).sum(axis=0)
+
+    return indices
