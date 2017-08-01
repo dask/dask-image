@@ -170,7 +170,7 @@ def test_compress_err_axis(axis):
 
     m = (x < 5)
     d_m = da.from_array(m, chunks=chunks)
-    if axis is None:
+    if axis is None or not np.prod(shape):
         m = m.flatten()
         d_m = d_m.flatten()
     else:
@@ -221,7 +221,7 @@ def test_compress(shape, chunks, axis):
 
     m = (x < 5)
     d_m = da.from_array(m, chunks=chunks)
-    if axis is None:
+    if axis is None or not np.prod(shape):
         m = m.flatten()
         d_m = d_m.flatten()
     else:

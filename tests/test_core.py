@@ -81,10 +81,10 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
     if has_lbls:
         lbls = np.zeros(a.shape, dtype=np.int64)
         lbls += (
-            (d < 0.5).astype(lbls.dtype) +
-            (d < 0.25).astype(lbls.dtype) +
-            (d < 0.125).astype(lbls.dtype) +
-            (d < 0.0625).astype(lbls.dtype)
+            (a < 0.5).astype(lbls.dtype) +
+            (a < 0.25).astype(lbls.dtype) +
+            (a < 0.125).astype(lbls.dtype) +
+            (a < 0.0625).astype(lbls.dtype)
         )
         d_lbls = da.from_array(lbls, chunks=d.chunks)
 
