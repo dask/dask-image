@@ -171,10 +171,6 @@ def labeled_comprehension(input,
 
     lbl_mtch = _utils._get_label_matches(labels, index)
 
-    lbl_mtch_any = lbl_mtch.any(
-        axis=tuple(_pycompat.irange(index.ndim, lbl_mtch.ndim))
-    )
-
     positions = _utils._ravel_shape_indices(
         input.shape, dtype=numpy.int64, chunks=input.chunks
     )
@@ -186,7 +182,7 @@ def labeled_comprehension(input,
             args += (positions[lbl_mtch[i]],)
 
         result[i] = dask.delayed(_utils._labeled_comprehension_func)(
-            func, out_dtype, default, lbl_mtch_any[i], *args
+            func, out_dtype, default, *args
         )
         result[i] = dask.array.from_delayed(result[i], tuple(), out_dtype)
 

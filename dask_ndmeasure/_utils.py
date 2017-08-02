@@ -71,7 +71,6 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
 def _labeled_comprehension_func(func,
                                 out_dtype,
                                 default,
-                                compute,
                                 a,
                                 positions=None):
     """
@@ -83,7 +82,7 @@ def _labeled_comprehension_func(func,
 
     out_dtype = numpy.dtype(out_dtype)
 
-    if compute:
+    if a.size:
         if positions is None:
             return out_dtype.type(func(a))
         else:
