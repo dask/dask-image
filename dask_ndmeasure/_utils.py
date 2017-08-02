@@ -72,8 +72,8 @@ def _labeled_comprehension_func(func,
                                 out_dtype,
                                 default,
                                 compute,
-                                *args,
-                                **kwargs):
+                                a,
+                                positions=None):
     """
     Wrapped labeled comprehension function
 
@@ -84,6 +84,9 @@ def _labeled_comprehension_func(func,
     out_dtype = numpy.dtype(out_dtype)
 
     if compute:
-        return out_dtype.type(func(*args, **kwargs))
+        if positions is None:
+            return out_dtype.type(func(a))
+        else:
+            return out_dtype.type(func(a, positions))
     else:
         return out_dtype.type(default)
