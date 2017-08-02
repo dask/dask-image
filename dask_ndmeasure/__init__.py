@@ -191,14 +191,10 @@ def labeled_comprehension(input,
         result[i] = dask.array.from_delayed(result[i], tuple(), out_dtype)
 
     for i in _pycompat.irange(result.ndim - 1, -1, -1):
-        p = itertools.product(*[
-            _pycompat.irange(e) for e in index.shape[:i]
-        ])
+        p = itertools.product(*[_pycompat.irange(e) for e in index.shape[:i]])
         result2 = result[..., 0]
         for j in p:
-            result2[j] = dask.array.stack(
-                result[j].tolist(), axis=0
-            )
+            result2[j] = dask.array.stack(result[j].tolist(), axis=0)
         result = result2
     result = result[()]
 
