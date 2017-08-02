@@ -13,6 +13,7 @@ del get_versions
 
 
 import itertools
+import operator
 
 import numpy
 
@@ -197,6 +198,98 @@ def maximum(input, labels=None, index=None):
     )
 
     return max_lbl
+
+
+def maximum_position(input, labels=None, index=None):
+    """
+    Find the positions of the maximums of the values of an array at labels.
+
+    For each region specified by `labels`, the position of the maximum
+    value of `input` within the region is returned.
+
+    Parameters
+    ----------
+    input : array_like
+        Array_like of values.
+    labels : array_like, optional
+        An array of integers marking different regions over which the
+        position of the maximum value of `input` is to be computed.
+        `labels` must have the same shape as `input`. If `labels` is not
+        specified, the location of the first maximum over the whole
+        array is returned.
+
+        The `labels` argument only works when `index` is specified.
+    index : array_like, optional
+        A list of region labels that are taken into account for finding the
+        location of the maxima.  If `index` is None, the first maximum
+        over all elements where `labels` is non-zero is returned.
+
+        The `index` argument only works when `labels` is specified.
+
+    Returns
+    -------
+    output : array of ints
+        Array of ints that specify the location of maxima of
+        `input` over the regions determined by `labels` and whose index
+        is in `index`.
+
+        If `index` or `labels` are not specified, an array of ints is
+        returned specifying the location of the ``first`` maximal value
+        of `input`.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    if index.shape:
+        index = index.flatten()
+
+    indices = _utils._ravel_shape_indices(
+        input.shape, dtype=numpy.int64, chunks=input.chunks
+    )
+
+    max_lbl = maximum(input, labels=labels, index=index)
+
+    lbl_mtch = _utils._get_label_matches(labels, index)
+    input_mtch = dask.array.where(
+        lbl_mtch, input[index.ndim * (None,)], numpy.nan
+    )
+
+    max_lbl_mask = operator.eq(
+        max_lbl[max_lbl.ndim * (slice(None),) + input.ndim * (None,)],
+        input_mtch
+    )
+    max_lbl_mask_any = max_lbl_mask.any(
+        axis=tuple(_pycompat.irange(index.ndim, max_lbl_mask.ndim))
+    )
+    max_lbl_indices = dask.array.where(
+        max_lbl_mask, indices, numpy.nan
+    )
+
+    max_1dpos_lbl = dask.array.where(
+        max_lbl_mask_any,
+        dask.array.nanmin(
+            max_lbl_indices,
+            axis=tuple(_pycompat.irange(index.ndim, max_lbl_indices.ndim))
+        ),
+        0
+    ).astype(numpy.int64)
+
+    max_pos_lbl = []
+    max_1dpos_lbl_rem = max_1dpos_lbl
+    if not max_1dpos_lbl_rem.ndim:
+        max_1dpos_lbl_rem = max_1dpos_lbl_rem[None]
+    for i in _pycompat.irange(input.ndim):
+        d = numpy.int64(numpy.prod(input.shape[i + 1:]))
+        max_pos_lbl.append(max_1dpos_lbl_rem // d)
+        max_1dpos_lbl_rem %= d
+    max_pos_lbl = dask.array.stack(max_pos_lbl, axis=1)
+
+    if index.shape == tuple():
+        max_pos_lbl = dask.array.squeeze(max_pos_lbl)
+
+    return max_pos_lbl
 
 
 def mean(input, labels=None, index=None):
