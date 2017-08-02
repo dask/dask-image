@@ -171,24 +171,19 @@ def labeled_comprehension(input,
 
     lbl_mtch = _utils._get_label_matches(labels, index)
 
-    lbl_mtch_any = lbl_mtch.any(
-        axis=tuple(_pycompat.irange(index.ndim, lbl_mtch.ndim))
-    )
-
-    positions = _utils._ravel_shape_indices(
-        input.shape, dtype=numpy.int64, chunks=input.chunks
-    )
+    args = (input,)
+    if pass_positions:
+        positions = _utils._ravel_shape_indices(
+            input.shape, dtype=numpy.int64, chunks=input.chunks
+        )
+        args = (input, positions)
 
     result = numpy.empty(index.shape, dtype=object)
     for i in itertools.product(*[_pycompat.irange(j) for j in index.shape]):
-        args = (input[lbl_mtch[i]],)
-        if pass_positions:
-            args += (positions[lbl_mtch[i]],)
-
-        result[i] = dask.delayed(_utils._labeled_comprehension_func)(
-            func, out_dtype, default, lbl_mtch_any[i], *args
+        args_lbl_mtch_i = tuple(e[lbl_mtch[i]] for e in args)
+        result[i] = _utils._labeled_comprehension_func(
+            func, out_dtype, default, *args_lbl_mtch_i
         )
-        result[i] = dask.array.from_delayed(result[i], tuple(), out_dtype)
 
     for i in _pycompat.irange(result.ndim - 1, -1, -1):
         p = itertools.product(*[_pycompat.irange(e) for e in index.shape[:i]])
