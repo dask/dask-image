@@ -88,7 +88,7 @@ def _labeled_comprehension_delayed(func,
         else:
             return out_dtype.type(func(a, positions))
     else:
-        return out_dtype.type(default)
+        return default
 
 
 def _labeled_comprehension_func(func,
