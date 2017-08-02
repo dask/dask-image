@@ -110,12 +110,15 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
 @pytest.mark.parametrize(
     "shape, chunks, has_lbls, ind", [
         ((15, 16), (4, 5), False, None),
+        ((5, 6, 4), (2, 3, 2), False, None),
         ((15, 16), (4, 5), True, None),
         ((15, 16), (4, 5), True, 0),
         ((15, 16), (4, 5), True, 1),
         ((15, 16), (4, 5), True, [1]),
         ((15, 16), (4, 5), True, [1, 2]),
+        ((5, 6, 4), (2, 3, 2), True, [1, 2]),
         ((15, 16), (4, 5), True, [1, 100]),
+        ((5, 6, 4), (2, 3, 2), True, [1, 100]),
         ((15, 16), (4, 5), True, [[1, 2, 3, 4]]),
         ((15, 16), (4, 5), True, [[1, 2], [3, 4]]),
         ((15, 16), (4, 5), True, [[[1], [2], [3], [4]]]),
@@ -153,11 +156,14 @@ def test_extrema(shape, chunks, has_lbls, ind):
 @pytest.mark.parametrize(
     "shape, chunks, ind", [
         ((15, 16), (4, 5), None),
+        ((5, 6, 4), (2, 3, 2), None),
         ((15, 16), (4, 5), 0),
         ((15, 16), (4, 5), 1),
         ((15, 16), (4, 5), [1]),
         ((15, 16), (4, 5), [1, 2]),
+        ((5, 6, 4), (2, 3, 2), [1, 2]),
         ((15, 16), (4, 5), [1, 100]),
+        ((5, 6, 4), (2, 3, 2), [1, 100]),
     ]
 )
 @pytest.mark.parametrize(
