@@ -373,6 +373,95 @@ def minimum(input, labels=None, index=None):
     return min_lbl
 
 
+def minimum_position(input, labels=None, index=None):
+    """
+    Find the positions of the minimums of the values of an array at labels.
+
+    Parameters
+    ----------
+    input : array_like
+        Array_like of values.
+    labels : array_like, optional
+        An array of integers marking different regions over which the
+        position of the minimum value of `input` is to be computed.
+        `labels` must have the same shape as `input`. If `labels` is not
+        specified, the location of the first minimum over the whole
+        array is returned.
+
+        The `labels` argument only works when `index` is specified.
+    index : array_like, optional
+        A list of region labels that are taken into account for finding the
+        location of the minima. If `index` is None, the ``first`` minimum
+        over all elements where `labels` is non-zero is returned.
+
+        The `index` argument only works when `labels` is specified.
+
+    Returns
+    -------
+    output : list of tuples of ints
+        Tuple of ints or list of tuples of ints that specify the location
+        of minima of `input` over the regions determined by `labels` and
+        whose index is in `index`.
+
+        If `index` or `labels` are not specified, a tuple of ints is
+        returned specifying the location of the first minimal value of `input`.
+
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    if index.shape:
+        index = index.flatten()
+
+    indices = _utils._ravel_shape_indices(
+        input.shape, dtype=numpy.int64, chunks=input.chunks
+    )
+
+    min_lbl = minimum(input, labels=labels, index=index)
+
+    lbl_mtch = _utils._get_label_matches(labels, index)
+    input_mtch = dask.array.where(
+        lbl_mtch, input[index.ndim * (None,)], numpy.nan
+    )
+
+    min_lbl_mask = operator.eq(
+        min_lbl[min_lbl.ndim * (slice(None),) + input.ndim * (None,)],
+        input_mtch
+    )
+    min_lbl_mask_any = min_lbl_mask.any(
+        axis=tuple(_pycompat.irange(index.ndim, min_lbl_mask.ndim))
+    )
+    min_lbl_indices = dask.array.where(
+        min_lbl_mask, indices, numpy.nan
+    )
+
+    min_1dpos_lbl = dask.array.where(
+        min_lbl_mask_any,
+        dask.array.nanmin(
+            min_lbl_indices,
+            axis=tuple(_pycompat.irange(index.ndim, min_lbl_indices.ndim))
+        ),
+        0
+    ).astype(numpy.int64)
+
+    min_pos_lbl = []
+    min_1dpos_lbl_rem = min_1dpos_lbl
+    if not min_1dpos_lbl_rem.ndim:
+        min_1dpos_lbl_rem = min_1dpos_lbl_rem[None]
+    for i in _pycompat.irange(input.ndim):
+        d = numpy.int64(numpy.prod(input.shape[i + 1:]))
+        min_pos_lbl.append(min_1dpos_lbl_rem // d)
+        min_1dpos_lbl_rem %= d
+    min_pos_lbl = dask.array.stack(min_pos_lbl, axis=1)
+
+    if index.shape == tuple():
+        min_pos_lbl = dask.array.squeeze(min_pos_lbl)
+
+    return min_pos_lbl
+
+
 def standard_deviation(input, labels=None, index=None):
     """
     Calculate the standard deviation of the values of an n-D image array,
