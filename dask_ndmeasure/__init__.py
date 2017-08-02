@@ -12,6 +12,8 @@ __version__ = get_versions()['version']
 del get_versions
 
 
+import itertools
+
 import numpy
 
 import dask.array
@@ -68,6 +70,93 @@ def center_of_mass(input, labels=None, index=None):
     com_lbl = input_i_wt_mtch_sum / input_mtch_sum[..., None]
 
     return com_lbl
+
+
+def labeled_comprehension(input,
+                          labels,
+                          index,
+                          func,
+                          out_dtype,
+                          default,
+                          pass_positions=False):
+    """
+    Roughly equivalent to [func(input[labels == i]) for i in index].
+
+    Sequentially applies an arbitrary function (that works on array_like input)
+    to subsets of an n-D image array specified by `labels` and `index`.
+    The option exists to provide the function with positional parameters as the
+    second argument.
+
+    Parameters
+    ----------
+    input : array_like
+        Data from which to select `labels` to process.
+    labels : array_like or None
+        Labels to objects in `input`.
+        If not None, array must be same shape as `input`.
+        If None, `func` is applied to raveled `input`.
+    index : int, sequence of ints or None
+        Subset of `labels` to which to apply `func`.
+        If a scalar, a single value is returned.
+        If None, `func` is applied to all non-zero values of `labels`.
+    func : callable
+        Python function to apply to `labels` from `input`.
+    out_dtype : dtype
+        Dtype to use for `result`.
+    default : int, float or None
+        Default return value when a element of `index` does not exist
+        in `labels`.
+    pass_positions : bool, optional
+        If True, pass linear indices to `func` as a second argument.
+        Default is False.
+
+    Returns
+    -------
+    result : ndarray
+        Result of applying `func` to each of `labels` to `input` in `index`.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+    out_dtype = numpy.dtype(out_dtype)
+    default = numpy.array(default, dtype=out_dtype)[()]
+    pass_positions = bool(pass_positions)
+
+    indices = _utils._ravel_shape_indices(
+        input.shape, dtype=numpy.int64, chunks=input.chunks
+    )
+
+    lbl_mtch = _utils._get_label_matches(labels, index)
+
+    lbl_mtch_any = lbl_mtch.any(
+        axis=tuple(_pycompat.irange(index.ndim, lbl_mtch.ndim))
+    )
+
+    result = numpy.empty(index.shape, dtype=object)
+    for i in itertools.product(*[_pycompat.irange(j) for j in index.shape]):
+        args = (input[lbl_mtch[i]],)
+        if pass_positions:
+            args += (indices[lbl_mtch[i]],)
+
+        result[i] = dask.delayed(_utils._labeled_comprehension_func)(
+            func, out_dtype, default, lbl_mtch_any[i], *args
+        )
+        result[i] = dask.array.from_delayed(result[i], tuple(), out_dtype)
+
+    for i in _pycompat.irange(result.ndim - 1, -1, -1):
+        p = itertools.product(*[
+            _pycompat.irange(e) for e in index.shape[:i]
+        ])
+        result2 = result[..., 0]
+        for j in p:
+            result2[j] = dask.array.stack(
+                result[j].tolist(), axis=0
+            )
+        result = result2
+    result = result[()]
+
+    return result
 
 
 def mean(input, labels=None, index=None):

@@ -66,3 +66,24 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     indices = dask.array.stack(indices).sum(axis=0)
 
     return indices
+
+
+def _labeled_comprehension_func(func,
+                                out_dtype,
+                                default,
+                                compute,
+                                *args,
+                                **kwargs):
+    """
+    Wrapped labeled comprehension function
+
+    Included in the module for pickling purposes. Also handle cases where
+    computation should not occur.
+    """
+
+    out_dtype = numpy.dtype(out_dtype)
+
+    if compute:
+        return out_dtype.type(func(*args, **kwargs))
+    else:
+        return out_dtype.type(default)
