@@ -19,6 +19,7 @@ import dask_ndmeasure._test_utils
     "funcname", [
         "center_of_mass",
         "maximum",
+        "maximum_position",
         "mean",
         "minimum",
         "standard_deviation",
@@ -50,6 +51,7 @@ def test_measure_props_err(funcname):
     "funcname", [
         "center_of_mass",
         "maximum",
+        "maximum_position",
         "mean",
         "minimum",
         "standard_deviation",
