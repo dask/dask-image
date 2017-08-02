@@ -411,9 +411,21 @@ def minimum(input, labels=None, index=None):
         input, labels, index
     )
 
-    min_lbl = labeled_comprehension(
-        input, labels, index, numpy.min, input.dtype, 0
+    lbl_mtch = _utils._get_label_matches(labels, index)
+
+    lbl_mtch_any = lbl_mtch.any(
+        axis=tuple(_pycompat.irange(index.ndim, lbl_mtch.ndim))
     )
+
+    input_mtch = dask.array.where(
+        lbl_mtch, input[index.ndim * (None,)], numpy.nan
+    )
+
+    nanmin_lbl = dask.array.nanmin(
+        input_mtch, axis=tuple(_pycompat.irange(index.ndim, input_mtch.ndim))
+    )
+
+    min_lbl = dask.array.where(lbl_mtch_any, nanmin_lbl, 0).astype(input.dtype)
 
     return min_lbl
 
