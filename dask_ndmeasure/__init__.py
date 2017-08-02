@@ -181,13 +181,8 @@ def labeled_comprehension(input,
     result = numpy.empty(index.shape, dtype=object)
     for i in itertools.product(*[_pycompat.irange(j) for j in index.shape]):
         args_lbl_mtch_i = tuple(e[lbl_mtch[i]] for e in args)
-
-        result[i] = dask.array.from_delayed(
-            dask.delayed(_utils._labeled_comprehension_func)(
-                func, out_dtype, default, *args_lbl_mtch_i
-            ),
-            tuple(),
-            out_dtype
+        result[i] = _utils._labeled_comprehension_func(
+            func, out_dtype, default, *args_lbl_mtch_i
         )
 
     for i in _pycompat.irange(result.ndim - 1, -1, -1):

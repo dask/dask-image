@@ -5,6 +5,7 @@ import operator
 
 import numpy
 
+import dask
 import dask.array
 
 from . import _compat
@@ -68,13 +69,14 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     return indices
 
 
-def _labeled_comprehension_func(func,
-                                out_dtype,
-                                default,
-                                a,
-                                positions=None):
+@dask.delayed
+def _labeled_comprehension_delayed(func,
+                                   out_dtype,
+                                   default,
+                                   a,
+                                   positions=None):
     """
-    Wrapped labeled comprehension function
+    Wrapped delayed labeled comprehension function
 
     Included in the module for pickling purposes. Also handle cases where
     computation should not occur.
@@ -89,3 +91,27 @@ def _labeled_comprehension_func(func,
             return out_dtype.type(func(a, positions))
     else:
         return out_dtype.type(default)
+
+
+def _labeled_comprehension_func(func,
+                                out_dtype,
+                                default,
+                                a,
+                                positions=None):
+    """
+    Wrapped labeled comprehension function
+
+    Ensures the result is a proper Dask Array and the computation delayed.
+    """
+
+    out_dtype = numpy.dtype(out_dtype)
+
+    result = dask.array.from_delayed(
+        _labeled_comprehension_delayed(
+            func, out_dtype, default, a, positions
+        ),
+        tuple(),
+        out_dtype
+    )
+
+    return result
