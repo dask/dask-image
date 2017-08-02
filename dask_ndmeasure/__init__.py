@@ -182,7 +182,8 @@ def labeled_comprehension(input,
 
     result = numpy.empty(index.shape, dtype=object)
     for i in itertools.product(*index_ranges):
-        args_lbl_mtch_i = tuple(e[lbl_mtch[i]] for e in args)
+        lbl_mtch_i = lbl_mtch[i]
+        args_lbl_mtch_i = tuple(e[lbl_mtch_i] for e in args)
         result[i] = _utils._labeled_comprehension_func(
             func, out_dtype, default, *args_lbl_mtch_i
         )
