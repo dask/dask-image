@@ -82,8 +82,6 @@ def _labeled_comprehension_delayed(func,
     computation should not occur.
     """
 
-    out_dtype = numpy.dtype(out_dtype)
-
     if a.size:
         if positions is None:
             return out_dtype.type(func(a))
@@ -103,8 +101,6 @@ def _labeled_comprehension_func(func,
 
     Ensures the result is a proper Dask Array and the computation delayed.
     """
-
-    out_dtype = numpy.dtype(out_dtype)
 
     result = dask.array.from_delayed(
         _labeled_comprehension_delayed(
