@@ -169,14 +169,14 @@ def labeled_comprehension(input,
     default = numpy.array(default, dtype=out_dtype)[()]
     pass_positions = bool(pass_positions)
 
-    indices = _utils._ravel_shape_indices(
-        input.shape, dtype=numpy.int64, chunks=input.chunks
-    )
-
     lbl_mtch = _utils._get_label_matches(labels, index)
 
     lbl_mtch_any = lbl_mtch.any(
         axis=tuple(_pycompat.irange(index.ndim, lbl_mtch.ndim))
+    )
+
+    indices = _utils._ravel_shape_indices(
+        input.shape, dtype=numpy.int64, chunks=input.chunks
     )
 
     result = numpy.empty(index.shape, dtype=object)
