@@ -18,6 +18,7 @@ import dask_ndmeasure._test_utils
 @pytest.mark.parametrize(
     "funcname", [
         "center_of_mass",
+        "extrema",
         "maximum",
         "maximum_position",
         "mean",
@@ -101,6 +102,49 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
     assert a_r.dtype == d_r.dtype
     assert a_r.shape == d_r.shape
     assert np.allclose(np.array(a_r), np.array(d_r), equal_nan=True)
+
+
+@pytest.mark.parametrize(
+    "shape, chunks, has_lbls, ind", [
+        ((15, 16), (4, 5), False, None),
+        ((15, 16), (4, 5), True, None),
+        ((15, 16), (4, 5), True, 0),
+        ((15, 16), (4, 5), True, 1),
+        ((15, 16), (4, 5), True, [1]),
+        ((15, 16), (4, 5), True, [1, 2]),
+        ((15, 16), (4, 5), True, [1, 100]),
+        ((15, 16), (4, 5), True, [[1, 2, 3, 4]]),
+        ((15, 16), (4, 5), True, [[1, 2], [3, 4]]),
+        ((15, 16), (4, 5), True, [[[1], [2], [3], [4]]]),
+    ]
+)
+def test_extrema(shape, chunks, has_lbls, ind):
+    a = np.random.random(shape)
+    d = da.from_array(a, chunks=chunks)
+
+    lbls = None
+    d_lbls = None
+
+    if has_lbls:
+        lbls = np.zeros(a.shape, dtype=np.int64)
+        lbls += (
+            (a < 0.5).astype(lbls.dtype) +
+            (a < 0.25).astype(lbls.dtype) +
+            (a < 0.125).astype(lbls.dtype) +
+            (a < 0.0625).astype(lbls.dtype)
+        )
+        d_lbls = da.from_array(lbls, chunks=d.chunks)
+
+    a_r = spnd.extrema(a, lbls, ind)
+    d_r = dask_ndmeasure.extrema(d, d_lbls, ind)
+
+    assert len(a_r) == len(d_r)
+
+    for i in range(len(a_r)):
+        a_r_i = np.array(a_r[i])
+        assert a_r_i.dtype == d_r[i].dtype
+        assert a_r_i.shape == d_r[i].shape
+        assert np.allclose(a_r_i, np.array(d_r[i]), equal_nan=True)
 
 
 @pytest.mark.parametrize(
