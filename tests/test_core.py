@@ -10,7 +10,6 @@ import numpy as np
 import scipy.ndimage as spnd
 
 import dask.array as da
-import dask.array.utils as dau
 
 import dask_ndmeasure
 import dask_ndmeasure._test_utils
@@ -91,7 +90,9 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
     a_r = np.array(sp_func(a, lbls, ind))
     d_r = da_func(d, d_lbls, ind)
 
-    dask_ndmeasure._test_utils._assert_eq_nan(a_r, d_r)
+    assert a_r.dtype == d_r.dtype
+    assert a_r.shape == d_r.shape
+    assert np.allclose(np.array(a_r), np.array(d_r), equal_nan=True)
 
 
 @pytest.mark.parametrize(
