@@ -18,6 +18,7 @@ import dask_ndmeasure._test_utils
 @pytest.mark.parametrize(
     "funcname", [
         "center_of_mass",
+        "maximum",
         "mean",
         "minimum",
         "standard_deviation",
@@ -48,6 +49,7 @@ def test_measure_props_err(funcname):
 @pytest.mark.parametrize(
     "funcname", [
         "center_of_mass",
+        "maximum",
         "mean",
         "minimum",
         "standard_deviation",
