@@ -404,7 +404,7 @@ def median(input, labels=None, index=None):
     )
 
     return labeled_comprehension(
-        input, labels, index, numpy.median, input.dtype, input.dtype.type(0)
+        input, labels, index, numpy.median, numpy.float64, numpy.float64(0)
     )
 
 
