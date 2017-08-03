@@ -166,7 +166,7 @@ def labeled_comprehension(input,
         input, labels, index
     )
     out_dtype = numpy.dtype(out_dtype)
-    default = numpy.array(default, dtype=out_dtype)[()]
+    default = out_dtype.type(default)
     pass_positions = bool(pass_positions)
 
     lbl_mtch = _utils._get_label_matches(labels, index)
