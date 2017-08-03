@@ -22,6 +22,7 @@ import dask_ndmeasure._test_utils
         "maximum",
         "maximum_position",
         "mean",
+        "median",
         "minimum",
         "minimum_position",
         "standard_deviation",
@@ -55,6 +56,7 @@ def test_measure_props_err(funcname):
         "maximum",
         "maximum_position",
         "mean",
+        "median",
         "minimum",
         "minimum_position",
         "standard_deviation",
@@ -104,6 +106,14 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
 
     assert a_r.dtype == d_r.dtype
     assert a_r.shape == d_r.shape
+
+    # See the linked issue for details.
+    # ref: https://github.com/scipy/scipy/issues/7706
+    if (funcname == "median" and
+        ind is not None and
+        not np.in1d(np.atleast_1d(ind), lbls).all()):
+        pytest.skip("SciPy's `median` mishandles missing labels.")
+
     assert np.allclose(np.array(a_r), np.array(d_r), equal_nan=True)
 
 
