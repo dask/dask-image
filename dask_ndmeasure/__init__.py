@@ -166,7 +166,7 @@ def labeled_comprehension(input,
         input, labels, index
     )
     out_dtype = numpy.dtype(out_dtype)
-    default = numpy.array(default, dtype=out_dtype)[()]
+    default = out_dtype.type(default)
     pass_positions = bool(pass_positions)
 
     lbl_mtch = _utils._get_label_matches(labels, index)
@@ -178,17 +178,20 @@ def labeled_comprehension(input,
         )
         args = (input, positions)
 
+    index_ranges = [_pycompat.irange(e) for e in index.shape]
+
     result = numpy.empty(index.shape, dtype=object)
-    for i in itertools.product(*[_pycompat.irange(j) for j in index.shape]):
-        args_lbl_mtch_i = tuple(e[lbl_mtch[i]] for e in args)
+    for i in itertools.product(*index_ranges):
+        lbl_mtch_i = lbl_mtch[i]
+        args_lbl_mtch_i = tuple(e[lbl_mtch_i] for e in args)
         result[i] = _utils._labeled_comprehension_func(
             func, out_dtype, default, *args_lbl_mtch_i
         )
 
     for i in _pycompat.irange(result.ndim - 1, -1, -1):
-        p = itertools.product(*[_pycompat.irange(e) for e in index.shape[:i]])
+        index_ranges_i = itertools.product(*(index_ranges[:i]))
         result2 = result[..., 0]
-        for j in p:
+        for j in index_ranges_i:
             result2[j] = dask.array.stack(result[j].tolist(), axis=0)
         result = result2
     result = result[()]
