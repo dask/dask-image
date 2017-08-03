@@ -3,6 +3,8 @@
 
 from __future__ import absolute_import
 
+import itertools as it
+
 import pytest
 
 import numpy as np
@@ -161,6 +163,61 @@ def test_extrema(shape, chunks, has_lbls, ind):
         assert a_r_i.dtype == d_r[i].dtype
         assert a_r_i.shape == d_r[i].shape
         assert np.allclose(a_r_i, np.array(d_r[i]), equal_nan=True)
+
+
+@pytest.mark.parametrize(
+    "shape, chunks, has_lbls, ind", [
+        ((15, 16), (4, 5), False, None),
+        ((5, 6, 4), (2, 3, 2), False, None),
+        ((15, 16), (4, 5), True, None),
+        ((15, 16), (4, 5), True, 0),
+        ((15, 16), (4, 5), True, 1),
+        ((15, 16), (4, 5), True, 100),
+        ((15, 16), (4, 5), True, [1]),
+        ((15, 16), (4, 5), True, [1, 2]),
+        ((5, 6, 4), (2, 3, 2), True, [1, 2]),
+        ((15, 16), (4, 5), True, [1, 100]),
+        ((5, 6, 4), (2, 3, 2), True, [1, 100]),
+    ]
+)
+@pytest.mark.parametrize(
+    "min, max, bins", [
+        (0, 1, 5),
+    ]
+)
+def test_histogram(shape, chunks, has_lbls, ind, min, max, bins):
+    a = np.random.random(shape)
+    d = da.from_array(a, chunks=chunks)
+
+    lbls = None
+    d_lbls = None
+
+    if has_lbls:
+        lbls = np.zeros(a.shape, dtype=np.int64)
+        lbls += (
+            (a < 0.5).astype(lbls.dtype) +
+            (a < 0.25).astype(lbls.dtype) +
+            (a < 0.125).astype(lbls.dtype) +
+            (a < 0.0625).astype(lbls.dtype)
+        )
+        d_lbls = da.from_array(lbls, chunks=d.chunks)
+
+    a_r = spnd.histogram(a, min, max, bins, lbls, ind)
+    d_r = dask_ndmeasure.histogram(d, min, max, bins, d_lbls, ind)
+
+    if ind is None or np.isscalar(ind):
+        if a_r is None:
+            assert d_r.compute() is None
+        else:
+            np.allclose(a_r, d_r.compute(), equal_nan=True)
+    else:
+        assert a_r.dtype == d_r.dtype
+        assert a_r.shape == d_r.shape
+        for i in it.product(*[range(_) for _ in a_r.shape]):
+            if a_r[i] is None:
+                assert d_r[i].compute() is None
+            else:
+                assert np.allclose(a_r[i], d_r[i].compute(), equal_nan=True)
 
 
 @pytest.mark.parametrize(
