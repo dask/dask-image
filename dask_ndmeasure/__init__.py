@@ -417,23 +417,9 @@ def minimum(input, labels=None, index=None):
         input, labels, index
     )
 
-    lbl_mtch = _utils._get_label_matches(labels, index)
-
-    lbl_mtch_any = lbl_mtch.any(
-        axis=tuple(_pycompat.irange(index.ndim, lbl_mtch.ndim))
+    return labeled_comprehension(
+        input, labels, index, numpy.min, input.dtype, input.dtype.type(0)
     )
-
-    input_mtch = dask.array.where(
-        lbl_mtch, input[index.ndim * (None,)], numpy.nan
-    )
-
-    nanmin_lbl = dask.array.nanmin(
-        input_mtch, axis=tuple(_pycompat.irange(index.ndim, input_mtch.ndim))
-    )
-
-    min_lbl = dask.array.where(lbl_mtch_any, nanmin_lbl, 0).astype(input.dtype)
-
-    return min_lbl
 
 
 def minimum_position(input, labels=None, index=None):
