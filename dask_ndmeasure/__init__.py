@@ -118,6 +118,62 @@ def extrema(input, labels=None, index=None):
     return min_lbl, max_lbl, min_pos_lbl, max_pos_lbl
 
 
+def histogram(input,
+              min,
+              max,
+              bins,
+              labels=None,
+              index=None):
+    """
+    Calculate the histogram of the values of an array, optionally at labels.
+
+    Histogram calculates the frequency of values in an array within bins
+    determined by `min`, `max`, and `bins`. The `labels` and `index`
+    keywords can limit the scope of the histogram to specified sub-regions
+    within the array.
+
+    Parameters
+    ----------
+    input : array_like
+        Data for which to calculate histogram.
+    min, max : int
+        Minimum and maximum values of range of histogram bins.
+    bins : int
+        Number of bins.
+    labels : array_like, optional
+        Labels for objects in `input`.
+        If not None, must be same shape as `input`.
+    index : int or sequence of ints, optional
+        Label or labels for which to calculate histogram. If None, all values
+        where label is greater than zero are used
+
+    Returns
+    -------
+    hist : ndarray
+        Histogram counts.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+    min = numpy.int64(min)
+    max = numpy.int64(max)
+    bins = int(bins)
+
+    lbl_mtch = _utils._get_label_matches(labels, index)
+
+    index_ranges = [_pycompat.irange(e) for e in index.shape]
+
+    result = numpy.empty(index.shape, dtype=object)
+    for i in itertools.product(*index_ranges):
+        result[i] = _utils._histogram(
+            input[lbl_mtch[i]], min, max, bins
+        )
+    result = result[()]
+
+    return result
+
+
 def labeled_comprehension(input,
                           labels,
                           index,

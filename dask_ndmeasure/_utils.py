@@ -70,6 +70,23 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
 
 
 @dask.delayed
+def _histogram(input,
+               min,
+               max,
+               bins):
+    """
+    Delayed wrapping of NumPy's histogram
+
+    Also reformats the arguments.
+    """
+
+    if input.size:
+        return numpy.histogram(input, bins, (min, max))[0]
+    else:
+        return None
+
+
+@dask.delayed
 def _labeled_comprehension_delayed(func,
                                    out_dtype,
                                    default,
