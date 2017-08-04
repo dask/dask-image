@@ -16,6 +16,7 @@ import itertools
 import operator
 
 import numpy
+import scipy.ndimage
 
 import dask.array
 
@@ -170,6 +171,59 @@ def histogram(input,
             input[lbl_mtch[i]], min, max, bins
         )
     result = result[()]
+
+    return result
+
+
+def label(input, structure=None):
+    """
+    Label features in an array.
+
+    Parameters
+    ----------
+    input : array_like
+        An array-like object to be labeled.  Any non-zero values in `input` are
+        counted as features and zero values are considered the background.
+    structure : array_like, optional
+        A structuring element that defines feature connections.
+        `structure` must be symmetric.  If no structuring element is provided,
+        one is automatically generated with a squared connectivity equal to
+        one.  That is, for a 2-D `input` array, the default structuring element
+        is::
+
+            [[0,1,0],
+             [1,1,1],
+             [0,1,0]]
+
+    Returns
+    -------
+    label : ndarray or int
+        An integer ndarray where each unique feature in `input` has a unique
+        label in the returned array.
+    num_features : int
+        How many objects were found.
+    """
+
+    input = _compat._asarray(input)
+
+    if not all([len(c) == 1 for c in input.chunks]):
+        raise ValueError("`input` must have 1 chunk in all dimensions.")
+
+    result = dask.delayed(scipy.ndimage.label)(input, structure)
+
+    label = dask.array.from_delayed(
+        result[0],
+        input.shape,
+        numpy.int32
+    )
+
+    num_features = dask.array.from_delayed(
+        result[1],
+        tuple(),
+        int
+    )
+
+    result = (label, num_features)
 
     return result
 
