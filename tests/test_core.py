@@ -221,6 +221,36 @@ def test_histogram(shape, chunks, has_lbls, ind, min, max, bins):
 
 
 @pytest.mark.parametrize(
+    "shape, chunks, connectivity", [
+        ((15, 16), (4, 5), 1),
+        ((15, 16), (15, 16), 1),
+        ((15, 16), (15, 16), 2),
+        ((5, 6, 4), (5, 6, 4), 1),
+        ((5, 6, 4), (5, 6, 4), 2),
+        ((5, 6, 4), (5, 6, 4), 3),
+    ]
+)
+def test_label(shape, chunks, connectivity):
+    a = np.random.random(shape) < 0.5
+    d = da.from_array(a, chunks=chunks)
+
+    s = spnd.generate_binary_structure(a.ndim, connectivity)
+
+    if all([len(c) == 1 for c in d.chunks]):
+        a_l, a_nl = spnd.label(a, s)
+        d_l, d_nl = dask_ndmeasure.label(d, s)
+
+        assert a_nl == d_nl.compute()
+
+        assert a_l.dtype == d_l.dtype
+        assert a_l.shape == d_l.shape
+        assert np.allclose(np.array(a_l), np.array(d_l), equal_nan=True)
+    else:
+        with pytest.raises(ValueError):
+            dask_ndmeasure.label(d, s)
+
+
+@pytest.mark.parametrize(
     "shape, chunks, ind", [
         ((15, 16), (4, 5), None),
         ((5, 6, 4), (2, 3, 2), None),
