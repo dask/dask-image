@@ -421,7 +421,7 @@ def maximum_position(input, labels=None, index=None):
             axis=tuple(_pycompat.irange(index.ndim, max_lbl_indices.ndim))
         ),
         0
-    ).astype(numpy.int64)
+    ).astype(indices.dtype)
 
     max_pos_lbl = []
     max_1dpos_lbl_rem = max_1dpos_lbl
@@ -629,7 +629,7 @@ def minimum_position(input, labels=None, index=None):
             axis=tuple(_pycompat.irange(index.ndim, min_lbl_indices.ndim))
         ),
         0
-    ).astype(numpy.int64)
+    ).astype(indices.dtype)
 
     min_pos_lbl = []
     min_1dpos_lbl_rem = min_1dpos_lbl
