@@ -393,7 +393,7 @@ def maximum_position(input, labels=None, index=None):
         index = index.flatten()
 
     indices = _utils._ravel_shape_indices(
-        input.shape, dtype=numpy.int64, chunks=input.chunks
+        input.shape, chunks=input.chunks
     )
 
     max_lbl = maximum(input, labels=labels, index=index)
@@ -601,7 +601,7 @@ def minimum_position(input, labels=None, index=None):
         index = index.flatten()
 
     indices = _utils._ravel_shape_indices(
-        input.shape, dtype=numpy.int64, chunks=input.chunks
+        input.shape, chunks=input.chunks
     )
 
     min_lbl = minimum(input, labels=labels, index=index)

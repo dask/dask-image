@@ -117,7 +117,7 @@ def _argwhere(a):
 
     nz = _isnonzero(a).flatten()
 
-    ind = _indices(a.shape, dtype=numpy.int64, chunks=a.chunks)
+    ind = _indices(a.shape, chunks=a.chunks)
     if ind.ndim > 1:
         ind = dask.array.stack(
             [ind[i].ravel() for i in _pycompat.irange(len(ind))], axis=1
