@@ -284,7 +284,7 @@ def labeled_comprehension(input,
     args = (input,)
     if pass_positions:
         positions = _utils._ravel_shape_indices(
-            input.shape, dtype=numpy.int64, chunks=input.chunks
+            input.shape, chunks=input.chunks
         )
         args = (input, positions)
 
