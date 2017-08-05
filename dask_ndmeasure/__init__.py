@@ -428,7 +428,7 @@ def maximum_position(input, labels=None, index=None):
     if not max_1dpos_lbl_rem.ndim:
         max_1dpos_lbl_rem = max_1dpos_lbl_rem[None]
     for i in _pycompat.irange(input.ndim):
-        d = numpy.int64(numpy.prod(input.shape[i + 1:]))
+        d = int(numpy.prod(input.shape[i + 1:]))
         max_pos_lbl.append(max_1dpos_lbl_rem // d)
         max_1dpos_lbl_rem %= d
     max_pos_lbl = dask.array.stack(max_pos_lbl, axis=1)
