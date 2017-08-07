@@ -41,7 +41,7 @@ def test__norm_input_labels_index():
     a = np.random.random(shape)
     d = da.from_array(a, chunks=chunks)
 
-    lbls = (a < 0.5).astype(np.int64)
+    lbls = (a < 0.5).astype(int)
     d_lbls = da.from_array(lbls, chunks=d.chunks)
 
     d_n, d_lbls_n, ind_n = dask_ndmeasure._utils._norm_input_labels_index(
