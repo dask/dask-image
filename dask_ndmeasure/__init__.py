@@ -601,7 +601,7 @@ def minimum_position(input, labels=None, index=None):
         index = index.flatten()
 
     indices = _utils._ravel_shape_indices(
-        input.shape, chunks=input.chunks
+        input.shape, dtype=numpy.intp, chunks=input.chunks
     )
 
     min_lbl = minimum(input, labels=labels, index=index)
