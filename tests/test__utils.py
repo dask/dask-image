@@ -59,6 +59,43 @@ def test__norm_input_labels_index():
 
 @pytest.mark.parametrize(
     "shape, chunks, ind", [
+        ((15, 16), (4, 5), 1),
+        ((15, 16), (4, 5), [1]),
+        ((15, 16), (4, 5), [[1, 2, 3, 4]]),
+        ((15, 16), (4, 5), [[1, 2], [3, 4]]),
+        ((15, 16), (4, 5), [[[1], [2], [3], [4]]]),
+    ]
+)
+def test__norm_input_labels_index_warn(shape, chunks, ind):
+    a = np.random.random(shape)
+    d = da.from_array(a, chunks=chunks)
+
+    lbls = np.zeros(a.shape, dtype=np.int64)
+    lbls += (
+        (a < 0.5).astype(lbls.dtype) +
+        (a < 0.25).astype(lbls.dtype) +
+        (a < 0.125).astype(lbls.dtype) +
+        (a < 0.0625).astype(lbls.dtype)
+    )
+    d_lbls = da.from_array(lbls, chunks=d.chunks)
+
+    ind = np.array(ind)
+    d_ind = da.from_array(ind, chunks=1)
+
+    with pytest.warns(None) as w:
+        dask_ndmeasure._utils._norm_input_labels_index(
+            d, d_lbls, ind
+        )
+
+    if ind.ndim > 1:
+        assert len(w) == 1
+        w.pop(FutureWarning)
+    else:
+        assert len(w) == 0
+
+
+@pytest.mark.parametrize(
+    "shape, chunks, ind", [
         ((15, 16), (4, 5), 0),
         ((15, 16), (4, 5), 1),
         ((15, 16), (4, 5), [1]),
