@@ -428,7 +428,7 @@ def maximum_position(input, labels=None, index=None):
 
 def mean(input, labels=None, index=None):
     """
-    Calculate the mean of the values of an array at labels.
+    Find the mean over an image at specified subregions.
 
     Parameters
     ----------
@@ -641,7 +641,7 @@ def standard_deviation(input, labels=None, index=None):
 
 def sum(input, labels=None, index=None):
     """
-    Calculate the sum of the values of the array.
+    Find the sum over an image at specified subregions.
 
     Parameters
     ----------
