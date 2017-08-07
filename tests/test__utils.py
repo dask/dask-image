@@ -84,7 +84,7 @@ def test__norm_input_labels_index_warn(shape, chunks, ind):
 
     with pytest.warns(None) as w:
         dask_ndmeasure._utils._norm_input_labels_index(
-            d, d_lbls, ind
+            d, d_lbls, d_ind
         )
 
     if ind.ndim > 1:
@@ -132,7 +132,7 @@ def test__get_label_matches(shape, chunks, ind):
     )
     input_mtch = lbl_mtch.astype(a.dtype) * a[ind.ndim * (None,)]
 
-    d_lbl_mtch = dask_ndmeasure._utils._get_label_matches(d_lbls, ind)
+    d_lbl_mtch = dask_ndmeasure._utils._get_label_matches(d_lbls, d_ind)
 
     assert issubclass(d_lbl_mtch.dtype.type, np.bool8)
 
