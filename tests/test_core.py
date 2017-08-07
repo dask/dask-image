@@ -15,7 +15,6 @@ import scipy.ndimage as spnd
 import dask.array as da
 
 import dask_ndmeasure
-import dask_ndmeasure._test_utils
 
 
 @pytest.mark.parametrize(
