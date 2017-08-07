@@ -20,12 +20,12 @@ def _norm_input_labels_index(input, labels=None, index=None):
     input = _compat._asarray(input)
 
     if labels is None:
-        labels = (input != 0).astype(numpy.int64)
+        labels = (input != 0).astype(int)
         index = None
 
     if index is None:
-        labels = (labels > 0).astype(numpy.int64)
-        index = dask.array.ones(tuple(), dtype=numpy.int64, chunks=tuple())
+        labels = (labels > 0).astype(int)
+        index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
 
     labels = _compat._asarray(labels)
     index = _compat._asarray(index)
