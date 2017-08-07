@@ -59,7 +59,7 @@ def center_of_mass(input, labels=None, index=None):
     input_mtch_sum = sum(input, labels, index)
 
     input_i = _compat._indices(
-        input.shape, chunks=input.chunks
+        input.shape, dtype=numpy.intp, chunks=input.chunks
     )
 
     input_i_wt = input[None] * input_i
