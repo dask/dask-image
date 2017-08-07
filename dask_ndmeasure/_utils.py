@@ -2,6 +2,7 @@
 
 
 import operator
+import warnings
 
 import numpy
 
@@ -29,6 +30,12 @@ def _norm_input_labels_index(input, labels=None, index=None):
 
     labels = _compat._asarray(labels)
     index = _compat._asarray(index)
+
+    if index.ndim > 1:
+        warnings.warn(
+            "Having index with dimensionality greater than 1 is undefined.",
+            FutureWarning
+        )
 
     if input.shape != labels.shape:
         raise ValueError("The input and labels arrays must be the same shape.")
