@@ -2,7 +2,6 @@
 
 
 import itertools
-import numbers
 
 import numpy
 
