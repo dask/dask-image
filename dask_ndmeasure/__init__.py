@@ -59,7 +59,7 @@ def center_of_mass(input, labels=None, index=None):
     input_mtch_sum = sum(input, labels, index)
 
     input_i = _compat._indices(
-        input.shape, dtype=numpy.int64, chunks=input.chunks
+        input.shape, chunks=input.chunks
     )
 
     input_i_wt = input[None] * input_i
@@ -157,8 +157,8 @@ def histogram(input,
     input, labels, index = _utils._norm_input_labels_index(
         input, labels, index
     )
-    min = numpy.int64(min)
-    max = numpy.int64(max)
+    min = int(min)
+    max = int(max)
     bins = int(bins)
 
     lbl_mtch = _utils._get_label_matches(labels, index)
@@ -284,7 +284,7 @@ def labeled_comprehension(input,
     args = (input,)
     if pass_positions:
         positions = _utils._ravel_shape_indices(
-            input.shape, dtype=numpy.int64, chunks=input.chunks
+            input.shape, chunks=input.chunks
         )
         args = (input, positions)
 
@@ -428,7 +428,7 @@ def maximum_position(input, labels=None, index=None):
     if not max_1dpos_lbl_rem.ndim:
         max_1dpos_lbl_rem = max_1dpos_lbl_rem[None]
     for i in _pycompat.irange(input.ndim):
-        d = numpy.int64(numpy.prod(input.shape[i + 1:]))
+        d = int(numpy.prod(input.shape[i + 1:]))
         max_pos_lbl.append(max_1dpos_lbl_rem // d)
         max_1dpos_lbl_rem %= d
     max_pos_lbl = dask.array.stack(max_pos_lbl, axis=1)
@@ -636,7 +636,7 @@ def minimum_position(input, labels=None, index=None):
     if not min_1dpos_lbl_rem.ndim:
         min_1dpos_lbl_rem = min_1dpos_lbl_rem[None]
     for i in _pycompat.irange(input.ndim):
-        d = numpy.int64(numpy.prod(input.shape[i + 1:]))
+        d = int(numpy.prod(input.shape[i + 1:]))
         min_pos_lbl.append(min_1dpos_lbl_rem // d)
         min_1dpos_lbl_rem %= d
     min_pos_lbl = dask.array.stack(min_pos_lbl, axis=1)
