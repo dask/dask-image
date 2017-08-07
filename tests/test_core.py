@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 import itertools as it
+import warnings as wrn
 
 import pytest
 
@@ -106,7 +107,13 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
     a_r = np.array(sp_func(a, lbls, ind))
     d_r = da_func(d, d_lbls, ind)
 
-    assert a_r.dtype == d_r.dtype
+    if a_r.dtype != d_r.dtype:
+        wrn.warn(
+            "Encountered a type mismatch."
+            " Expected type, %s, but got type, %s."
+            "" % (str(a_r.dtype), str(d_r.dtype)),
+            RuntimeWarning
+        )
     assert a_r.shape == d_r.shape
 
     # See the linked issue for details.
@@ -160,7 +167,13 @@ def test_extrema(shape, chunks, has_lbls, ind):
 
     for i in range(len(a_r)):
         a_r_i = np.array(a_r[i])
-        assert a_r_i.dtype == d_r[i].dtype
+        if a_r_i.dtype != d_r[i].dtype:
+            wrn.warn(
+                "Encountered a type mismatch."
+                " Expected type, %s, but got type, %s."
+                "" % (str(a_r_i.dtype), str(d_r[i].dtype)),
+                RuntimeWarning
+            )
         assert a_r_i.shape == d_r[i].shape
         assert np.allclose(a_r_i, np.array(d_r[i]), equal_nan=True)
 
