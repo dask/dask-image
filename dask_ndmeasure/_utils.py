@@ -21,10 +21,9 @@ def _norm_input_labels_index(input, labels=None, index=None):
     input = _compat._asarray(input)
 
     if labels is None:
-        labels = (input != 0).astype(int)
-        index = None
-
-    if index is None:
+        labels = dask.array.ones(input.shape, dtype=int, chunks=input.chunks)
+        index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
+    elif index is None:
         labels = (labels > 0).astype(int)
         index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
 
