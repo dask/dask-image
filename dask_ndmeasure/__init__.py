@@ -157,8 +157,8 @@ def histogram(input,
     input, labels, index = _utils._norm_input_labels_index(
         input, labels, index
     )
-    min = numpy.int64(min)
-    max = numpy.int64(max)
+    min = int(min)
+    max = int(max)
     bins = int(bins)
 
     lbl_mtch = _utils._get_label_matches(labels, index)
