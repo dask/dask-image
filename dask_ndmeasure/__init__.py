@@ -393,7 +393,7 @@ def maximum_position(input, labels=None, index=None):
         index = index.flatten()
 
     indices = _utils._ravel_shape_indices(
-        input.shape, chunks=input.chunks
+        input.shape, dtype=numpy.intp, chunks=input.chunks
     )
 
     max_lbl = maximum(input, labels=labels, index=index)
