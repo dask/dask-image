@@ -612,16 +612,8 @@ def sum(input, labels=None, index=None):
         input, labels, index
     )
 
-    lbl_mtch = _utils._get_label_matches(labels, index)
-
-    input_mtch = dask.array.where(
-        lbl_mtch, input[index.ndim * (None,)], input.dtype.type(0)
-    )
-
-    input_mtch = input_mtch.astype(numpy.float64)
-
-    sum_lbl = input_mtch.sum(
-        axis=tuple(_pycompat.irange(index.ndim, input_mtch.ndim))
+    sum_lbl = labeled_comprehension(
+        input, labels, index, numpy.sum, numpy.float64, numpy.float64(0)
     )
 
     return sum_lbl
