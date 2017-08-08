@@ -75,6 +75,14 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     return indices
 
 
+def _argmax(a, positions):
+    """
+    Find original array position corresponding to the maximum.
+    """
+
+    return positions[numpy.argmax(a)]
+
+
 @dask.delayed
 def _histogram(input,
                min,

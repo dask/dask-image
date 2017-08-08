@@ -379,36 +379,9 @@ def maximum_position(input, labels=None, index=None):
     if index.shape:
         index = index.flatten()
 
-    indices = _utils._ravel_shape_indices(
-        input.shape, chunks=input.chunks
+    max_1dpos_lbl = labeled_comprehension(
+        input, labels, index, _utils._argmax, int, 0, pass_positions=True
     )
-
-    max_lbl = maximum(input, labels=labels, index=index)
-
-    lbl_mtch = _utils._get_label_matches(labels, index)
-    input_mtch = dask.array.where(
-        lbl_mtch, input[index.ndim * (None,)], numpy.nan
-    )
-
-    max_lbl_mask = operator.eq(
-        max_lbl[max_lbl.ndim * (slice(None),) + input.ndim * (None,)],
-        input_mtch
-    )
-    max_lbl_mask_any = max_lbl_mask.any(
-        axis=tuple(_pycompat.irange(index.ndim, max_lbl_mask.ndim))
-    )
-    max_lbl_indices = dask.array.where(
-        max_lbl_mask, indices, numpy.nan
-    )
-
-    max_1dpos_lbl = dask.array.where(
-        max_lbl_mask_any,
-        dask.array.nanmin(
-            max_lbl_indices,
-            axis=tuple(_pycompat.irange(index.ndim, max_lbl_indices.ndim))
-        ),
-        0
-    ).astype(indices.dtype)
 
     if not max_1dpos_lbl.ndim:
         max_1dpos_lbl = max_1dpos_lbl[None]
