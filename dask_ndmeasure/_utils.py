@@ -83,6 +83,14 @@ def _argmax(a, positions):
     return positions[numpy.argmax(a)]
 
 
+def _argmin(a, positions):
+    """
+    Find original array position corresponding to the minimum.
+    """
+
+    return positions[numpy.argmin(a)]
+
+
 @dask.delayed
 def _histogram(input,
                min,

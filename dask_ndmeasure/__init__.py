@@ -534,36 +534,9 @@ def minimum_position(input, labels=None, index=None):
     if index.shape:
         index = index.flatten()
 
-    indices = _utils._ravel_shape_indices(
-        input.shape, chunks=input.chunks
+    min_1dpos_lbl = labeled_comprehension(
+        input, labels, index, _utils._argmin, int, 0, pass_positions=True
     )
-
-    min_lbl = minimum(input, labels=labels, index=index)
-
-    lbl_mtch = _utils._get_label_matches(labels, index)
-    input_mtch = dask.array.where(
-        lbl_mtch, input[index.ndim * (None,)], numpy.nan
-    )
-
-    min_lbl_mask = operator.eq(
-        min_lbl[min_lbl.ndim * (slice(None),) + input.ndim * (None,)],
-        input_mtch
-    )
-    min_lbl_mask_any = min_lbl_mask.any(
-        axis=tuple(_pycompat.irange(index.ndim, min_lbl_mask.ndim))
-    )
-    min_lbl_indices = dask.array.where(
-        min_lbl_mask, indices, numpy.nan
-    )
-
-    min_1dpos_lbl = dask.array.where(
-        min_lbl_mask_any,
-        dask.array.nanmin(
-            min_lbl_indices,
-            axis=tuple(_pycompat.irange(index.ndim, min_lbl_indices.ndim))
-        ),
-        0
-    ).astype(indices.dtype)
 
     if not min_1dpos_lbl.ndim:
         min_1dpos_lbl = min_1dpos_lbl[None]
