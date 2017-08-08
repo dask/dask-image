@@ -13,7 +13,6 @@ del get_versions
 
 
 import itertools
-import operator
 
 import numpy
 import scipy.ndimage
