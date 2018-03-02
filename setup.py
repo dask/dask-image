@@ -49,7 +49,7 @@ setup(
     long_description=readme + "\n\n" + history,
     author="John Kirkham",
     author_email="kirkhamj@janelia.hhmi.org",
-    url="https://github.com/jakirkham/dask-image",
+    url="https://github.com/dask/dask-image",
     cmdclass=cmdclasses,
     packages=setuptools.find_packages(exclude=["tests*"]),
     include_package_data=True,

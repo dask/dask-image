@@ -11,19 +11,19 @@ dask-image
         :target: https://anaconda.org/conda-forge/dask-image
         :alt: conda-forge
 
-.. image:: https://img.shields.io/travis/jakirkham/dask-image/master.svg
-        :target: https://travis-ci.org/jakirkham/dask-image
+.. image:: https://img.shields.io/travis/dask/dask-image/master.svg
+        :target: https://travis-ci.org/dask/dask-image
         :alt: Travis CI
 
 .. image:: https://readthedocs.org/projects/dask-image/badge/?version=latest
         :target: https://dask-image.readthedocs.io/en/latest/?badge=latest
         :alt: Read the Docs
 
-.. image:: https://coveralls.io/repos/github/jakirkham/dask-image/badge.svg
-        :target: https://coveralls.io/github/jakirkham/dask-image
+.. image:: https://coveralls.io/repos/github/dask/dask-image/badge.svg
+        :target: https://coveralls.io/github/dask/dask-image
         :alt: Coveralls
 
-.. image:: https://img.shields.io/github/license/jakirkham/dask-image.svg
+.. image:: https://img.shields.io/github/license/dask/dask-image.svg
         :target: ./LICENSE.txt
         :alt: License
 
