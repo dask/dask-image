@@ -66,8 +66,8 @@ Ready to contribute? Here's how to set up `dask-image` for local development.
 
 3. Install your local copy into an environment. Assuming you have conda installed, this is how you set up your fork for local development (on Windows drop `source`). Replace `"<some version>"` with the Python version used for testing.::
 
-    $ conda create -n dask-imageenv python="<some version>"
-    $ source activate dask-imageenv
+    $ conda create -n dask-image-env python="<some version>"
+    $ source activate dask-image-env
     $ python setup.py develop
 
 4. Create a branch for local development::
