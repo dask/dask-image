@@ -1,0 +1,28 @@
+[run]
+branch = True
+source = dask_image
+[report]
+exclude_lines =
+    # Include the no cover pragma as it needs to be listed explicitly when
+    # using exclude_lines.
+    # ( http://coverage.readthedocs.io/en/coverage-4.1/excluding.html#advanced-exclusion )
+    pragma: no cover
+
+    # Ignore coverage of code that requires the module to be executed.
+    if __name__ == .__main__.:
+
+    # Ignore continue statement in code as it can't be detected as covered
+    # due to an optimization by the Python interpreter. See coverage issue
+    # ( https://bitbucket.org/ned/coveragepy/issue/198/continue-marked-as-not-covered )
+    # and Python issue ( http://bugs.python.org/issue2506 ).
+    continue
+omit =
+    */python?.?/*
+    */site-packages/*
+    */eggs/*
+    */.eggs/*
+    *tests/*
+    */travis_pypi_setup.py
+    */versioneer.py
+    */_version.py
+    */_vendor/*
