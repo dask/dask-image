@@ -52,5 +52,3 @@ after_success:
 # Disable email notifications.
 notifications:
   email: false
-
-
