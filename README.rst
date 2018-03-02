@@ -31,7 +31,7 @@ dask-image
 Distributed image processing
 
 
-* Free software: BSD license
+* Free software: BSD 3-Clause
 * Documentation: https://dask-image.readthedocs.io.
 
 
