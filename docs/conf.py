@@ -15,6 +15,7 @@
 
 import sys
 import os
+from distutils.version import StrictVersion
 
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
@@ -282,6 +283,7 @@ texinfo_documents = [
 
 # Run sphinx-apidoc before building docs.
 def run_apidoc(_):
+    import sphinx
     import sphinx.apidoc
 
     ignore_paths = [
@@ -290,17 +292,25 @@ def run_apidoc(_):
         "../travis_pypi_setup.py",
         "../versioneer.py"
     ]
-    sphinx.apidoc.main(
+
+    sphinx_apidoc_args = []
+    if StrictVersion(sphinx.__version__) < StrictVersion("1.7.0"):
+        sphinx_apidoc_args.append(sphinx.apidoc.__file__)
+
+    sphinx_apidoc_args.extend(
         [
-            sphinx.apidoc.__file__,
             "-f",
             "-T",
             "-e",
             "-M",
             "-o", ".",
             ".."
-        ] + ignore_paths
+        ]
     )
+
+    sphinx_apidoc_args.extend(ignore_paths)
+
+    sphinx.apidoc.main(sphinx_apidoc_args)
 
 def setup(app):
     app.connect('builder-inited', run_apidoc)
