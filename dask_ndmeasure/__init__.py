@@ -13,6 +13,7 @@ del get_versions
 
 
 import itertools
+from warnings import warn
 
 import numpy
 import scipy.ndimage
@@ -208,7 +209,7 @@ def label(input, structure=None):
     input = _compat._asarray(input)
 
     if not all([len(c) == 1 for c in input.chunks]):
-        raise ValueError("``input`` must have 1 chunk in all dimensions.")
+        warn("If ``input`` does not have 1 chunk in all dimensions, it will be consolidated first", RuntimeWarning)
 
     result = dask.delayed(scipy.ndimage.label)(input, structure)
 
