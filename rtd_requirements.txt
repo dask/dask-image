@@ -1,0 +1,4 @@
+mock
+pillow
+sphinx
+sphinx_rtd_theme
