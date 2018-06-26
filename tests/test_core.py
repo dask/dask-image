@@ -254,18 +254,14 @@ def test_label(shape, chunks, connectivity):
 
     s = spnd.generate_binary_structure(a.ndim, connectivity)
 
-    if all([len(c) == 1 for c in d.chunks]):
-        a_l, a_nl = spnd.label(a, s)
-        d_l, d_nl = dask_ndmeasure.label(d, s)
+    a_l, a_nl = spnd.label(a, s)
+    d_l, d_nl = dask_ndmeasure.label(d, s)
 
-        assert a_nl == d_nl.compute()
+    assert a_nl == d_nl.compute()
 
-        assert a_l.dtype == d_l.dtype
-        assert a_l.shape == d_l.shape
-        assert np.allclose(np.array(a_l), np.array(d_l), equal_nan=True)
-    else:
-        with pytest.raises(ValueError):
-            dask_ndmeasure.label(d, s)
+    assert a_l.dtype == d_l.dtype
+    assert a_l.shape == d_l.shape
+    assert np.allclose(np.array(a_l), np.array(d_l), equal_nan=True)
 
 
 @pytest.mark.parametrize(
