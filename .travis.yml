@@ -1,52 +1,40 @@
-# Config file for automatic testing at travis-ci.org
-# This file will be regenerated if you run travis_pypi_setup.py
-
 sudo: false
 
 language: generic
 
+os: osx
+osx_image: xcode6.4
+
+branches:
+  only:
+    - master
+
 env:
-  - PYVER="3.6"
-  - PYVER="3.5"
-  - PYVER="3.4"
-  - PYVER="2.7"
+  - PYVER="36"
+  - PYVER="35"
+  - PYVER="27"
 
 install:
-  # Install Miniconda.
-  - curl -L https://repo.continuum.io/miniconda/Miniconda3-4.1.11-Linux-x86_64.sh > miniconda.sh
-  - openssl md5 miniconda.sh | grep 874dbb0d3c7ec665adf7231bbb575ab2
-  - bash miniconda.sh -b -p ~/miniconda
-  - rm miniconda.sh
-  - source ~/miniconda/bin/activate root
-  - conda config --set show_channel_urls true
-  - conda update -y -n root --all
-  - conda install -y -n root conda-build
-  - conda clean -tipsy
+  # Install and Configure Miniconda.
+  - source .travis_support/install_miniconda.sh
 
   # Create the test environment.
-  - conda create -y -n testenv python="${PYVER}"
-  - conda remove -y --force -n testenv openssl
-  - conda env update -n testenv --file environment_ci.yml
-  - conda list --full-name -n testenv openssl || conda install -y -n testenv openssl
-  - source activate testenv
+  - export CONDA_ENV_TYPE="tst_py${PYVER}"
+  - source .travis_support/create_env.sh
 
   # Install the package and dependencies.
   - pip install -e .
 
-# command to run tests, e.g. python setup.py test
+# Run tests and measure test coverage.
 script:
   - coverage erase
   - coverage run --source . setup.py test
   - coverage report -m
 
-# Report coverage
+# Report coverage.
 after_success:
-  - source activate root
-  - conda create -y -n dplenv python="3.5";
-  - conda remove -y --force -n dplenv openssl
-  - conda env update -n dplenv --file environment_dpl.yml
-  - conda list --full-name -n dplenv openssl || conda install -y -n dplenv openssl
-  - source activate dplenv
+  - export CONDA_ENV_TYPE="dpl"
+  - source .travis_support/create_env.sh
   - coveralls
 
 # Disable email notifications.
