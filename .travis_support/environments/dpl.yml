@@ -1,0 +1,11 @@
+name: dask_image_dpl_env
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.6.*
+  - pip==18.0
+  - wheel==0.31.1
+  - coverage==4.5.1
+  - coveralls==1.3.0

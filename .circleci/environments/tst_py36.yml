@@ -1,9 +1,10 @@
-name: dask_image_doc_env
+name: dask_image_py36_env
 
 channels:
   - conda-forge
 
 dependencies:
+  - python=3.6.*
   - pip==18.0
   - wheel==0.31.1
-  - sphinx==1.7.5
+  - coverage==4.5.1
