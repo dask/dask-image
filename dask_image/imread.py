@@ -15,20 +15,6 @@ import dask.delayed
 import numpy
 import pims
 
-tifffile = None
-try:
-    import tifffile
-except ImportError:
-    try:
-        from skimage.external import tifffile
-    except ImportError:  # pragma: no cover
-        pass
-
-
-# Monkey patch pims to use the available tifffile.
-if pims.tiff_stack.tifffile is None:
-    pims.tiff_stack.tifffile = tifffile
-
 
 def imread(fname, nframes=1):
     """
