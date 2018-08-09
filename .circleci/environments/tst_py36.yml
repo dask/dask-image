@@ -8,3 +8,12 @@ dependencies:
   - pip==18.0
   - wheel==0.31.1
   - coverage==4.5.1
+  - pytest==3.0.5
+  - dask==0.13.0
+  - numpy==1.11.3
+  - scikit-image=0.12.3
+  - pims==0.3.3
+  - slicerator==0.9.8
+  - six==1.10.0
+  - pip:
+    - slicerator==0.9.8

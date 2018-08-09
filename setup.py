@@ -29,11 +29,14 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+    "dask >=0.13.0",
+    "numpy >=1.11.3",
+    "pims >=0.3.3",
 ]
 
 test_requirements = [
-    "pytest",
+    "pytest >=3.0.5",
+    "scikit-image >=0.12.3",
 ]
 
 cmdclasses = {
