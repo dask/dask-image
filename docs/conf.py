@@ -311,3 +311,4 @@ def run_apidoc(_):
 
 def setup(app):
     app.connect('builder-inited', run_apidoc)
+    app.add_stylesheet("https://dask.pydata.org/en/latest/_static/style.css")
