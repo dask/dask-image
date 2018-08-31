@@ -1,5 +1,5 @@
-Welcome to dask-image's documentation!
-======================================
+Image processing with Dask Arrays
+=================================
 
 Contents:
 
