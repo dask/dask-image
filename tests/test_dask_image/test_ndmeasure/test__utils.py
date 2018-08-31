@@ -52,6 +52,10 @@ def test__norm_input_labels_index():
     assert isinstance(d_lbls_n, da.Array)
     assert isinstance(ind_n, da.Array)
 
+    assert d_n.shape == d.shape
+    assert d_lbls_n.shape == d_lbls.shape
+    assert ind_n.shape == ()
+
     dau.assert_eq(d_n, d)
     dau.assert_eq(d_lbls_n, d_lbls)
     dau.assert_eq(ind_n, np.array(1, dtype=int))
