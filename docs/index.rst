@@ -8,7 +8,6 @@ Contents:
 
    Readme <readme>
    installation
-   usage
    api
    contributing
    authors
