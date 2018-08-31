@@ -4,10 +4,12 @@
 from __future__ import absolute_import
 
 import numbers
+from distutils.version import LooseVersion
 
 import pytest
 
 import numpy as np
+import scipy as sp
 import scipy.ndimage.fourier as sp_ndf
 
 import dask.array as da
@@ -94,6 +96,17 @@ def test_fourier_filter_identity(funcname, s):
     ]
 )
 def test_fourier_filter_type(funcname, upcast_type, dtype):
+    if (LooseVersion(sp.__version__) >= "1.0.0" and (
+            dtype is np.int64 or
+            dtype is np.float64
+        ) and (
+            funcname is "fourier_gaussian" or
+            funcname is "fourier_uniform"
+        )):
+        pytest.skip(
+            "SciPy 1.0.0+ doesn't handle double precision values correctly."
+        )
+
     dtype = np.dtype(dtype).type
 
     s = 1
