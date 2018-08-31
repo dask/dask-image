@@ -54,7 +54,7 @@ def test__norm_input_labels_index():
 
     dau.assert_eq(d_n, d)
     dau.assert_eq(d_lbls_n, d_lbls)
-    dau.assert_eq(ind_n, np.array([1], dtype=int))
+    dau.assert_eq(ind_n, np.array(1, dtype=int))
 
 
 @pytest.mark.parametrize(
