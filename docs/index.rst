@@ -17,7 +17,6 @@ Contents
 .. toctree::
    :maxdepth: 1
 
-   Readme <readme>
    installation
    api
    contributing
