@@ -2,6 +2,11 @@
 History
 =======
 
+0.1.1 (2018-08-31)
+------------------
+
+* Fix a bug in an ndmeasure test of an internal function.
+
 0.1.0 (2018-08-31)
 ------------------
 
