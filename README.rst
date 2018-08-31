@@ -44,12 +44,3 @@ Features
 * Includes a few N-D Fourier filters.
 * Provides some functions for working with N-D label images.
 * Supports a few N-D morphological operators.
-
-Credits
----------
-
-This package was created with Cookiecutter_ and the `dask-image/dask-image-cookiecutter`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`dask-image/dask-image-cookiecutter`: https://github.com/dask-image/dask-image-cookiecutter
-
