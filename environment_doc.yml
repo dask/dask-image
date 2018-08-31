@@ -10,7 +10,7 @@ dependencies:
   - sphinx_rtd_theme==0.4.1
   - dask==0.13.0
   - numpy==1.11.3
-  - pims==0.3.3
+  - pims==0.4.1
   - slicerator==0.9.8
   - pip:
     - slicerator==0.9.8
