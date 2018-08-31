@@ -1,5 +1,5 @@
-Welcome to dask-image's documentation!
-======================================
+Image processing with Dask Arrays
+=================================
 
 Contents:
 
@@ -8,7 +8,6 @@ Contents:
 
    Readme <readme>
    installation
-   usage
    api
    contributing
    authors
