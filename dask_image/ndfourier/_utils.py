@@ -59,7 +59,7 @@ def _get_ang_freq_grid(shape, chunks, dtype=float):
     pi = dtype(numpy.pi)
 
     freq_grid = _get_freq_grid(shape, chunks, dtype=dtype)
-    ang_freq_grid = 2 * pi * freq_grid
+    ang_freq_grid = (2 * pi) * freq_grid
 
     return ang_freq_grid
 
