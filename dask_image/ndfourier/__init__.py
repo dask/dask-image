@@ -65,8 +65,9 @@ def fourier_gaussian(input, sigma, n=-1, axis=-1):
     )
 
     # Compute Fourier transformed Gaussian
+    scale = - (sigma ** 2) / 2
     gaussian = dask.array.exp(
-        - dask.array.tensordot(sigma ** 2, ang_freq_grid ** 2, axes=1) / 2
+        dask.array.tensordot(scale, ang_freq_grid ** 2, axes=1)
     )
 
     result = input * gaussian
