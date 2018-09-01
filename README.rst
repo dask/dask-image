@@ -7,7 +7,7 @@ dask-image
         :target: https://pypi.python.org/pypi/dask-image
         :alt: PyPI
 
-.. image:: https://anaconda.org/conda-forge/dask-image/badges/version.svg
+.. image:: https://img.shields.io/conda/vn/conda-forge/dask-image.svg
         :target: https://anaconda.org/conda-forge/dask-image
         :alt: conda-forge
 
