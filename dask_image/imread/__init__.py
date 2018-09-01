@@ -15,6 +15,8 @@ import dask.delayed
 import numpy
 import pims
 
+from . import _pycompat
+
 
 def imread(fname, nframes=1):
     """
@@ -35,16 +37,6 @@ def imread(fname, nframes=1):
     array : dask.array.Array
         A Dask Array representing the contents of all image files.
     """
-
-    try:
-        irange = xrange
-    except NameError:
-        irange = range
-
-    try:
-        izip = itertools.izip
-    except AttributeError:
-        izip = zip
 
     if not isinstance(nframes, numbers.Integral):
         raise ValueError("`nframes` must be an integer.")
@@ -76,13 +68,13 @@ def imread(fname, nframes=1):
             return numpy.asanyarray(imgs[i])
 
     lower_iter, upper_iter = itertools.tee(itertools.chain(
-        irange(0, shape[0], nframes),
+        _pycompat.irange(0, shape[0], nframes),
         [shape[0]]
     ))
     next(upper_iter)
 
     a = []
-    for i, j in izip(lower_iter, upper_iter):
+    for i, j in _pycompat.izip(lower_iter, upper_iter):
         a.append(dask.array.from_delayed(
             dask.delayed(_read_frame)(fname, slice(i, j)),
             (j - i,) + shape[1:],
