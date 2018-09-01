@@ -136,7 +136,7 @@ def fourier_shift(input, shift, n=-1, axis=-1):
 
     # Apply shift
     phase_shift = dask.array.exp(
-        - J * dask.array.tensordot(shift, ang_freq_grid, axes=1)
+        (-J) * dask.array.tensordot(shift, ang_freq_grid, axes=1)
     )
     result = input * phase_shift
 
