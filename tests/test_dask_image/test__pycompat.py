@@ -4,11 +4,11 @@
 
 from __future__ import absolute_import
 
-import dask_image.imread._pycompat
+import dask_image._pycompat
 
 
 def test_irange():
-    r = dask_image.imread._pycompat.irange(5)
+    r = dask_image._pycompat.irange(5)
 
     assert not isinstance(r, list)
 
@@ -16,7 +16,7 @@ def test_irange():
 
 
 def test_izip():
-    r = dask_image.imread._pycompat.izip([1, 2], [3, 4, 5])
+    r = dask_image._pycompat.izip([1, 2], [3, 4, 5])
 
     assert not isinstance(r, list)
 
