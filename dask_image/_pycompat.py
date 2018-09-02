@@ -6,6 +6,13 @@ except NameError:
     irange = range
 
 try:
-    from itertools import izip
+    from itertools import imap, izip
 except ImportError:
-    izip = zip
+    imap, izip = map, zip
+
+try:
+    unicode = unicode
+except NameError:
+    unicode = str
+
+strlike = (bytes, unicode)
