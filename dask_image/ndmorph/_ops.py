@@ -6,12 +6,7 @@ import numpy
 import dask.array
 
 from . import _utils
-
-
-try:
-    irange = xrange
-except NameError:
-    irange = range
+from .._pycompat import irange
 
 
 def _where(condition, x, y):
