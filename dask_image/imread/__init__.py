@@ -15,7 +15,7 @@ import dask.delayed
 import numpy
 import pims
 
-from . import _pycompat
+from .. import _pycompat
 
 
 def imread(fname, nframes=1):

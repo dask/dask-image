@@ -16,7 +16,7 @@ import scipy.ndimage
 import dask.array
 
 from . import _compat
-from . import _pycompat
+from .. import _pycompat
 from . import _utils
 
 

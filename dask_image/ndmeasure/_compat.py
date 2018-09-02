@@ -7,7 +7,7 @@ import numpy
 
 import dask.array
 
-from . import _pycompat
+from .. import _pycompat
 
 
 def _asarray(a):
