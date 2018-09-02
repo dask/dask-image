@@ -16,6 +16,7 @@ import numpy
 import pims
 
 from .. import _pycompat
+from . import _utils
 
 
 def imread(fname, nframes=1):
@@ -63,10 +64,6 @@ def imread(fname, nframes=1):
             RuntimeWarning
         )
 
-    def _read_frame(fn, i):
-        with pims.open(fn) as imgs:
-            return numpy.asanyarray(imgs[i])
-
     lower_iter, upper_iter = itertools.tee(itertools.chain(
         _pycompat.irange(0, shape[0], nframes),
         [shape[0]]
@@ -76,7 +73,7 @@ def imread(fname, nframes=1):
     a = []
     for i, j in _pycompat.izip(lower_iter, upper_iter):
         a.append(dask.array.from_delayed(
-            dask.delayed(_read_frame)(fname, slice(i, j)),
+            dask.delayed(_utils._read_frame)(fname, slice(i, j)),
             (j - i,) + shape[1:],
             dtype
         ))
