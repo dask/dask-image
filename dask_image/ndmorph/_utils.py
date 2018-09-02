@@ -11,23 +11,7 @@ import scipy.ndimage
 
 import dask.array
 
-
-try:
-    from itertools import imap, izip
-except ImportError:
-    imap, izip = map, zip
-
-try:
-    irange = xrange
-except NameError:
-    irange = range
-
-try:
-    unicode
-except NameError:
-    unicode = str
-
-strlike = (bytes, unicode)
+from .._pycompat import imap, irange, izip, strlike, unicode
 
 
 def _get_docstring(func):

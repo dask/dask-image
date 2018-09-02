@@ -9,16 +9,7 @@ import numpy
 import dask.array
 
 from . import _compat
-
-try:
-    from itertools import imap
-except ImportError:
-    imap = map
-
-try:
-    irange = xrange
-except NameError:
-    irange = range
+from .._pycompat import imap, irange
 
 
 def _get_freq_grid(shape, chunks, dtype=float):
