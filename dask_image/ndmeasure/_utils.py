@@ -61,16 +61,13 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     the raveled index from that.
     """
 
-    dtype = numpy.dtype(dtype)
-
-    indices = _compat._indices(
-        dimensions, dtype=dtype, chunks=chunks
-    )
-
-    indices = list(indices)
-    for i in _pycompat.irange(len(indices)):
-        indices[i] *= dtype.type(numpy.prod(indices[i].shape[i + 1:]))
-    indices = dask.array.stack(indices).sum(axis=0)
+    indices = sum([
+        dask.array.arange(
+            0, numpy.prod(dimensions[i:]), numpy.prod(dimensions[i + 1:]),
+            dtype=dtype, chunks=c
+        )[i * (None,) + (slice(None),) + (len(dimensions) - i - 1) * (None,)]
+        for i, c in enumerate(chunks)
+    ])
 
     return indices
 
