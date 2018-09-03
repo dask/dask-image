@@ -9,17 +9,6 @@ from . import _utils
 from .._pycompat import irange
 
 
-def _where(condition, x, y):
-    if isinstance(condition, (bool, numpy.bool8)):
-        dtype = numpy.promote_types(x.dtype, y.dtype)
-        if condition:
-            return x.astype(dtype)
-        else:
-            return y.astype(dtype)
-    else:
-        return dask.array.where(condition, x, y)
-
-
 def _binary_op(func,
                input,
                structure=None,
@@ -49,6 +38,6 @@ def _binary_op(func,
             origin=origin,
             **kwargs
         )
-        result = _where(mask, iter_result, result)
+        result = dask.array.where(mask, iter_result, result)
 
     return result
