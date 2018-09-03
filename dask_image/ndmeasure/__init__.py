@@ -54,18 +54,20 @@ def center_of_mass(input, labels=None, index=None):
 
     input_mtch_sum = sum(input, labels, index)
 
-    input_i = _compat._indices(
-        input.shape, chunks=input.chunks
-    )
+    input_wt_mtch_sum = []
+    for i in _pycompat.irange(input.ndim):
+        sl = input.ndim * [None]
+        sl[i] = slice(None)
+        sl = tuple(sl)
 
-    input_i_wt = input[None] * input_i
+        input_i = dask.array.arange(input.shape[i], chunks=input.chunks[i])
+        input_wt = input * input_i[sl]
 
-    input_i_wt_mtch_sum = []
-    for i in _pycompat.irange(len(input_i_wt)):
-        input_i_wt_mtch_sum.append(sum(input_i_wt[i], labels, index))
-    input_i_wt_mtch_sum = dask.array.stack(input_i_wt_mtch_sum, axis=-1)
+        input_wt_mtch_sum.append(sum(input_wt, labels, index))
 
-    com_lbl = input_i_wt_mtch_sum / input_mtch_sum[..., None]
+    input_wt_mtch_sum = dask.array.stack(input_wt_mtch_sum, axis=-1)
+
+    com_lbl = input_wt_mtch_sum / input_mtch_sum[..., None]
 
     return com_lbl
 
