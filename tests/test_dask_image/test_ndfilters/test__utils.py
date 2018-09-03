@@ -136,7 +136,7 @@ def test_errs__get_footprint(err_type, ndim, size, footprint):
 @pytest.mark.parametrize(
     "expected, ndim, depth, boundary",
     [
-        (({0: 0}, {0: "reflect"}), 1, 0, "none"),
+        (({0: 0}, {0: "none"}), 1, 0, "none"),
         (({0: 0}, {0: "reflect"}), 1, 0, "reflect"),
         (({0: 0}, {0: "periodic"}), 1, 0, "periodic"),
         (({0: 1}, {0: "none"}), 1, 1, "none"),

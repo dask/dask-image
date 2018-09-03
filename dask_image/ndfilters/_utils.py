@@ -90,14 +90,6 @@ def _get_depth_boundary(ndim, depth, boundary=None):
     if not all(map(type_check, boundary.values())):
         raise TypeError("Expected string-like values for `boundary`.")
 
-    # Workaround for a bug in Dask with 0 depth.
-    #
-    # ref: https://github.com/dask/dask/issues/2258
-    #
-    for i in irange(ndim):
-        if boundary[i] == "none" and depth[i] == 0:
-            boundary[i] = "reflect"
-
     return depth, boundary
 
 
