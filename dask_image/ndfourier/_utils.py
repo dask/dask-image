@@ -8,8 +8,7 @@ import numpy
 
 import dask.array
 
-from . import _compat
-from .._pycompat import imap, irange
+from .._pycompat import imap, irange, izip
 
 
 def _get_freq_grid(shape, chunks, dtype=float):
@@ -21,23 +20,11 @@ def _get_freq_grid(shape, chunks, dtype=float):
     assert (issubclass(dtype, numbers.Real) and
             not issubclass(dtype, numbers.Integral))
 
-    ndim = len(shape)
-
-    freq_grid = []
-    for i in irange(ndim):
-        sl = ndim * [None]
-        sl[i] = slice(None)
-        sl = tuple(sl)
-
-        freq_grid_i = _compat._fftfreq(shape[i], chunks=chunks[i])
-        freq_grid_i = freq_grid_i.astype(dtype)
-        freq_grid_i = freq_grid_i[sl]
-
-        for j in itertools.chain(range(i), range(i + 1, ndim)):
-            freq_grid_i = freq_grid_i.repeat(shape[j], axis=j)
-
-        freq_grid.append(freq_grid_i)
-
+    freq_grid = [
+        dask.array.fft.fftfreq(s, chunks=c).astype(dtype)
+        for s, c in izip(shape, chunks)
+    ]
+    freq_grid = dask.array.meshgrid(*freq_grid, indexing="ij")
     freq_grid = dask.array.stack(freq_grid)
 
     return freq_grid

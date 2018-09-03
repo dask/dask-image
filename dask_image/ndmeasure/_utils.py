@@ -9,7 +9,6 @@ import numpy
 import dask
 import dask.array
 
-from . import _compat
 from .. import _pycompat
 
 
@@ -18,7 +17,7 @@ def _norm_input_labels_index(input, labels=None, index=None):
     Normalize arguments to a standard form.
     """
 
-    input = _compat._asarray(input)
+    input = dask.array.asarray(input)
 
     if labels is None:
         labels = dask.array.ones(input.shape, dtype=int, chunks=input.chunks)
@@ -27,8 +26,8 @@ def _norm_input_labels_index(input, labels=None, index=None):
         labels = (labels > 0).astype(int)
         index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
 
-    labels = _compat._asarray(labels)
-    index = _compat._asarray(index)
+    labels = dask.array.asarray(labels)
+    index = dask.array.asarray(index)
 
     if index.ndim > 1:
         warnings.warn(

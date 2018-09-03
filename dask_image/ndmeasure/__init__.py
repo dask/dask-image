@@ -15,7 +15,6 @@ import scipy.ndimage
 
 import dask.array
 
-from . import _compat
 from .. import _pycompat
 from . import _utils
 
@@ -203,7 +202,7 @@ def label(input, structure=None):
         How many objects were found.
     """
 
-    input = _compat._asarray(input)
+    input = dask.array.asarray(input)
 
     if not all([len(c) == 1 for c in input.chunks]):
         warn("``input`` does not have 1 chunk in all dimensions; it will be consolidated first", RuntimeWarning)

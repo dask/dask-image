@@ -8,7 +8,6 @@ import numbers
 
 import dask.array
 
-from . import _compat
 from . import _utils
 
 
@@ -200,7 +199,7 @@ def fourier_uniform(input, size, n=-1, axis=-1):
     )
 
     # Compute uniform filter
-    uniform = _compat._sinc(
+    uniform = dask.array.sinc(
         size[(slice(None),) + input.ndim * (None,)] * freq_grid
     )
     uniform = dask.array.prod(uniform, axis=0)
