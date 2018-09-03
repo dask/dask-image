@@ -8,7 +8,6 @@ import numpy
 
 import dask.array
 
-from . import _compat
 from .._pycompat import imap, irange
 
 
@@ -29,7 +28,7 @@ def _get_freq_grid(shape, chunks, dtype=float):
         sl[i] = slice(None)
         sl = tuple(sl)
 
-        freq_grid_i = _compat._fftfreq(shape[i], chunks=chunks[i])
+        freq_grid_i = dask.array.fft.fftfreq(shape[i], chunks=chunks[i])
         freq_grid_i = freq_grid_i.astype(dtype)
         freq_grid_i = freq_grid_i[sl]
 
