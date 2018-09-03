@@ -54,11 +54,6 @@ def _get_label_matches(labels, index):
 def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     """
     Gets the raveled indices shaped like input.
-
-    Normally this could have been solved with `arange` and `reshape`.
-    Unfortunately that doesn't work out of the box with older versions
-    of Dask. So we try to solve this by using indices and computing
-    the raveled index from that.
     """
 
     indices = sum([
