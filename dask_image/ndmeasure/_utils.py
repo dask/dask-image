@@ -57,8 +57,11 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
 
     indices = sum([
         dask.array.arange(
-            0, numpy.prod(dimensions[i:]), numpy.prod(dimensions[i + 1:]),
-            dtype=dtype, chunks=c
+            0,
+            numpy.prod(dimensions[i:], dtype=dtype),
+            numpy.prod(dimensions[i + 1:], dtype=dtype),
+            dtype=dtype,
+            chunks=c
         )[i * (None,) + (slice(None),) + (len(dimensions) - i - 1) * (None,)]
         for i, c in enumerate(chunks)
     ])
