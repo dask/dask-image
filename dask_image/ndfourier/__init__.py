@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import division
+
+
 __author__ = """John Kirkham"""
 __email__ = "kirkhamj@janelia.hhmi.org"
 
