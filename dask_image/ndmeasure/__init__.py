@@ -382,13 +382,7 @@ def maximum_position(input, labels=None, index=None):
     if not max_1dpos_lbl.ndim:
         max_1dpos_lbl = max_1dpos_lbl[None]
 
-    max_pos_lbl = []
-    max_1dpos_lbl_rem = max_1dpos_lbl
-    for i in _pycompat.irange(input.ndim):
-        d = int(numpy.prod(input.shape[i + 1:]))
-        max_pos_lbl.append(max_1dpos_lbl_rem // d)
-        max_1dpos_lbl_rem %= d
-    max_pos_lbl = dask.array.stack(max_pos_lbl, axis=1)
+    max_pos_lbl = _utils._unravel_index(max_1dpos_lbl, input.shape)
 
     if index.shape == tuple():
         max_pos_lbl = dask.array.squeeze(max_pos_lbl)
@@ -537,13 +531,7 @@ def minimum_position(input, labels=None, index=None):
     if not min_1dpos_lbl.ndim:
         min_1dpos_lbl = min_1dpos_lbl[None]
 
-    min_pos_lbl = []
-    min_1dpos_lbl_rem = min_1dpos_lbl
-    for i in _pycompat.irange(input.ndim):
-        d = int(numpy.prod(input.shape[i + 1:]))
-        min_pos_lbl.append(min_1dpos_lbl_rem // d)
-        min_1dpos_lbl_rem %= d
-    min_pos_lbl = dask.array.stack(min_pos_lbl, axis=1)
+    min_pos_lbl = _utils._unravel_index(min_1dpos_lbl, input.shape)
 
     if index.shape == tuple():
         min_pos_lbl = dask.array.squeeze(min_pos_lbl)
