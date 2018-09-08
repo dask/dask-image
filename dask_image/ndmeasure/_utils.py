@@ -163,9 +163,7 @@ def _labeled_comprehension_func(func,
     """
 
     return dask.array.from_delayed(
-        _labeled_comprehension_delayed(
-            func, out_dtype, default, a, positions
-        ),
+        _labeled_comprehension_delayed(func, out_dtype, default, a, positions),
         tuple(),
         out_dtype
     )
