@@ -97,20 +97,45 @@ def extrema(input, labels=None, index=None):
         input, labels, index
     )
 
-    min_lbl = minimum(
-        input, labels, index
-    )
-    max_lbl = maximum(
-        input, labels, index
-    )
-    min_pos_lbl = minimum_position(
-        input, labels, index
-    )
-    max_pos_lbl = maximum_position(
-        input, labels, index
+    out_dtype = numpy.dtype([
+        ("min_val", input.dtype),
+        ("min_pos", numpy.int),
+        ("max_val", input.dtype),
+        ("max_pos", numpy.int)
+    ])
+    default = numpy.zeros((), out_dtype)[()]
+
+    extrema_lbl = labeled_comprehension(
+        input, labels, index,
+        _utils._extrema, out_dtype, default, pass_positions=True
     )
 
-    return min_lbl, max_lbl, min_pos_lbl, max_pos_lbl
+    extrema_lbl = {k: extrema_lbl[k] for k in extrema_lbl.dtype.names}
+
+    for pos_key in ["min_pos", "max_pos"]:
+        pos_1d = extrema_lbl[pos_key]
+        if not pos_1d.ndim:
+            pos_1d = pos_1d[None]
+
+        pos_nd = _utils._unravel_index(pos_1d, input.shape)
+
+        if index.ndim == 0:
+            pos_nd = dask.array.squeeze(pos_nd)
+        elif index.ndim > 1:
+            pos_nd = pos_nd.reshape(
+                (int(numpy.prod(pos_nd.shape[:-1])), pos_nd.shape[-1])
+            )
+
+        extrema_lbl[pos_key] = pos_nd
+
+    result = (
+        extrema_lbl["min_val"],
+        extrema_lbl["max_val"],
+        extrema_lbl["min_pos"],
+        extrema_lbl["max_pos"]
+    )
+
+    return result
 
 
 def histogram(input,

@@ -114,6 +114,30 @@ def _argmin(a, positions):
     return positions[numpy.argmin(a)]
 
 
+def _extrema(a, positions):
+    """
+    Find minimum and maximum as well as positions for both.
+    """
+
+    dtype = numpy.dtype([
+        ("min_val", a.dtype),
+        ("min_pos", positions.dtype),
+        ("max_val", a.dtype),
+        ("max_pos", positions.dtype)
+    ])
+    result = numpy.empty((), dtype=dtype)
+
+    int_min_pos = numpy.argmin(a)
+    result["min_val"] = a[int_min_pos]
+    result["min_pos"] = positions[int_min_pos]
+
+    int_max_pos = numpy.argmax(a)
+    result["max_val"] = a[int_max_pos]
+    result["max_pos"] = positions[int_max_pos]
+
+    return result[()]
+
+
 @dask.delayed
 def _histogram(input,
                min,
