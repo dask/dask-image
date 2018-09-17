@@ -70,7 +70,9 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
 
 
 def _unravel_index_kernel(indices, func_kwargs):
-    return numpy.stack(numpy.unravel_index(indices, **func_kwargs), axis=1)
+    nd_indices = numpy.unravel_index(indices, **func_kwargs)
+    nd_indices = numpy.stack(nd_indices, axis=indices.ndim)
+    return nd_indices
 
 
 def _unravel_index(indices, dims, order='C'):
@@ -85,7 +87,7 @@ def _unravel_index(indices, dims, order='C'):
             _unravel_index_kernel,
             dtype=numpy.intp,
             chunks=indices.chunks + ((len(dims),),),
-            new_axis=1,
+            new_axis=indices.ndim,
             func_kwargs={"dims": dims, "order": order}
         )
     else:
