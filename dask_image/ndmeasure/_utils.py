@@ -146,9 +146,9 @@ def _labeled_comprehension_delayed(func,
 
     if a.size:
         if positions is None:
-            return numpy.array(func(a), dtype=out_dtype)
+            return numpy.array([func(a)], dtype=out_dtype)
         else:
-            return numpy.array(func(a, positions), dtype=out_dtype)
+            return numpy.array([func(a, positions)], dtype=out_dtype)
     else:
         return default
 
@@ -166,6 +166,6 @@ def _labeled_comprehension_func(func,
 
     return dask.array.from_delayed(
         _labeled_comprehension_delayed(func, out_dtype, default, a, positions),
-        tuple(),
+        (1,),
         out_dtype
     )
