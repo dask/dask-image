@@ -7,7 +7,7 @@ dependencies:
   - pip==18.0
   - wheel==0.31.1
   - sphinx==1.7.5
-  - dask-sphinx-theme==1.0.4
+  - dask-sphinx-theme==1.0.5
   - dask==0.16.1
   - numpy==1.11.3
   - pims==0.4.1
