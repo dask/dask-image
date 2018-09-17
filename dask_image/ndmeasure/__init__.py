@@ -277,7 +277,7 @@ def labeled_comprehension(input,
         input, labels, index
     )
     out_dtype = numpy.dtype(out_dtype)
-    default = out_dtype.type(default)
+    default = numpy.array([default], dtype=out_dtype)
     pass_positions = bool(pass_positions)
 
     lbl_mtch = _utils._get_label_matches(labels, index)
@@ -305,7 +305,7 @@ def labeled_comprehension(input,
         for j in index_ranges_i:
             result2[j] = dask.array.stack(result[j].tolist(), axis=0)
         result = result2
-    result = result[()]
+    result = result[()][..., 0]
 
     return result
 
