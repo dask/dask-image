@@ -144,13 +144,17 @@ def _labeled_comprehension_delayed(func,
     computation should not occur.
     """
 
+    result = numpy.empty((1,), dtype=out_dtype)
+
     if a.size:
         if positions is None:
-            return numpy.array([func(a)], dtype=out_dtype)
+            result[0] = func(a)
         else:
-            return numpy.array([func(a, positions)], dtype=out_dtype)
+            result[0] = func(a, positions)
     else:
-        return default
+        result[0] = default[0]
+
+    return result
 
 
 def _labeled_comprehension_func(func,
