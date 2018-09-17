@@ -146,9 +146,9 @@ def _labeled_comprehension_delayed(func,
 
     if a.size:
         if positions is None:
-            return numpy.array(func(a), dtype=out_dtype)[()]
+            return numpy.array(func(a), dtype=out_dtype)
         else:
-            return numpy.array(func(a, positions), dtype=out_dtype)[()]
+            return numpy.array(func(a, positions), dtype=out_dtype)
     else:
         return default
 
