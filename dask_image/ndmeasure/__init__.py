@@ -302,8 +302,12 @@ def labeled_comprehension(input,
     input, labels, index = _utils._norm_input_labels_index(
         input, labels, index
     )
+
     out_dtype = numpy.dtype(out_dtype)
-    default = numpy.array([default], dtype=out_dtype)
+
+    default_1d = numpy.empty((1,), dtype=out_dtype)
+    default_1d[0] = default
+
     pass_positions = bool(pass_positions)
 
     lbl_mtch = _utils._get_label_matches(labels, index)
@@ -322,7 +326,7 @@ def labeled_comprehension(input,
         lbl_mtch_i = lbl_mtch[i]
         args_lbl_mtch_i = tuple(e[lbl_mtch_i] for e in args)
         result[i] = _utils._labeled_comprehension_func(
-            func, out_dtype, default, *args_lbl_mtch_i
+            func, out_dtype, default_1d, *args_lbl_mtch_i
         )
 
     for i in _pycompat.irange(result.ndim - 1, -1, -1):
