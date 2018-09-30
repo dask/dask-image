@@ -446,14 +446,11 @@ def mean(input, labels=None, index=None):
         input, labels, index
     )
 
-    sum_lbl = sum(input, labels, index)
-    norm_lbl = sum(
-        dask.array.ones(input.shape, dtype=input.dtype, chunks=input.chunks),
-        labels,
-        index
-    )
+    nan = numpy.float64(numpy.nan)
 
-    mean_lbl = sum_lbl / norm_lbl
+    mean_lbl = labeled_comprehension(
+        input, labels, index, numpy.mean, numpy.float64, nan
+    )
 
     return mean_lbl
 
