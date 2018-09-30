@@ -446,16 +446,16 @@ def mean(input, labels=None, index=None):
         input, labels, index
     )
 
-    input_sum = sum(input, labels, index)
-    input_norm = sum(
+    sum_lbl = sum(input, labels, index)
+    norm_lbl = sum(
         dask.array.ones(input.shape, dtype=input.dtype, chunks=input.chunks),
         labels,
         index
     )
 
-    com_lbl = input_sum / input_norm
+    mean_lbl = sum_lbl / norm_lbl
 
-    return com_lbl
+    return mean_lbl
 
 
 def median(input, labels=None, index=None):
