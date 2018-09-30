@@ -50,21 +50,35 @@ def _get_label_matches(labels, index):
     return lbl_mtch
 
 
+def _ravel_shape_indices_kernel(*args):
+    args2 = tuple(
+        a[i * (None,) + (slice(None),) + (len(args) - i - 1) * (None,)]
+        for i, a in enumerate(args)
+    )
+    return sum(args2)
+
+
 def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     """
     Gets the raveled indices shaped like input.
     """
 
-    indices = sum([
+    indices = [
         dask.array.arange(
             0,
             numpy.prod(dimensions[i:], dtype=dtype),
             numpy.prod(dimensions[i + 1:], dtype=dtype),
             dtype=dtype,
             chunks=c
-        )[i * (None,) + (slice(None),) + (len(dimensions) - i - 1) * (None,)]
+        )
         for i, c in enumerate(chunks)
-    ])
+    ]
+
+    indices = dask.array.atop(
+        _ravel_shape_indices_kernel, tuple(range(len(indices))),
+        *sum([(a, (i,)) for i, a in enumerate(indices)], tuple()),
+        dtype=dtype
+    )
 
     return indices
 
