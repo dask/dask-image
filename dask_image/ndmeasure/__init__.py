@@ -593,7 +593,11 @@ def standard_deviation(input, labels=None, index=None):
         input, labels, index
     )
 
-    std_lbl = dask.array.sqrt(variance(input, labels, index))
+    nan = numpy.float64(numpy.nan)
+
+    std_lbl = labeled_comprehension(
+        input, labels, index, numpy.std, numpy.float64, nan
+    )
 
     return std_lbl
 
