@@ -7,6 +7,7 @@ __author__ = """John Kirkham"""
 __email__ = "kirkhamj@janelia.hhmi.org"
 
 
+import functools
 import itertools
 from warnings import warn
 
@@ -184,16 +185,8 @@ def histogram(input,
     max = int(max)
     bins = int(bins)
 
-    lbl_mtch = _utils._get_label_matches(labels, index)
-
-    index_ranges = [_pycompat.irange(e) for e in index.shape]
-
-    result = numpy.empty(index.shape, dtype=object)
-    for i in itertools.product(*index_ranges):
-        result[i] = _utils._histogram(
-            input[lbl_mtch[i]], min, max, bins
-        )
-    result = result[()]
+    func = functools.partial(_utils._histogram, min=min, max=max, bins=bins)
+    result = labeled_comprehension(input, labels, index, func, object, None)
 
     return result
 
