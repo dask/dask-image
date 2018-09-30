@@ -658,9 +658,10 @@ def variance(input, labels=None, index=None):
         input, labels, index
     )
 
-    input_2_mean = mean(dask.array.square(input), labels, index)
-    input_mean_2 = dask.array.square(mean(input, labels, index))
+    nan = numpy.float64(numpy.nan)
 
-    var_lbl = input_2_mean - input_mean_2
+    var_lbl = labeled_comprehension(
+        input, labels, index, numpy.var, numpy.float64, nan
+    )
 
     return var_lbl
