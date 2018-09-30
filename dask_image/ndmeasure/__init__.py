@@ -446,14 +446,11 @@ def mean(input, labels=None, index=None):
         input, labels, index
     )
 
-    sum_lbl = sum(input, labels, index)
-    norm_lbl = sum(
-        dask.array.ones(input.shape, dtype=input.dtype, chunks=input.chunks),
-        labels,
-        index
-    )
+    nan = numpy.float64(numpy.nan)
 
-    mean_lbl = sum_lbl / norm_lbl
+    mean_lbl = labeled_comprehension(
+        input, labels, index, numpy.mean, numpy.float64, nan
+    )
 
     return mean_lbl
 
@@ -596,7 +593,11 @@ def standard_deviation(input, labels=None, index=None):
         input, labels, index
     )
 
-    std_lbl = dask.array.sqrt(variance(input, labels, index))
+    nan = numpy.float64(numpy.nan)
+
+    std_lbl = labeled_comprehension(
+        input, labels, index, numpy.std, numpy.float64, nan
+    )
 
     return std_lbl
 
@@ -661,9 +662,10 @@ def variance(input, labels=None, index=None):
         input, labels, index
     )
 
-    input_2_mean = mean(dask.array.square(input), labels, index)
-    input_mean_2 = dask.array.square(mean(input, labels, index))
+    nan = numpy.float64(numpy.nan)
 
-    var_lbl = input_2_mean - input_mean_2
+    var_lbl = labeled_comprehension(
+        input, labels, index, numpy.var, numpy.float64, nan
+    )
 
     return var_lbl
