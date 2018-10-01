@@ -109,9 +109,10 @@ def extrema(input, labels=None, index=None):
 
     default_1d = numpy.zeros((1,), dtype=out_dtype)
 
+    func = functools.partial(_utils._extrema, dtype=out_dtype)
     extrema_lbl = labeled_comprehension(
         input, labels, index,
-        _utils._extrema, out_dtype, default_1d[0], pass_positions=True
+        func, out_dtype, default_1d[0], pass_positions=True
     )
 
     extrema_lbl = collections.OrderedDict([

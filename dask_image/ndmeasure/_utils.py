@@ -128,17 +128,11 @@ def _argmin(a, positions):
     return positions[numpy.argmin(a)]
 
 
-def _extrema(a, positions):
+def _extrema(a, positions, dtype):
     """
     Find minimum and maximum as well as positions for both.
     """
 
-    dtype = numpy.dtype([
-        ("min_val", a.dtype),
-        ("max_val", a.dtype),
-        ("min_pos", positions.dtype),
-        ("max_pos", positions.dtype)
-    ])
     result = numpy.empty((1,), dtype=dtype)
 
     int_min_pos = numpy.argmin(a)
