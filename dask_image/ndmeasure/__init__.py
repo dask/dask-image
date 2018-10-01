@@ -104,11 +104,12 @@ def extrema(input, labels=None, index=None):
         ("max_val", input.dtype),
         ("max_pos", numpy.dtype(numpy.int))
     ])
-    default = numpy.zeros((), out_dtype)[()]
+
+    default_1d = numpy.zeros((1,), dtype=out_dtype)
 
     extrema_lbl = labeled_comprehension(
         input, labels, index,
-        _utils._extrema, out_dtype, default, pass_positions=True
+        _utils._extrema, out_dtype, default_1d[0], pass_positions=True
     )
 
     extrema_lbl = {k: extrema_lbl[k] for k in extrema_lbl.dtype.names}
