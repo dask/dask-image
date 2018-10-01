@@ -540,14 +540,17 @@ def minimum_position(input, labels=None, index=None):
     if index.shape:
         index = index.flatten()
 
-    min_1dpos_lbl = labeled_comprehension(
-        input, labels, index, _utils._argmin, int, 0, pass_positions=True
+    out_dtype = numpy.dtype([("pos", int, (input.ndim,))])
+    default_1d = numpy.zeros((1,), dtype=out_dtype)
+
+    func = functools.partial(
+        _utils._argmin, shape=input.shape, dtype=out_dtype
     )
-
-    if not min_1dpos_lbl.ndim:
-        min_1dpos_lbl = min_1dpos_lbl[None]
-
-    min_pos_lbl = _utils._unravel_index(min_1dpos_lbl, input.shape)
+    min_pos_lbl = labeled_comprehension(
+        input, labels, index,
+        func, out_dtype, default_1d[0], pass_positions=True
+    )
+    min_pos_lbl = min_pos_lbl["pos"]
 
     if index.shape == tuple():
         min_pos_lbl = dask.array.squeeze(min_pos_lbl)

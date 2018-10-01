@@ -128,12 +128,18 @@ def _argmax(a, positions, shape, dtype):
     return result[0]
 
 
-def _argmin(a, positions):
+def _argmin(a, positions, shape, dtype):
     """
     Find original array position corresponding to the minimum.
     """
 
-    return positions[numpy.argmin(a)]
+    result = numpy.empty((1,), dtype=dtype)
+
+    pos_nd = numpy.unravel_index(positions[numpy.argmin(a)], shape)
+    for i, pos_nd_i in enumerate(pos_nd):
+        result["pos"][0, i] = pos_nd_i
+
+    return result[0]
 
 
 def _center_of_mass(a, positions, shape, dtype):
