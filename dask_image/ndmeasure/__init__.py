@@ -289,8 +289,6 @@ def labeled_comprehension(input,
 
     pass_positions = bool(pass_positions)
 
-    lbl_mtch = _utils._get_label_matches(labels, index)
-
     args = (input,)
     if pass_positions:
         positions = _utils._ravel_shape_indices(
@@ -300,7 +298,7 @@ def labeled_comprehension(input,
 
     result = numpy.empty(index.shape, dtype=object)
     for i in numpy.ndindex(index.shape):
-        lbl_mtch_i = lbl_mtch[i]
+        lbl_mtch_i = (labels == index[i])
         args_lbl_mtch_i = tuple(e[lbl_mtch_i] for e in args)
         result[i] = _utils._labeled_comprehension_func(
             func, out_dtype, default_1d, *args_lbl_mtch_i

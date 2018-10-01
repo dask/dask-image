@@ -43,15 +43,6 @@ def _norm_input_labels_index(input, labels=None, index=None):
     return (input, labels, index)
 
 
-def _get_label_matches(labels, index):
-    lbl_mtch = operator.eq(
-        index[(Ellipsis,) + labels.ndim * (None,)],
-        labels[index.ndim * (None,)]
-    )
-
-    return lbl_mtch
-
-
 def _ravel_shape_indices_kernel(*args):
     args2 = tuple(
         a[i * (None,) + (slice(None),) + (len(args) - i - 1) * (None,)]
