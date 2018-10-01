@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division
-
-
 __author__ = """John Kirkham"""
 __email__ = "kirkhamj@janelia.hhmi.org"
 
@@ -53,22 +50,22 @@ def center_of_mass(input, labels=None, index=None):
     # This only matters if index is some array.
     index = index.T
 
-    input_mtch_sum = sum(input, labels, index)
+    type_mapping = collections.OrderedDict([
+        (("%i" % i), input.dtype) for i in _pycompat.irange(input.ndim)
+    ])
+    out_dtype = numpy.dtype(list(type_mapping.items()))
 
-    input_wt_mtch_sum = []
-    for i in _pycompat.irange(input.ndim):
-        sl = input.ndim * [None]
-        sl[i] = slice(None)
-        sl = tuple(sl)
+    default_1d = numpy.full((1,), numpy.nan, dtype=out_dtype)
 
-        input_i = dask.array.arange(input.shape[i], chunks=input.chunks[i])
-        input_wt = input * input_i[sl]
+    func = functools.partial(
+        _utils._center_of_mass, shape=input.shape, dtype=out_dtype
+    )
+    com_lbl = labeled_comprehension(
+        input, labels, index,
+        func, out_dtype, default_1d[0], pass_positions=True
+    )
 
-        input_wt_mtch_sum.append(sum(input_wt, labels, index))
-
-    input_wt_mtch_sum = dask.array.stack(input_wt_mtch_sum, axis=-1)
-
-    com_lbl = input_wt_mtch_sum / input_mtch_sum[..., None]
+    com_lbl = dask.array.stack([com_lbl[k] for k in type_mapping], axis=-1)
 
     return com_lbl
 
