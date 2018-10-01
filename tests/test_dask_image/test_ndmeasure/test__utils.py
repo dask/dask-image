@@ -99,45 +99,6 @@ def test__norm_input_labels_index_warn(shape, chunks, ind):
 
 
 @pytest.mark.parametrize(
-    "shape, chunks, ind", [
-        ((15, 16), (4, 5), 0),
-        ((15, 16), (4, 5), 1),
-        ((15, 16), (4, 5), [1]),
-        ((15, 16), (4, 5), [1, 2]),
-        ((15, 16), (4, 5), [1, 100]),
-        ((15, 16), (4, 5), [[1, 2, 3, 4]]),
-        ((15, 16), (4, 5), [[1, 2], [3, 4]]),
-        ((15, 16), (4, 5), [[[1], [2], [3], [4]]]),
-    ]
-)
-def test__get_label_matches(shape, chunks, ind):
-    a = np.random.random(shape)
-    d = da.from_array(a, chunks=chunks)
-
-    lbls = np.zeros(a.shape, dtype=np.int64)
-    lbls += (
-        (a < 0.5).astype(lbls.dtype) +
-        (a < 0.25).astype(lbls.dtype) +
-        (a < 0.125).astype(lbls.dtype) +
-        (a < 0.0625).astype(lbls.dtype)
-    )
-    d_lbls = da.from_array(lbls, chunks=d.chunks)
-
-    ind = np.array(ind)
-    d_ind = da.from_array(ind, chunks=1)
-
-    lbl_mtch = operator.eq(
-        ind[(Ellipsis,) + lbls.ndim * (None,)],
-        lbls[ind.ndim * (None,)]
-    )
-    d_lbl_mtch = dask_image.ndmeasure._utils._get_label_matches(d_lbls, d_ind)
-
-    assert issubclass(d_lbl_mtch.dtype.type, np.bool8)
-
-    dau.assert_eq(d_lbl_mtch, lbl_mtch)
-
-
-@pytest.mark.parametrize(
     "shape, chunks", [
         ((15,), (4,)),
         ((15, 16), (4, 5)),
