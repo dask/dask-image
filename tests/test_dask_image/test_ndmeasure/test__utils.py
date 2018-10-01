@@ -152,25 +152,3 @@ def test___ravel_shape_indices(shape, chunks):
     )
 
     dau.assert_eq(d, a)
-
-
-@pytest.mark.parametrize(
-    "nindices, shape, order", [
-        (0, (15,), 'C'),
-        (1, (15,), 'C'),
-        (3, (15,), 'C'),
-        (3, (15,), 'F'),
-        (2, (15, 16), 'C'),
-        (2, (15, 16), 'F'),
-    ]
-)
-def test__unravel_index(nindices, shape, order):
-    findices = np.random.randint(np.prod(shape, dtype=int), size=nindices)
-    d_findices = da.from_array(findices, chunks=1)
-
-    indices = np.stack(np.unravel_index(findices, shape, order), axis=1)
-    d_indices = dask_image.ndmeasure._utils._unravel_index(
-        d_findices, shape, order
-    )
-
-    dau.assert_eq(d_indices, indices)

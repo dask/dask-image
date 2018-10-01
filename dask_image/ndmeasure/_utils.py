@@ -85,56 +85,37 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     return indices
 
 
-def _unravel_index_kernel(indices, func_kwargs):
-    nd_indices = numpy.unravel_index(indices, **func_kwargs)
-    nd_indices = numpy.stack(nd_indices, axis=indices.ndim)
-    return nd_indices
-
-
-def _unravel_index(indices, dims, order='C'):
-    """
-    Unravels the indices like NumPy's ``unravel_index``.
-
-    Uses NumPy's ``unravel_index`` on Dask Array blocks.
-    """
-
-    if dims and indices.size:
-        unraveled_indices = indices.map_blocks(
-            _unravel_index_kernel,
-            dtype=numpy.intp,
-            chunks=indices.chunks + ((len(dims),),),
-            new_axis=indices.ndim,
-            func_kwargs={"dims": dims, "order": order}
-        )
-    else:
-        unraveled_indices = dask.array.empty(
-            (0, len(dims)), dtype=numpy.intp, chunks=1
-        )
-
-    return unraveled_indices
-
-
-def _argmax(a, positions):
+def _argmax(a, positions, shape, dtype):
     """
     Find original array position corresponding to the maximum.
     """
 
-    return positions[numpy.argmax(a)]
+    result = numpy.empty((1,), dtype=dtype)
+
+    pos_nd = numpy.unravel_index(positions[numpy.argmax(a)], shape)
+    for i, pos_nd_i in enumerate(pos_nd):
+        result["pos"][0, i] = pos_nd_i
+
+    return result[0]
 
 
-def _argmin(a, positions):
+def _argmin(a, positions, shape, dtype):
     """
     Find original array position corresponding to the minimum.
     """
 
-    return positions[numpy.argmin(a)]
+    result = numpy.empty((1,), dtype=dtype)
+
+    pos_nd = numpy.unravel_index(positions[numpy.argmin(a)], shape)
+    for i, pos_nd_i in enumerate(pos_nd):
+        result["pos"][0, i] = pos_nd_i
+
+    return result[0]
 
 
 def _center_of_mass(a, positions, shape, dtype):
     """
     Find the center of mass for each ROI.
-
-    Package the result in a structured array with each field as an index.
     """
 
     result = numpy.empty((1,), dtype=dtype)
@@ -145,12 +126,12 @@ def _center_of_mass(a, positions, shape, dtype):
     a_wt_i = numpy.empty_like(a)
     for i, pos_nd_i in enumerate(positions_nd):
         a_wt_sum_i = numpy.multiply(a, pos_nd_i, out=a_wt_i).sum()
-        result[("%i" % i)] = a_wt_sum_i / a_sum
+        result["com"][0, i] = a_wt_sum_i / a_sum
 
     return result[0]
 
 
-def _extrema(a, positions, dtype):
+def _extrema(a, positions, shape, dtype):
     """
     Find minimum and maximum as well as positions for both.
     """
@@ -158,12 +139,16 @@ def _extrema(a, positions, dtype):
     result = numpy.empty((1,), dtype=dtype)
 
     int_min_pos = numpy.argmin(a)
-    result["min_val"] = a[int_min_pos]
-    result["min_pos"] = positions[int_min_pos]
-
     int_max_pos = numpy.argmax(a)
+
+    result["min_val"] = a[int_min_pos]
     result["max_val"] = a[int_max_pos]
-    result["max_pos"] = positions[int_max_pos]
+
+    min_pos_nd = numpy.unravel_index(positions[int_min_pos], shape)
+    max_pos_nd = numpy.unravel_index(positions[int_max_pos], shape)
+    for i in range(len(shape)):
+        result["min_pos"][0, i] = min_pos_nd[i]
+        result["max_pos"][0, i] = max_pos_nd[i]
 
     return result[0]
 

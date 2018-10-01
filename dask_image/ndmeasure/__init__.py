@@ -50,11 +50,7 @@ def center_of_mass(input, labels=None, index=None):
     # This only matters if index is some array.
     index = index.T
 
-    type_mapping = collections.OrderedDict([
-        (("%i" % i), input.dtype) for i in _pycompat.irange(input.ndim)
-    ])
-    out_dtype = numpy.dtype(list(type_mapping.items()))
-
+    out_dtype = numpy.dtype([("com", input.dtype, (input.ndim,))])
     default_1d = numpy.full((1,), numpy.nan, dtype=out_dtype)
 
     func = functools.partial(
@@ -64,8 +60,7 @@ def center_of_mass(input, labels=None, index=None):
         input, labels, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
-
-    com_lbl = dask.array.stack([com_lbl[k] for k in type_mapping], axis=-1)
+    com_lbl = com_lbl["com"]
 
     return com_lbl
 
@@ -96,32 +91,28 @@ def extrema(input, labels=None, index=None):
         input, labels, index
     )
 
-    type_mapping = collections.OrderedDict([
+    out_dtype = numpy.dtype([
         ("min_val", input.dtype),
         ("max_val", input.dtype),
-        ("min_pos", numpy.dtype(numpy.int)),
-        ("max_pos", numpy.dtype(numpy.int))
+        ("min_pos", numpy.dtype(numpy.int), input.ndim),
+        ("max_pos", numpy.dtype(numpy.int), input.ndim)
     ])
-    out_dtype = numpy.dtype(list(type_mapping.items()))
-
     default_1d = numpy.zeros((1,), dtype=out_dtype)
 
-    func = functools.partial(_utils._extrema, dtype=out_dtype)
+    func = functools.partial(
+        _utils._extrema, shape=input.shape, dtype=out_dtype
+    )
     extrema_lbl = labeled_comprehension(
         input, labels, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
-
     extrema_lbl = collections.OrderedDict([
-        (k, extrema_lbl[k]) for k in type_mapping.keys()
+        (k, extrema_lbl[k])
+        for k in ["min_val", "max_val", "min_pos", "max_pos"]
     ])
 
     for pos_key in ["min_pos", "max_pos"]:
-        pos_1d = extrema_lbl[pos_key]
-        if not pos_1d.ndim:
-            pos_1d = pos_1d[None]
-
-        pos_nd = _utils._unravel_index(pos_1d, input.shape)
+        pos_nd = extrema_lbl[pos_key]
 
         if index.ndim == 0:
             pos_nd = dask.array.squeeze(pos_nd)
@@ -396,14 +387,17 @@ def maximum_position(input, labels=None, index=None):
     if index.shape:
         index = index.flatten()
 
-    max_1dpos_lbl = labeled_comprehension(
-        input, labels, index, _utils._argmax, int, 0, pass_positions=True
+    out_dtype = numpy.dtype([("pos", int, (input.ndim,))])
+    default_1d = numpy.zeros((1,), dtype=out_dtype)
+
+    func = functools.partial(
+        _utils._argmax, shape=input.shape, dtype=out_dtype
     )
-
-    if not max_1dpos_lbl.ndim:
-        max_1dpos_lbl = max_1dpos_lbl[None]
-
-    max_pos_lbl = _utils._unravel_index(max_1dpos_lbl, input.shape)
+    max_pos_lbl = labeled_comprehension(
+        input, labels, index,
+        func, out_dtype, default_1d[0], pass_positions=True
+    )
+    max_pos_lbl = max_pos_lbl["pos"]
 
     if index.shape == tuple():
         max_pos_lbl = dask.array.squeeze(max_pos_lbl)
@@ -542,14 +536,17 @@ def minimum_position(input, labels=None, index=None):
     if index.shape:
         index = index.flatten()
 
-    min_1dpos_lbl = labeled_comprehension(
-        input, labels, index, _utils._argmin, int, 0, pass_positions=True
+    out_dtype = numpy.dtype([("pos", int, (input.ndim,))])
+    default_1d = numpy.zeros((1,), dtype=out_dtype)
+
+    func = functools.partial(
+        _utils._argmin, shape=input.shape, dtype=out_dtype
     )
-
-    if not min_1dpos_lbl.ndim:
-        min_1dpos_lbl = min_1dpos_lbl[None]
-
-    min_pos_lbl = _utils._unravel_index(min_1dpos_lbl, input.shape)
+    min_pos_lbl = labeled_comprehension(
+        input, labels, index,
+        func, out_dtype, default_1d[0], pass_positions=True
+    )
+    min_pos_lbl = min_pos_lbl["pos"]
 
     if index.shape == tuple():
         min_pos_lbl = dask.array.squeeze(min_pos_lbl)
