@@ -348,11 +348,10 @@ def test_labeled_comprehension_struct(shape, chunks, ind):
     d_lbls = da.from_array(lbls, chunks=d.chunks)
 
     dtype = np.dtype([("val", np.float64), ("pos", np.int)])
-
     default = np.array((np.nan, -1), dtype=dtype)
 
     def func_max(val):
-        return val[np.argmax(val)]
+        return np.max(val)
 
     def func_argmax(val, pos):
         return pos[np.argmax(val)]
