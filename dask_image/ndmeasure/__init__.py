@@ -91,32 +91,28 @@ def extrema(input, labels=None, index=None):
         input, labels, index
     )
 
-    type_mapping = collections.OrderedDict([
+    out_dtype = numpy.dtype([
         ("min_val", input.dtype),
         ("max_val", input.dtype),
-        ("min_pos", numpy.dtype(numpy.int)),
-        ("max_pos", numpy.dtype(numpy.int))
+        ("min_pos", numpy.dtype(numpy.int), input.ndim),
+        ("max_pos", numpy.dtype(numpy.int), input.ndim)
     ])
-    out_dtype = numpy.dtype(list(type_mapping.items()))
-
     default_1d = numpy.zeros((1,), dtype=out_dtype)
 
-    func = functools.partial(_utils._extrema, dtype=out_dtype)
+    func = functools.partial(
+        _utils._extrema, shape=input.shape, dtype=out_dtype
+    )
     extrema_lbl = labeled_comprehension(
         input, labels, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
-
     extrema_lbl = collections.OrderedDict([
-        (k, extrema_lbl[k]) for k in type_mapping.keys()
+        (k, extrema_lbl[k])
+        for k in ["min_val", "max_val", "min_pos", "max_pos"]
     ])
 
     for pos_key in ["min_pos", "max_pos"]:
-        pos_1d = extrema_lbl[pos_key]
-        if not pos_1d.ndim:
-            pos_1d = pos_1d[None]
-
-        pos_nd = _utils._unravel_index(pos_1d, input.shape)
+        pos_nd = extrema_lbl[pos_key]
 
         if index.ndim == 0:
             pos_nd = dask.array.squeeze(pos_nd)

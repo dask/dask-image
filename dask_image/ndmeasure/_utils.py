@@ -160,7 +160,7 @@ def _center_of_mass(a, positions, shape, dtype):
     return result[0]
 
 
-def _extrema(a, positions, dtype):
+def _extrema(a, positions, shape, dtype):
     """
     Find minimum and maximum as well as positions for both.
     """
@@ -168,12 +168,16 @@ def _extrema(a, positions, dtype):
     result = numpy.empty((1,), dtype=dtype)
 
     int_min_pos = numpy.argmin(a)
-    result["min_val"] = a[int_min_pos]
-    result["min_pos"] = positions[int_min_pos]
-
     int_max_pos = numpy.argmax(a)
+
+    result["min_val"] = a[int_min_pos]
     result["max_val"] = a[int_max_pos]
-    result["max_pos"] = positions[int_max_pos]
+
+    min_pos_nd = numpy.unravel_index(positions[int_min_pos], shape)
+    max_pos_nd = numpy.unravel_index(positions[int_max_pos], shape)
+    for i in range(len(shape)):
+        result["min_pos"][0, i] = min_pos_nd[i]
+        result["max_pos"][0, i] = max_pos_nd[i]
 
     return result[0]
 
