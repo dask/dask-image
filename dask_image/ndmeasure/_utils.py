@@ -139,7 +139,7 @@ def _extrema(a, positions):
         ("max_val", a.dtype),
         ("max_pos", positions.dtype)
     ])
-    result = numpy.empty((), dtype=dtype)
+    result = numpy.empty((1,), dtype=dtype)
 
     int_min_pos = numpy.argmin(a)
     result["min_val"] = a[int_min_pos]
@@ -149,7 +149,7 @@ def _extrema(a, positions):
     result["max_val"] = a[int_max_pos]
     result["max_pos"] = positions[int_max_pos]
 
-    return result[()]
+    return result[0]
 
 
 def _histogram(input,
