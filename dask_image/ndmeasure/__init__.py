@@ -100,9 +100,9 @@ def extrema(input, labels=None, index=None):
 
     out_dtype = numpy.dtype([
         ("min_val", input.dtype),
-        ("min_pos", numpy.int),
+        ("min_pos", numpy.dtype(numpy.int)),
         ("max_val", input.dtype),
-        ("max_pos", numpy.int)
+        ("max_pos", numpy.dtype(numpy.int))
     ])
     default = numpy.zeros((), out_dtype)[()]
 
