@@ -391,14 +391,17 @@ def maximum_position(input, labels=None, index=None):
     if index.shape:
         index = index.flatten()
 
-    max_1dpos_lbl = labeled_comprehension(
-        input, labels, index, _utils._argmax, int, 0, pass_positions=True
+    out_dtype = numpy.dtype([("pos", int, (input.ndim,))])
+    default_1d = numpy.zeros((1,), dtype=out_dtype)
+
+    func = functools.partial(
+        _utils._argmax, shape=input.shape, dtype=out_dtype
     )
-
-    if not max_1dpos_lbl.ndim:
-        max_1dpos_lbl = max_1dpos_lbl[None]
-
-    max_pos_lbl = _utils._unravel_index(max_1dpos_lbl, input.shape)
+    max_pos_lbl = labeled_comprehension(
+        input, labels, index,
+        func, out_dtype, default_1d[0], pass_positions=True
+    )
+    max_pos_lbl = max_pos_lbl["pos"]
 
     if index.shape == tuple():
         max_pos_lbl = dask.array.squeeze(max_pos_lbl)

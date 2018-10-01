@@ -114,12 +114,18 @@ def _unravel_index(indices, dims, order='C'):
     return unraveled_indices
 
 
-def _argmax(a, positions):
+def _argmax(a, positions, shape, dtype):
     """
     Find original array position corresponding to the maximum.
     """
 
-    return positions[numpy.argmax(a)]
+    result = numpy.empty((1,), dtype=dtype)
+
+    pos_nd = numpy.unravel_index(positions[numpy.argmax(a)], shape)
+    for i, pos_nd_i in enumerate(pos_nd):
+        result["pos"][0, i] = pos_nd_i
+
+    return result[0]
 
 
 def _argmin(a, positions):
