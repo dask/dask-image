@@ -50,11 +50,7 @@ def center_of_mass(input, labels=None, index=None):
     # This only matters if index is some array.
     index = index.T
 
-    type_mapping = collections.OrderedDict([
-        (("%i" % i), input.dtype) for i in _pycompat.irange(input.ndim)
-    ])
-    out_dtype = numpy.dtype(list(type_mapping.items()))
-
+    out_dtype = numpy.dtype([("com", input.dtype, (input.ndim,))])
     default_1d = numpy.full((1,), numpy.nan, dtype=out_dtype)
 
     func = functools.partial(
@@ -64,8 +60,7 @@ def center_of_mass(input, labels=None, index=None):
         input, labels, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
-
-    com_lbl = dask.array.stack([com_lbl[k] for k in type_mapping], axis=-1)
+    com_lbl = com_lbl["com"]
 
     return com_lbl
 

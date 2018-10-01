@@ -133,8 +133,6 @@ def _argmin(a, positions):
 def _center_of_mass(a, positions, shape, dtype):
     """
     Find the center of mass for each ROI.
-
-    Package the result in a structured array with each field as an index.
     """
 
     result = numpy.empty((1,), dtype=dtype)
@@ -145,7 +143,7 @@ def _center_of_mass(a, positions, shape, dtype):
     a_wt_i = numpy.empty_like(a)
     for i, pos_nd_i in enumerate(positions_nd):
         a_wt_sum_i = numpy.multiply(a, pos_nd_i, out=a_wt_i).sum()
-        result[("%i" % i)] = a_wt_sum_i / a_sum
+        result["com"][0, i] = a_wt_sum_i / a_sum
 
     return result[0]
 
