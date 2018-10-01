@@ -6,6 +6,7 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 
 import collections
 import functools
+import operator
 from warnings import warn
 
 import numpy
@@ -291,7 +292,10 @@ def labeled_comprehension(input,
 
     pass_positions = bool(pass_positions)
 
-    lbl_mtch = _utils._get_label_matches(labels, index)
+    lbl_mtch = operator.eq(
+        labels[index.ndim * (None,) + (Ellipsis,)],
+        index[(Ellipsis,) + labels.ndim * (None,)]
+    )
 
     args = (input,)
     if pass_positions:
