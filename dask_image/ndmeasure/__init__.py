@@ -285,9 +285,7 @@ def labeled_comprehension(input,
     )
 
     out_dtype = numpy.dtype(out_dtype)
-
-    default_1d = numpy.empty((1,), dtype=out_dtype)
-    default_1d[0] = default
+    default_1d = numpy.full((1,), default, dtype=out_dtype)
 
     pass_positions = bool(pass_positions)
 
