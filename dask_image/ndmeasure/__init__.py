@@ -7,6 +7,7 @@ __author__ = """John Kirkham"""
 __email__ = "kirkhamj@janelia.hhmi.org"
 
 
+import collections
 import functools
 import itertools
 from warnings import warn
@@ -98,20 +99,25 @@ def extrema(input, labels=None, index=None):
         input, labels, index
     )
 
-    out_dtype = numpy.dtype([
+    type_mapping = collections.OrderedDict([
         ("min_val", input.dtype),
-        ("min_pos", numpy.int),
         ("max_val", input.dtype),
-        ("max_pos", numpy.int)
+        ("min_pos", numpy.dtype(numpy.int)),
+        ("max_pos", numpy.dtype(numpy.int))
     ])
-    default = numpy.zeros((), out_dtype)[()]
+    out_dtype = numpy.dtype(list(type_mapping.items()))
 
+    default_1d = numpy.zeros((1,), dtype=out_dtype)
+
+    func = functools.partial(_utils._extrema, dtype=out_dtype)
     extrema_lbl = labeled_comprehension(
         input, labels, index,
-        _utils._extrema, out_dtype, default, pass_positions=True
+        func, out_dtype, default_1d[0], pass_positions=True
     )
 
-    extrema_lbl = {k: extrema_lbl[k] for k in extrema_lbl.dtype.names}
+    extrema_lbl = collections.OrderedDict([
+        (k, extrema_lbl[k]) for k in type_mapping.keys()
+    ])
 
     for pos_key in ["min_pos", "max_pos"]:
         pos_1d = extrema_lbl[pos_key]
@@ -129,12 +135,7 @@ def extrema(input, labels=None, index=None):
 
         extrema_lbl[pos_key] = pos_nd
 
-    result = (
-        extrema_lbl["min_val"],
-        extrema_lbl["max_val"],
-        extrema_lbl["min_pos"],
-        extrema_lbl["max_pos"]
-    )
+    result = tuple(extrema_lbl.values())
 
     return result
 
