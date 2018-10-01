@@ -6,7 +6,6 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 
 import collections
 import functools
-import itertools
 from warnings import warn
 
 import numpy
@@ -301,10 +300,8 @@ def labeled_comprehension(input,
         )
         args = (input, positions)
 
-    index_ranges = [_pycompat.irange(e) for e in index.shape]
-
     result = numpy.empty(index.shape, dtype=object)
-    for i in itertools.product(*index_ranges):
+    for i in numpy.ndindex(index.shape):
         lbl_mtch_i = lbl_mtch[i]
         args_lbl_mtch_i = tuple(e[lbl_mtch_i] for e in args)
         result[i] = _utils._labeled_comprehension_func(
@@ -312,9 +309,8 @@ def labeled_comprehension(input,
         )
 
     for i in _pycompat.irange(result.ndim - 1, -1, -1):
-        index_ranges_i = itertools.product(*(index_ranges[:i]))
         result2 = result[..., 0]
-        for j in index_ranges_i:
+        for j in numpy.ndindex(index.shape[:i]):
             result2[j] = dask.array.stack(result[j].tolist(), axis=0)
         result = result2
     result = result[()][..., 0]
