@@ -85,35 +85,6 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     return indices
 
 
-def _unravel_index_kernel(indices, func_kwargs):
-    nd_indices = numpy.unravel_index(indices, **func_kwargs)
-    nd_indices = numpy.stack(nd_indices, axis=indices.ndim)
-    return nd_indices
-
-
-def _unravel_index(indices, dims, order='C'):
-    """
-    Unravels the indices like NumPy's ``unravel_index``.
-
-    Uses NumPy's ``unravel_index`` on Dask Array blocks.
-    """
-
-    if dims and indices.size:
-        unraveled_indices = indices.map_blocks(
-            _unravel_index_kernel,
-            dtype=numpy.intp,
-            chunks=indices.chunks + ((len(dims),),),
-            new_axis=indices.ndim,
-            func_kwargs={"dims": dims, "order": order}
-        )
-    else:
-        unraveled_indices = dask.array.empty(
-            (0, len(dims)), dtype=numpy.intp, chunks=1
-        )
-
-    return unraveled_indices
-
-
 def _argmax(a, positions, shape, dtype):
     """
     Find original array position corresponding to the maximum.
