@@ -135,8 +135,8 @@ def _extrema(a, positions):
 
     dtype = numpy.dtype([
         ("min_val", a.dtype),
-        ("min_pos", positions.dtype),
         ("max_val", a.dtype),
+        ("min_pos", positions.dtype),
         ("max_pos", positions.dtype)
     ])
     result = numpy.empty((1,), dtype=dtype)
