@@ -33,7 +33,7 @@ def _norm_input_labels_index(input, labels=None, index=None):
 
     if index.ndim > 1:
         warnings.warn(
-            "Having index with dimensionality greater than 1 is undefined.",
+            "Having index with dimensionality (%d) greater than 1 is undefined."%index.ndim,
             FutureWarning
         )
 
