@@ -1,0 +1,19 @@
+name: dask_image_py36_env
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.6.*
+  - pip==18.0
+  - wheel==0.31.1
+  - coverage==4.5.1
+  - pytest==3.0.5
+  - dask==0.16.1
+  - numpy==1.11.3
+  - scipy==0.19.1
+  - scikit-image=0.12.3
+  - pims==0.4.1
+  - slicerator==0.9.8
+  - pip:
+    - slicerator==0.9.8
