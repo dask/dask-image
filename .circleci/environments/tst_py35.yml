@@ -8,7 +8,7 @@ dependencies:
   - pip==18.0
   - wheel==0.31.1
   - coverage==4.5.1
-  - pytest==3.0.5
+  - pytest==3.8.1
   - dask==0.16.1
   - numpy==1.11.3
   - scipy==0.19.1
