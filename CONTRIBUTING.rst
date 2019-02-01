@@ -42,6 +42,27 @@ dask-image could always use more documentation, whether as part of the
 official dask-image docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
+To build the documentation locally and preview your changes, first set up the
+conda environment for building the dask-image documentation:
+
+.. code-block:: console
+
+    $ conda env create -f environment_doc.yml
+    $ conda activate dask_image_doc_env
+
+This conda environment contains dask-image and its dependencies, sphinx,
+and the dask-sphinx-theme.
+
+Next, build the documentation with sphinx:
+
+.. code-block:: console
+
+    $ cd dask-image/docs
+    $ make html
+
+Now you can preview the html documentation in your browser by opening the file:
+dask-image/docs/_build/html/index.html
+
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
