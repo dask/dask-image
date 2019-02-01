@@ -11,7 +11,7 @@ dependencies:
   - pytest==3.8.2
   - dask==0.16.1
   - numpy==1.11.3
-  - scipy==0.19.1
+  - scipy==1.1.0
   - scikit-image=0.14.2
   - pims==0.4.1
   - slicerator==0.9.8
