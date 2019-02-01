@@ -1,4 +1,4 @@
-name: dask_image_py36_env
+name: dask_image_py37_env
 
 channels:
   - conda-forge
