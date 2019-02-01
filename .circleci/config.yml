@@ -181,6 +181,7 @@ workflows:
   version: 2
   build_and_test:
     jobs:
+      - build_py37
       - build_py36
       - build_py35
       - build_py27
