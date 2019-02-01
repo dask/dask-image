@@ -7,6 +7,7 @@ branches:
 
 environment:
   matrix:
+    - PYVER: 37
     - PYVER: 36
     - PYVER: 35
     - PYVER: 27
