@@ -4,7 +4,7 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3.6.*
+  - python=3.7.*
   - pip==18.0
   - wheel==0.31.1
   - coverage==4.5.1
