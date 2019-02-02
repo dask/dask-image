@@ -16,7 +16,7 @@ def test_irange():
 
 
 def test_imap():
-    r = dask_image._pycompat.imap(lambda e : e ** 2, [0, 1, 2, 3])
+    r = dask_image._pycompat.imap(lambda e: e ** 2, [0, 1, 2, 3])
 
     assert not isinstance(r, list)
 
