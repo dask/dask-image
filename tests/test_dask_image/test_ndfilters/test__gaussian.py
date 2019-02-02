@@ -188,7 +188,8 @@ def test_gaussian_filters_compare(sp_func, da_func, sigma, truncate):
         (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
     ]
 )
-def test_gaussian_derivative_filters_compare(sp_func, da_func, order, sigma, truncate):
+def test_gaussian_derivative_filters_compare(sp_func, da_func,
+                                             order, sigma, truncate):
     s = (100, 110)
     a = np.arange(float(np.prod(s))).reshape(s)
     d = da.from_array(a, chunks=(50, 55))
