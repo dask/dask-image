@@ -3,15 +3,12 @@
 
 from __future__ import division
 
-import operator
 import warnings
 
 import numpy
 
 import dask
 import dask.array
-
-from .. import _pycompat
 
 
 def _norm_input_labels_index(input, labels=None, index=None):

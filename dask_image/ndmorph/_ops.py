@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-import numpy
-
 import dask.array
 
 from . import _utils

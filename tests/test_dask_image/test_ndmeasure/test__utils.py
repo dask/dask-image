@@ -3,8 +3,6 @@
 
 from __future__ import absolute_import
 
-import operator
-
 import pytest
 
 import numpy as np
@@ -44,7 +42,7 @@ def test__norm_input_labels_index():
     lbls = (a < 0.5).astype(int)
     d_lbls = da.from_array(lbls, chunks=d.chunks)
 
-    d_n, d_lbls_n, ind_n = dask_image.ndmeasure._utils._norm_input_labels_index(
+    d_n, d_lbls_n, ind_n = dask_image.ndmeasure._utils._norm_input_labels_index(  # noqa: E501
         d, d_lbls, ind
     )
 

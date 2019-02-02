@@ -97,7 +97,7 @@ def test_errs__get_brute_force(err_type, brute_force):
         ),
         (
             numpy.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], dtype=bool),
-            (dask.array.arange(100, chunks=10).reshape(10, 10) % 2).astype(bool),
+            (dask.array.arange(100, chunks=10).reshape(10, 10) % 2).astype(bool),  # noqa: E501
             None
         ),
         (
