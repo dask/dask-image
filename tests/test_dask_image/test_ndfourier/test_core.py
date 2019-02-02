@@ -100,8 +100,8 @@ def test_fourier_filter_type(funcname, upcast_type, dtype):
             dtype is np.int64 or
             dtype is np.float64
         ) and (
-            funcname is "fourier_gaussian" or
-            funcname is "fourier_uniform"
+            funcname == "fourier_gaussian" or
+            funcname == "fourier_uniform"
         )):
         pytest.skip(
             "SciPy 1.0.0+ doesn't handle double precision values correctly."
