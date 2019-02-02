@@ -7,6 +7,9 @@ from . import _utils
 from ._gaussian import gaussian_filter
 
 
+gaussian_filter = gaussian_filter
+
+
 @_utils._update_wrapper(scipy.ndimage.filters.uniform_filter)
 def uniform_filter(input,
                    size=3,
