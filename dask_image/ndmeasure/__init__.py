@@ -12,9 +12,16 @@ import numpy
 import scipy.ndimage
 
 import dask.array
+import dask.array as da
 
 from .. import _pycompat
 from . import _utils
+
+
+def _get_ndimage_label_dtype():
+    return scipy.ndimage.label([1, 0, 1])[0].dtype
+
+LABEL_DTYPE = _get_ndimage_label_dtype()
 
 
 def center_of_mass(input, labels=None, index=None):
@@ -179,9 +186,28 @@ def histogram(input,
     return result
 
 
-def label(input, structure=None):
+def _relabel_components(array, labeling):
+    """Relabel the input array based on correspondences in comp_labels
+
+    Parameters
+    ----------
+    array : array of int
+        The input label array.
+    labeling : 1D array of int
+        A new labeling, such that ``labeling[i] = j`` implies that
+        any element in ``array`` valued ``i`` should be relabeled to ``j``.
+
+    Returns
+    -------
+    result : array of int, same shape as ``array``
+        The relabeled input array.
     """
-    Label features in an array.
+    result = da.map_blocks(labeling.__getitem__, array)
+    return result
+
+
+def label(input, structure=None):
+    """Label features in an array.
 
     Parameters
     ----------
@@ -210,25 +236,29 @@ def label(input, structure=None):
 
     input = dask.array.asarray(input)
 
-    if not all([len(c) == 1 for c in input.chunks]):
-        warn("``input`` does not have 1 chunk in all dimensions; it will be consolidated first", RuntimeWarning)
+    label = dask.delayed(functools.partial(scipy.ndimage.label,
+                                           structure=structure), nout=2)
+    labeled_blocks = np.empty(input.numblocks, dtype=object)
+    total = 0
 
-    label_func = dask.delayed(scipy.ndimage.label, nout=2)
-    label, num_features = label_func(input, structure)
+    for i, index in enumerate(np.ndindex(*input.numblocks)):
+        input_block = input.blocks[index]
+        labeled_block, n = label(input.blocks[index])
+        labeled_blocks[index] = da.from_delayed(labeled_block,
+                                                shape=input_block.shape,
+                                                dtype=LABEL_DTYPE) + total
+        total += n
 
-    label = dask.array.from_delayed(
-        label,
-        input.shape,
-        numpy.int32
-    )
+    result_array = da.block(labeled_blocks.to_list())
 
-    num_features = dask.array.from_delayed(
-        num_features,
-        tuple(),
-        int
-    )
+    # _label_adj_graph needs to be defined still
+    correspondences = _label_adjacency_graph(result_array)  # csr_matrix
+    conn_comp = dask.delayed(functools.partial(csgraph.connected_components,
+                                               directed=False), nout=2)
+    _, comp_labels = conn_comp(correspondences)
 
-    result = (label, num_features)
+    relabeled_result_array = _relabel_components(result_array, comp_labels)
+    result = (relabeled_result_array, total)
 
     return result
 
