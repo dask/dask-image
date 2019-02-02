@@ -14,8 +14,8 @@ from .._pycompat import irange, izip, strlike
 
 def _get_docstring(func):
     # Drop the output parameter from the docstring.
-    split_doc_params = lambda s: \
-        re.subn("(    [A-Za-z]+ : )", "\0\\1", s)[0].split("\0")  # noqa: E731
+    split_doc_params = lambda s: re.subn(
+        "(    [A-Za-z]+ : )", "\0\\1", s)[0].split("\0")          # noqa: E731
     drop_doc_param = lambda s: not s.startswith("    output : ")  # noqa: E731
     func_doc = "" if func.__doc__ is None else func.__doc__
     cleaned_docstring = "".join([
