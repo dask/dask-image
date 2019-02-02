@@ -91,11 +91,16 @@ def test_ordered_filter_shape_type(da_func,
 @pytest.mark.parametrize(
     "sp_func, da_func, extra_kwargs",
     [
-        (sp_ndf.minimum_filter, da_ndf.minimum_filter, {}),
-        (sp_ndf.median_filter, da_ndf.median_filter, {}),
-        (sp_ndf.maximum_filter, da_ndf.maximum_filter, {}),
-        (sp_ndf.rank_filter, da_ndf.rank_filter, {"rank": 0}),
-        (sp_ndf.percentile_filter, da_ndf.percentile_filter, {"percentile": 0}),
+        (sp_ndf.minimum_filter,
+         da_ndf.minimum_filter, {}),
+        (sp_ndf.median_filter,
+         da_ndf.median_filter, {}),
+        (sp_ndf.maximum_filter,
+         da_ndf.maximum_filter, {}),
+        (sp_ndf.rank_filter,
+         da_ndf.rank_filter, {"rank": 0}),
+        (sp_ndf.percentile_filter,
+         da_ndf.percentile_filter, {"percentile": 0}),
     ]
 )
 @pytest.mark.parametrize(
