@@ -3,8 +3,6 @@
 
 from __future__ import absolute_import
 
-import operator
-
 import pytest
 
 import numpy as np
