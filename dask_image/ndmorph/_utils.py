@@ -9,13 +9,10 @@ import scipy.ndimage
 import dask.array
 
 from ..ndfilters._utils import (
-    _get_docstring,
     _update_wrapper,
     _get_depth_boundary,
-    _get_size,
     _get_origin,
-    _get_depth,
-    _get_footprint
+    _get_depth
 )
 
 

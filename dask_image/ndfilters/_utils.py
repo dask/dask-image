@@ -9,7 +9,7 @@ import re
 
 import numpy
 
-from .._pycompat import imap, irange, izip, strlike, unicode
+from .._pycompat import irange, izip, strlike
 
 
 def _get_docstring(func):

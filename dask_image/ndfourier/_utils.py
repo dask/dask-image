@@ -7,7 +7,7 @@ import numpy
 
 import dask.array
 
-from .._pycompat import imap, irange, izip
+from .._pycompat import izip
 
 
 def _get_freq_grid(shape, chunks, dtype=float):
