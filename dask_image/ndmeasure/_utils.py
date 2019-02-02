@@ -3,7 +3,6 @@
 
 from __future__ import division
 
-import operator
 import warnings
 
 import numpy

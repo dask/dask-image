@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-import numbers
-
 import scipy.ndimage.filters
 
 from . import _utils
