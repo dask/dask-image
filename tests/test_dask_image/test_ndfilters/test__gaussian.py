@@ -113,7 +113,7 @@ def test_gaussian_filter_shape_type(da_func):
     ]
 )
 def test_gaussian_filter_comprehensions(da_func):
-    da_wfunc = lambda arr: da_func(arr, 1.0, truncate=4.0)
+    da_wfunc = lambda arr: da_func(arr, 1.0, truncate=4.0)  # noqa: E731
 
     np.random.seed(0)
 
