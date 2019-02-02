@@ -211,7 +211,10 @@ def label(input, structure=None):
     input = dask.array.asarray(input)
 
     if not all([len(c) == 1 for c in input.chunks]):
-        warn("``input`` does not have 1 chunk in all dimensions; it will be consolidated first", RuntimeWarning)
+        warn(
+            "``input`` does not have 1 chunk in all dimensions; it will be consolidated first",
+            RuntimeWarning
+        )
 
     label_func = dask.delayed(scipy.ndimage.label, nout=2)
     label, num_features = label_func(input, structure)
