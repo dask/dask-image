@@ -13,7 +13,7 @@ from dask_image.ndfilters import _utils
 
 
 def test__get_docstring():
-    f = lambda: 0
+    f = lambda: 0  # noqa: E731
 
     result = _utils._get_docstring(f)
 
@@ -37,7 +37,7 @@ def test__get_docstring():
 
 
 def test__update_wrapper():
-    f = lambda: 0
+    f = lambda: 0  # noqa: E731
 
     @_utils._update_wrapper(f)
     def g():
