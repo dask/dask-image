@@ -43,7 +43,6 @@ def test__update_wrapper():
     def g():
         return f()
 
-
     assert f.__name__ == g.__name__
 
     expected = """
