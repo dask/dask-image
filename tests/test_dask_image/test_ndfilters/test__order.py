@@ -155,11 +155,16 @@ def test_order_comprehensions(da_func, kwargs):
 @pytest.mark.parametrize(
     "sp_func, da_func, extra_kwargs",
     [
-        (sp_ndf.minimum_filter, da_ndf.minimum_filter, {}),
-        (sp_ndf.median_filter, da_ndf.median_filter, {}),
-        (sp_ndf.maximum_filter, da_ndf.maximum_filter, {}),
-        (sp_ndf.rank_filter, da_ndf.rank_filter, {"rank": 1}),
-        (sp_ndf.percentile_filter, da_ndf.percentile_filter, {"percentile": 10}),
+        (sp_ndf.minimum_filter,
+         da_ndf.minimum_filter, {}),
+        (sp_ndf.median_filter,
+         da_ndf.median_filter, {}),
+        (sp_ndf.maximum_filter,
+         da_ndf.maximum_filter, {}),
+        (sp_ndf.rank_filter,
+         da_ndf.rank_filter, {"rank": 1}),
+        (sp_ndf.percentile_filter,
+         da_ndf.percentile_filter, {"percentile": 10}),
     ]
 )
 @pytest.mark.parametrize(
