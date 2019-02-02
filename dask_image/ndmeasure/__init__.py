@@ -212,7 +212,8 @@ def label(input, structure=None):
 
     if not all([len(c) == 1 for c in input.chunks]):
         warn(
-            "``input`` does not have 1 chunk in all dimensions; it will be consolidated first",
+            "``input`` does not have 1 chunk in all dimensions; "
+            "it will be consolidated first",
             RuntimeWarning
         )
 
