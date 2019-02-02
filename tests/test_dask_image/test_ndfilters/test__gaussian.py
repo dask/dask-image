@@ -140,9 +140,12 @@ def test_gaussian_filter_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
-        (sp_ndf.gaussian_gradient_magnitude, da_ndf.gaussian_gradient_magnitude),
-        (sp_ndf.gaussian_laplace, da_ndf.gaussian_laplace),
+        (sp_ndf.gaussian_filter,
+         da_ndf.gaussian_filter),
+        (sp_ndf.gaussian_gradient_magnitude,
+         da_ndf.gaussian_gradient_magnitude),
+        (sp_ndf.gaussian_laplace,
+         da_ndf.gaussian_laplace),
     ]
 )
 def test_gaussian_filters_compare(sp_func, da_func, sigma, truncate):
