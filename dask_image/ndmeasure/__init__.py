@@ -202,7 +202,7 @@ def _relabel_components(array, labeling):
     result : array of int, same shape as ``array``
         The relabeled input array.
     """
-    result = da.map_blocks(labeling.__getitem__, array)
+    result = labeling.vindex[array]
     return result
 
 
