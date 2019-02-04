@@ -141,6 +141,28 @@ def _extrema(a, positions, shape, dtype):
     return result[0]
 
 
+@dask.delayed
+def _find_object(pos, shape):
+    """
+    Find bounding box for the given positions.
+    """
+
+    if pos.size == 0:
+        return None
+
+    pos = numpy.require(pos, requirements='OW')
+
+    result = []
+    pos_i = numpy.empty_like(pos)
+    for s in reversed(shape):
+        numpy.mod(pos, s, out=pos_i)
+        numpy.subtract(pos, pos_i, out=pos)
+        result.insert(0, slice(pos_i.min(), pos_i.max() + 1))
+    result = tuple(result)
+
+    return result
+
+
 def _histogram(input,
                min,
                max,

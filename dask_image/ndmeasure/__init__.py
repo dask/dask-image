@@ -127,6 +127,44 @@ def extrema(input, labels=None, index=None):
     return result
 
 
+def find_objects(input, max_label=0):
+    """
+    Find the center of mass over an image at specified subregions.
+
+    Parameters
+    ----------
+    input : ndarray
+        Image features noted by integers.
+    max_label : int, optional
+        Maximum label to look for in ``input``. If 0, look for all labels.
+
+    Returns
+    -------
+    object_slices : ``list`` of ``tuple``s
+        A ``list`` of ``tuple``s specifying the bounding boxes of each label.
+    """
+
+    input = dask.array.asarray(input)
+    max_label = int(max_label)
+
+    if max_label == 0:
+        raise NotImplementedError(
+            "Getting all labels is currently not supported."
+        )
+
+    positions = _utils._ravel_shape_indices(
+        input.shape, chunks=input.chunks
+    )
+
+    object_slices = []
+    for i in range(1, max_label + 1):
+        object_slices.append(_utils._find_object(
+            positions[input == i], input.shape
+        ))
+
+    return object_slices
+
+
 def histogram(input,
               min,
               max,
