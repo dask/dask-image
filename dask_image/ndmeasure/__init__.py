@@ -6,10 +6,7 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 
 import operator
 import collections
-import itertools
 import functools
-import toolz
-from warnings import warn
 
 import numpy
 import numpy as np
@@ -29,6 +26,7 @@ from . import _utils
 
 def _get_ndimage_label_dtype():
     return scipy.ndimage.label([1, 0, 1])[0].dtype
+
 
 LABEL_DTYPE = _get_ndimage_label_dtype()
 
@@ -241,16 +239,10 @@ def csr(i, j, n):
 def _label_adj_graph(array, structure, nlabels):
     """Adjacency graph of labels between chunks of ``array``.
     """
-    label = dask.delayed(functools.partial(ndi.label, structure=structure),
-                         nout=2)
-    unique_rows = dask.delayed(skimage.util.unique_rows)
-    unique = dask.delayed(functools.partial(np.unique, return_counts=True),
-                          nout=2)
     faces = chunk_faces(array.chunks, array.shape)
     all_mappings = []
     for face_slice in faces:
         chunky_face = array[face_slice]
-        # face_axis = [i for i, c in enumerate(chunky_face.numblocks) if c == 2][0]
         face = chunky_face.rechunk(-1)
         mapped = da.from_delayed(get_valid_matches(face), (np.nan, 2),
                                  dtype=LABEL_DTYPE)
