@@ -5,11 +5,14 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 
 
 import collections
+import itertools
 import functools
+import toolz
 from warnings import warn
 
 import numpy
 import scipy.ndimage
+import skimage.util
 
 import dask.array
 import dask.array as da
@@ -206,6 +209,78 @@ def _relabel_components(array, labeling):
     return result
 
 
+def _label_adj_graph(array, structure):
+    """Adjacency graph of labels between chunks of ``array``.
+    """
+    label = dask.delayed(functools.partial(ndi.label, structure=structure),
+                         nout=2)
+    unique = dask.delayed(skimage.util.unique_rows)
+    faces = chunk_faces(array.chunks, array.shape)
+    all_mappings = []
+    for face_slice in faces:
+        chunky_face = array[face_slice]
+        face_axis = [i for i, c in chunky_face.numblocks if c == 2][0]
+        face = chunky_face.rechunk(-1)
+        common_labels = label(face)[0]
+        matching = da.stack((common_labels.ravel(), face.ravel()), axis=1)
+        unique_matching = da.from_delayed(unique(matching), shape=(np.nan, 2),
+                                          dtype=matching.dtype)
+        valid = da.all(unique_matching, axis=1)
+        unique_valid_matching = unique_matching[valid]
+        relabeled_unique, relabeled_counts = da.unique(unique_valid_matching[:, 0],
+                                                       return_counts=True)
+        real_mapped_labels = relabeled_unique[relabeled_counts > 1]
+        rows_we_keep = da.isin(unique_valid_matching[:, 0], real_mapped_labels)
+        mapped = unique_valid_matching[rows_we_keep, 1].reshape((-1, 2))
+        all_mappings.append(mapped)
+    all_mappings = da.concatenate(all_mappings, axis=0)
+    i, j = all_mappings.T.rechunk((1, -1))
+    v = da.ones_like(i)
+    coo = dask.delayed(sparse.coo_matrix)
+    mat = coo((v, (i, j))).tocsr()
+    return mat
+
+
+def chunk_faces(chunks, shape):
+    """Return slices for two-pixel-wide boundaries between chunks.
+
+    Parameters
+    ----------
+    chunks : tuple of tuple of int
+        The chunk specification of the array.
+    shape : tuple of int
+        The shape of the array.
+
+    Returns
+    -------
+    faces : list of tuple of slices
+        Each element in this list indexes a face between two chunks.
+
+    Examples
+    --------
+    >>> a = da.arange(110, chunks=110).reshape((10, 11)).rechunk(5)
+    >>> chunk_faces(a.chunks, a.shape)
+    [(slice(4, 6, None), slice(0, 5, None)),
+     (slice(4, 6, None), slice(5, 10, None)),
+     (slice(4, 6, None), slice(10, 11, None)),
+     (slice(0, 5, None), slice(4, 6, None)),
+     (slice(0, 5, None), slice(9, 11, None)),
+     (slice(5, 10, None), slice(4, 6, None)),
+     (slice(5, 10, None), slice(9, 11, None))]
+    """
+    slices = da.core.slices_from_chunks(chunks)
+    ndim = len(shape)
+    faces = []
+    for ax in range(ndim):
+        for sl in slices:
+            if sl[ax].stop == shape[ax]:
+                continue
+            slice_to_append = list(sl)
+            slice_to_append[ax] = slice(sl[ax].stop - 1, sl[ax].stop + 1)
+            faces.append(tuple(slice_to_append))
+    return faces
+
+
 def label(input, structure=None):
     """Label features in an array.
 
@@ -251,8 +326,8 @@ def label(input, structure=None):
 
     result_array = da.block(labeled_blocks.to_list())
 
-    # _label_adj_graph needs to be defined still
-    correspondences = _label_adjacency_graph(result_array)  # csr_matrix
+    # _label_adj_graph needs to be defined still; returns a csr_matrix
+    correspondences = _label_adjacency_graph(result_array, structure)
     conn_comp = dask.delayed(functools.partial(csgraph.connected_components,
                                                directed=False), nout=2)
     _, comp_labels = conn_comp(correspondences)
