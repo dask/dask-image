@@ -224,7 +224,14 @@ def get_valid_matches(face):
     return mapped
 
 
-def _label_adj_graph(array, structure):
+@dask.delayed
+def csr(i, j, n):
+    v = np.ones_like(i)
+    mat = sparse.coo_matrix((v, (i, j)), shape=(n, n))
+    return mat.tocsr()
+
+
+def _label_adj_graph(array, structure, nlabels):
     """Adjacency graph of labels between chunks of ``array``.
     """
     label = dask.delayed(functools.partial(ndi.label, structure=structure),
@@ -243,9 +250,7 @@ def _label_adj_graph(array, structure):
         all_mappings.append(mapped)
     all_mappings = da.concatenate(all_mappings, axis=0)
     i, j = all_mappings.T
-    v = da.map_blocks(np.ones_like, i)
-    coo = dask.delayed(sparse.coo_matrix)
-    mat = coo((v, (i, j))).tocsr()
+    mat = csr(i, j, nlabels + 1)
     return mat
 
 
@@ -336,11 +341,11 @@ def label(input, structure=None):
     result_array = da.block(labeled_blocks.tolist())
 
     # _label_adj_graph needs to be defined still; returns a csr_matrix
-    correspondences = _label_adjacency_graph(result_array, structure)
+    correspondences = _label_adj_graph(result_array, structure, total)
     conn_comp = dask.delayed(functools.partial(csgraph.connected_components,
                                                directed=False), nout=2)
     _, comp_labels = conn_comp(correspondences)
-
+    comp_labels = da.from_delayed(comp_labels, shape=(np.nan,), dtype=int)
     relabeled_result_array = _relabel_components(result_array, comp_labels)
     result = (relabeled_result_array, total)
 
