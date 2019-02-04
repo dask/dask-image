@@ -224,7 +224,7 @@ def get_valid_matches(face):
     relabeled_unique, relabeled_counts = np.unique(unique_valid_matching[:, 0],
                                                    return_counts=True)
     real_mapped_labels = relabeled_unique[relabeled_counts > 1]
-    rows_we_keep = np.isin(unique_valid_matching[:, 0], real_mapped_labels)
+    rows_we_keep = np.in1d(unique_valid_matching[:, 0], real_mapped_labels)
     mapped = unique_valid_matching[rows_we_keep, 1].reshape((-1, 2)).T
     return mapped
 
