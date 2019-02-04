@@ -225,7 +225,7 @@ def get_valid_matches(face):
                                                    return_counts=True)
     real_mapped_labels = relabeled_unique[relabeled_counts > 1]
     rows_we_keep = np.isin(unique_valid_matching[:, 0], real_mapped_labels)
-    mapped = unique_valid_matching[rows_we_keep, 1].reshape((-1, 2))
+    mapped = unique_valid_matching[rows_we_keep, 1].reshape((-1, 2)).T
     return mapped
 
 
@@ -244,11 +244,11 @@ def _label_adj_graph(array, structure, nlabels):
     for face_slice in faces:
         chunky_face = array[face_slice]
         face = chunky_face.rechunk(-1)
-        mapped = da.from_delayed(get_valid_matches(face), (np.nan, 2),
+        mapped = da.from_delayed(get_valid_matches(face), (2, np.nan),
                                  dtype=LABEL_DTYPE)
         all_mappings.append(mapped)
-    all_mappings = da.concatenate(all_mappings, axis=0)
-    i, j = all_mappings.T
+    all_mappings = da.concatenate(all_mappings, axis=1)
+    i, j = all_mappings
     mat = csr(i, j, nlabels + 1)
     return mat
 
