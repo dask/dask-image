@@ -4,6 +4,7 @@ __author__ = """John Kirkham"""
 __email__ = "kirkhamj@janelia.hhmi.org"
 
 
+import operator
 import collections
 import itertools
 import functools
@@ -11,9 +12,12 @@ import toolz
 from warnings import warn
 
 import numpy
+from scipy import sparse
+from scipy.sparse import csgraph
 import scipy.ndimage
 import skimage.util
 
+import dask
 import dask.array
 import dask.array as da
 
