@@ -212,7 +212,7 @@ def _relabel_components(array, labeling):
         The relabeled input array.
     """
     result = da.map_blocks(operator.getitem, labeling, array,
-                           dtype=labeling.dtype)
+                           dtype=labeling.dtype, chunks=array.chunks)
     return result
 
 
