@@ -12,9 +12,11 @@ import toolz
 from warnings import warn
 
 import numpy
+import numpy as np
 from scipy import sparse
 from scipy.sparse import csgraph
 import scipy.ndimage
+import scipy.ndimage as ndi
 import skimage.util
 
 import dask
@@ -352,7 +354,7 @@ def label(input, structure=None):
     _, comp_labels = conn_comp(correspondences)
     comp_labels = da.from_delayed(comp_labels, shape=(np.nan,), dtype=int)
     relabeled_result_array = _relabel_components(result_array, comp_labels)
-    result = (relabeled_result_array, total)
+    result = (relabeled_result_array, da.max(relabeled_result_array))
 
     return result
 
