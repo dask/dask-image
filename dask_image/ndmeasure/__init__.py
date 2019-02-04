@@ -209,33 +209,41 @@ def _relabel_components(array, labeling):
     return result
 
 
+@dask.delayed
+def get_valid_matches(face):
+    common_labels = ndi.label(face)[0]
+    matching = np.stack((common_labels.ravel(), face.ravel()), axis=1)
+    unique_matching = skimage.util.unique_rows(matching)
+    valid = np.all(unique_matching, axis=1)
+    unique_valid_matching = unique_matching[valid]
+    relabeled_unique, relabeled_counts = np.unique(unique_valid_matching[:, 0],
+                                                   return_counts=True)
+    real_mapped_labels = relabeled_unique[relabeled_counts > 1]
+    rows_we_keep = np.isin(unique_valid_matching[:, 0], real_mapped_labels)
+    mapped = unique_valid_matching[rows_we_keep, 1].reshape((-1, 2))
+    return mapped
+
+
 def _label_adj_graph(array, structure):
     """Adjacency graph of labels between chunks of ``array``.
     """
     label = dask.delayed(functools.partial(ndi.label, structure=structure),
                          nout=2)
-    unique = dask.delayed(skimage.util.unique_rows)
+    unique_rows = dask.delayed(skimage.util.unique_rows)
+    unique = dask.delayed(functools.partial(np.unique, return_counts=True),
+                          nout=2)
     faces = chunk_faces(array.chunks, array.shape)
     all_mappings = []
     for face_slice in faces:
         chunky_face = array[face_slice]
-        face_axis = [i for i, c in chunky_face.numblocks if c == 2][0]
+        # face_axis = [i for i, c in enumerate(chunky_face.numblocks) if c == 2][0]
         face = chunky_face.rechunk(-1)
-        common_labels = label(face)[0]
-        matching = da.stack((common_labels.ravel(), face.ravel()), axis=1)
-        unique_matching = da.from_delayed(unique(matching), shape=(np.nan, 2),
-                                          dtype=matching.dtype)
-        valid = da.all(unique_matching, axis=1)
-        unique_valid_matching = unique_matching[valid]
-        relabeled_unique, relabeled_counts = da.unique(unique_valid_matching[:, 0],
-                                                       return_counts=True)
-        real_mapped_labels = relabeled_unique[relabeled_counts > 1]
-        rows_we_keep = da.isin(unique_valid_matching[:, 0], real_mapped_labels)
-        mapped = unique_valid_matching[rows_we_keep, 1].reshape((-1, 2))
+        mapped = da.from_delayed(get_valid_matches(face), (np.nan, 2),
+                                 dtype=LABEL_DTYPE)
         all_mappings.append(mapped)
     all_mappings = da.concatenate(all_mappings, axis=0)
-    i, j = all_mappings.T.rechunk((1, -1))
-    v = da.ones_like(i)
+    i, j = all_mappings.T
+    v = da.map_blocks(np.ones_like, i)
     coo = dask.delayed(sparse.coo_matrix)
     mat = coo((v, (i, j))).tocsr()
     return mat
@@ -318,13 +326,14 @@ def label(input, structure=None):
 
     for i, index in enumerate(np.ndindex(*input.numblocks)):
         input_block = input.blocks[index]
-        labeled_block, n = label(input.blocks[index])
-        labeled_blocks[index] = da.from_delayed(labeled_block,
-                                                shape=input_block.shape,
-                                                dtype=LABEL_DTYPE) + total
-        total += n
+        labeled_block, n = label(input_block)
+        labeled_block = da.from_delayed(labeled_block, shape=input_block.shape,
+                                        dtype=LABEL_DTYPE)
+        labeled_block += da.where(labeled_block > 0, total, 0)
+        labeled_blocks[index] = labeled_block
+        total += da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
 
-    result_array = da.block(labeled_blocks.to_list())
+    result_array = da.block(labeled_blocks.tolist())
 
     # _label_adj_graph needs to be defined still; returns a csr_matrix
     correspondences = _label_adjacency_graph(result_array, structure)
