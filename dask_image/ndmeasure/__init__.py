@@ -240,7 +240,7 @@ def _label_adj_graph(array, structure, nlabels):
     """Adjacency graph of labels between chunks of ``array``.
     """
     faces = chunk_faces(array.chunks, array.shape)
-    all_mappings = []
+    all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
     for face_slice in faces:
         chunky_face = array[face_slice]
         face = chunky_face.rechunk(-1)
