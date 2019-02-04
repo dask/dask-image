@@ -186,6 +186,31 @@ def test_extrema(shape, chunks, has_lbls, ind):
 
 
 @pytest.mark.parametrize(
+    "max_labels", [0, 1, 2, 12, 13]
+)
+def test_find_objects(max_labels):
+    np.random.seed(128)
+
+    shape = (10, 11)
+    thrd = 0.5
+    n_msk = (np.random.random(shape) < thrd)
+    n_l = spnd.label(n_msk)[0]
+    d_l = da.from_array(n_l, chunks=(5, 5))
+
+    if max_labels == 0:
+        with pytest.raises(NotImplementedError):
+            dask_image.ndmeasure.find_objects(d_l, max_labels)
+    else:
+        n_r = spnd.find_objects(n_l, max_labels)
+        d_r = dask_image.ndmeasure.find_objects(d_l, max_labels)
+
+        assert len(n_r) == len(d_r)
+
+        for i in irange(len(n_r)):
+            assert n_r[i] == d_r[i].compute()
+
+
+@pytest.mark.parametrize(
     "shape, chunks, has_lbls, ind", [
         ((15, 16), (4, 5), False, None),
         ((5, 6, 4), (2, 3, 2), False, None),
