@@ -113,7 +113,7 @@ def test_gaussian_filter_shape_type(da_func):
     ]
 )
 def test_gaussian_filter_comprehensions(da_func):
-    da_wfunc = lambda arr: da_func(arr, 1.0, truncate=4.0)
+    da_wfunc = lambda arr: da_func(arr, 1.0, truncate=4.0)  # noqa: E731
 
     np.random.seed(0)
 
@@ -140,9 +140,12 @@ def test_gaussian_filter_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
-        (sp_ndf.gaussian_gradient_magnitude, da_ndf.gaussian_gradient_magnitude),
-        (sp_ndf.gaussian_laplace, da_ndf.gaussian_laplace),
+        (sp_ndf.gaussian_filter,
+         da_ndf.gaussian_filter),
+        (sp_ndf.gaussian_gradient_magnitude,
+         da_ndf.gaussian_gradient_magnitude),
+        (sp_ndf.gaussian_laplace,
+         da_ndf.gaussian_laplace),
     ]
 )
 def test_gaussian_filters_compare(sp_func, da_func, sigma, truncate):
@@ -185,7 +188,8 @@ def test_gaussian_filters_compare(sp_func, da_func, sigma, truncate):
         (sp_ndf.gaussian_filter, da_ndf.gaussian_filter),
     ]
 )
-def test_gaussian_derivative_filters_compare(sp_func, da_func, order, sigma, truncate):
+def test_gaussian_derivative_filters_compare(sp_func, da_func,
+                                             order, sigma, truncate):
     s = (100, 110)
     a = np.arange(float(np.prod(s))).reshape(s)
     d = da.from_array(a, chunks=(50, 55))

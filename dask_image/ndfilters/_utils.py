@@ -9,14 +9,14 @@ import re
 
 import numpy
 
-from .._pycompat import imap, irange, izip, strlike, unicode
+from .._pycompat import irange, izip, strlike
 
 
 def _get_docstring(func):
     # Drop the output parameter from the docstring.
-    split_doc_params = lambda s: \
-        re.subn("(    [A-Za-z]+ : )", "\0\\1", s)[0].split("\0")
-    drop_doc_param = lambda s: not s.startswith("    output : ")
+    split_doc_params = lambda s: re.subn(                         # noqa: E731
+        "(    [A-Za-z]+ : )", "\0\\1", s)[0].split("\0")
+    drop_doc_param = lambda s: not s.startswith("    output : ")  # noqa: E731
     func_doc = "" if func.__doc__ is None else func.__doc__
     cleaned_docstring = "".join([
         l for l in split_doc_params(func_doc) if drop_doc_param(l)
@@ -87,7 +87,7 @@ def _get_depth_boundary(ndim, depth, boundary=None):
     if not isinstance(boundary, collections.Mapping):
         raise TypeError("Unexpected type for `boundary`.")
 
-    type_check = lambda b: (b is None) or isinstance(b, strlike)
+    type_check = lambda b: (b is None) or isinstance(b, strlike)  # noqa: E731
     if not all(map(type_check, boundary.values())):
         raise TypeError("Expected string-like values for `boundary`.")
 

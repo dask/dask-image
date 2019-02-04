@@ -67,7 +67,7 @@ def test_generic_filters_params(da_func,
     ]
 )
 def test_generic_filter_shape_type(da_func):
-    function = lambda x: x
+    function = lambda x: x  # noqa: E731
     size = 1
 
     a = np.arange(140.0).reshape(10, 14)
@@ -119,7 +119,7 @@ def test_generic_filter_identity(sp_func,
     ]
 )
 def test_generic_filter_comprehensions(da_func):
-    da_wfunc = lambda arr: da_func(arr, lambda x: x, 1)
+    da_wfunc = lambda arr: da_func(arr, lambda x: x, 1)  # noqa: E731
 
     np.random.seed(0)
 

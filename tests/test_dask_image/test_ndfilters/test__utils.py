@@ -13,7 +13,7 @@ from dask_image.ndfilters import _utils
 
 
 def test__get_docstring():
-    f = lambda : 0
+    f = lambda: 0  # noqa: E731
 
     result = _utils._get_docstring(f)
 
@@ -37,12 +37,11 @@ def test__get_docstring():
 
 
 def test__update_wrapper():
-    f = lambda : 0
+    f = lambda: 0  # noqa: E731
 
     @_utils._update_wrapper(f)
     def g():
         return f()
-
 
     assert f.__name__ == g.__name__
 
@@ -68,10 +67,10 @@ def test__update_wrapper():
 @pytest.mark.parametrize(
     "err_type, ndim, depth, boundary",
     [
-        (TypeError, lambda : 0, 1, None),
+        (TypeError, lambda: 0, 1, None),
         (TypeError, 1.0, 1, None),
         (ValueError, -1, 1, None),
-        (TypeError, 1, lambda : 0, None),
+        (TypeError, 1, lambda: 0, None),
         (TypeError, 1, 1.0, None),
         (ValueError, 1, -1, None),
         (ValueError, 1, (1, 1), None),
