@@ -429,7 +429,7 @@ def label(input, structure=None):
     input = dask.array.asarray(input)
 
     labeled_blocks = np.empty(input.numblocks, dtype=object)
-    total = 0
+    total = LABEL_DTYPE.type(0)
 
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
