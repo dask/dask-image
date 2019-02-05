@@ -328,7 +328,7 @@ def label(input, structure=None):
     labeled_blocks = np.empty(input.numblocks, dtype=object)
     total = 0
 
-    for i, index in enumerate(np.ndindex(*input.numblocks)):
+    for index in np.ndindex(*input.numblocks):
         input_block = input.blocks[index]
         labeled_block, n = label(input_block)
         labeled_block = da.from_delayed(labeled_block, shape=input_block.shape,
