@@ -32,7 +32,7 @@ LABEL_DTYPE = _get_ndimage_label_dtype()
 
 
 def _get_connected_components_dtype():
-    return csgraph.connected_components(np.empty((0, 0), dtype=int))[0].dtype
+    return csgraph.connected_components(np.empty((0, 0), dtype=int))[1].dtype
 
 
 CONN_COMP_DTYPE = _get_connected_components_dtype()
