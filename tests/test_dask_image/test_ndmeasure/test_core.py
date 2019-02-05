@@ -240,6 +240,24 @@ def test_histogram(shape, chunks, has_lbls, ind, min, max, bins):
                 assert np.allclose(a_r[i], d_r[i].compute(), equal_nan=True)
 
 
+def _assert_equivalent_labeling(labels0, labels1):
+    """Make sure the two label arrays are equivalent.
+
+    In the sense that if two pixels have the same label in labels0, they will
+    also have the same label in labels1, and vice-versa.
+
+    We check this by verifying that there is exactly a one-to-one mapping
+    between the two label volumes.
+    """
+    from skimage.util import unique_rows
+    matching = np.stack((labels0.ravel(), labels1.ravel()), axis=1)
+    unique_matching = unique_rows(matching)
+    bincount0 = np.bincount(unique_matching[:, 0])
+    bincount1 = np.bincount(unique_matching[:, 1])
+    assert np.all(bincount0 == 1)
+    assert np.all(bincount1 == 1)
+
+
 @pytest.mark.parametrize(
     "shape, chunks, connectivity", [
         ((15, 16), (4, 5), 1),
@@ -263,7 +281,7 @@ def test_label(shape, chunks, connectivity):
 
     assert a_l.dtype == d_l.dtype
     assert a_l.shape == d_l.shape
-    assert np.allclose(np.array(a_l), np.array(d_l), equal_nan=True)
+    _assert_equivalent_labeling(a_l, d_l.compute())
 
 
 @pytest.mark.parametrize(
