@@ -438,7 +438,7 @@ def label(input, structure=None):
         input_block = input.blocks[index]
         labeled_block, n = block_ndi_label_delayed(input_block, structure)
         block_label_offset = da.where(labeled_block > 0,
-                                      total, 0).astype(LABEL_DTYPE)
+                                      total, LABEL_DTYPE.type(0))
         labeled_block += block_label_offset
         labeled_blocks[index] = labeled_block
         total += da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
