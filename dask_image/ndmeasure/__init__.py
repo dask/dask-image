@@ -218,6 +218,7 @@ def _relabel_components(array, labeling):
     """
     result = da.map_blocks(operator.getitem, labeling, array,
                            dtype=labeling.dtype, chunks=array.chunks)
+    result = result.astype(array.dtype)
     return result
 
 
