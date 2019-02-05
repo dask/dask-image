@@ -340,7 +340,8 @@ def label(input, structure=None):
         labeled_block, n = label(input_block)
         labeled_block = da.from_delayed(labeled_block, shape=input_block.shape,
                                         dtype=LABEL_DTYPE)
-        labeled_block += da.where(labeled_block > 0, total, 0)
+        inc_nonzero = da.where(labeled_block > 0, total, 0).astype(LABEL_DTYPE)
+        labeled_block += inc_nonzero
         labeled_blocks[index] = labeled_block
         total += da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
 
