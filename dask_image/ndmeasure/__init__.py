@@ -200,31 +200,63 @@ def histogram(input,
     return result
 
 
-def _relabel_components(array, labeling):
-    """Relabel the input array based on correspondences in comp_labels
+def _relabel_blocks(block_labeled, new_labeling):
+    """Relabel a block-labeled array based on ``new_labeling``.
 
     Parameters
     ----------
-    array : array of int
+    block_labeled : array of int
         The input label array.
-    labeling : 1D array of int
+    new_labeling : 1D array of int
         A new labeling, such that ``labeling[i] = j`` implies that
         any element in ``array`` valued ``i`` should be relabeled to ``j``.
 
     Returns
     -------
-    result : array of int, same shape as ``array``
+    relabeled : array of int, same shape as ``array``
         The relabeled input array.
     """
-    result = da.map_blocks(operator.getitem, labeling, array,
-                           dtype=labeling.dtype, chunks=array.chunks)
-    result = result.astype(array.dtype)
-    return result
+    new_labeling = new_labeling.astype(LABEL_DTYPE)
+    relabeled = da.map_blocks(operator.getitem, new_labeling, block_labeled,
+                              dtype=LABEL_DTYPE, chunks=block_labeled.chunks)
+    return relabeled
 
 
-@dask.delayed
-def get_valid_matches(face):
-    common_labels = ndi.label(face)[0]
+def across_block_label_grouping(face, structure):
+    """Find a grouping of labels across block faces.
+
+    We assume that the labels on either side of the block face are unique to
+    that block. This is enforced elsewhere.
+
+    Parameters
+    ----------
+    face : array-like
+        This is the boundary, of thickness (2,), between two blocks.
+    structure : array-like
+        Structuring element for the labeling of the face. This should have
+        length 3 along each axis and have the same number of dimensions as
+        ``face``.
+
+    Returns
+    -------
+    grouped : array of int, shape (2, M)
+        If a column of ``grouped`` contains the values ``i`` and ``j``, it
+        implies that labels ``i`` and ``j`` belong in the same group. These
+        are edges in a global label connectivity graph.
+
+    Examples
+    --------
+    >>> face = np.array([[1, 1, 0, 2, 2, 0, 8],
+    ...                  [0, 7, 7, 7, 7, 0, 9]])
+    >>> structure = np.ones((3, 3), dtype=bool)
+    >>> across_block_label_grouping(face, structure)
+    array([[1, 2, 8],
+           [2, 7, 9]], dtype=np.int32)
+
+    This shows that 1-2 are connected, 2-7 are connected, and 8-9 are
+    connected. The resulting graph is (1-2-7), (8-9).
+    """
+    common_labels = ndi.label(face, structure)[0]
     matching = np.stack((common_labels.ravel(), face.ravel()), axis=1)
     unique_matching = skimage.util.unique_rows(matching)
     valid = np.all(unique_matching, axis=1)
@@ -233,31 +265,61 @@ def get_valid_matches(face):
     in_group = np.flatnonzero(np.diff(common_labels) == 0)
     i = np.take(labels, in_group)
     j = np.take(labels, in_group + 1)
-    mapped = np.stack((i, j), axis=0)
-    return mapped
+    grouped = np.stack((i, j), axis=0)
+    return grouped
+
+
+def across_block_label_grouping_delayed(face, structure):
+    """Delayed version of :func:`across_block_label_grouping`."""
+    across_block_label_grouping_ = dask.delayed(across_block_label_grouping)
+    return da.from_delayed(across_block_label_grouping_(face, structure),
+                           shape=(2, np.nan), dtype=LABEL_DTYPE)
 
 
 @dask.delayed
-def csr(i, j, n):
+def to_csr_matrix(i, j, n):
+    """Using i and j as coo-format coordinates, return csr matrix."""
     v = np.ones_like(i)
     mat = sparse.coo_matrix((v, (i, j)), shape=(n, n))
     return mat.tocsr()
 
 
-def _label_adj_graph(array, structure, nlabels):
-    """Adjacency graph of labels between chunks of ``array``.
+def _label_adjacency_graph(labels, structure, nlabels):
+    """Adjacency graph of labels between chunks of ``labels``.
+
+    Each chunk in ``labels`` has been labeled independently, and the labels
+    in different chunks are guaranteed to be unique.
+
+    Here we construct a graph connecting labels in different chunks that
+    correspond to the same logical label in the global volume. This is true
+    if the two labels "touch" across the block face as defined by the input
+    ``structure``.
+
+    Parameters
+    ----------
+    labels : dask array of int
+        The input labeled array, where each chunk is independently labeled.
+    structure : array of bool
+        Structuring element, shape (3,) * labels.ndim.
+    nlabels : delayed int
+        The total number of labels in ``labels`` *before* correcting for
+        global consistency.
+
+    Returns
+    -------
+    mat : delayed scipy.sparse.csr_matrix
+        This matrix has value 1 at (i, j) if label i is connected to
+        label j in the global volume, 0 everywhere else.
     """
-    faces = chunk_faces(array.chunks, array.shape)
+    faces = chunk_faces(labels.chunks, labels.shape)
     all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
     for face_slice in faces:
-        chunky_face = array[face_slice]
-        face = chunky_face.rechunk(-1)
-        mapped = da.from_delayed(get_valid_matches(face), (2, np.nan),
-                                 dtype=LABEL_DTYPE)
+        face = labels[face_slice]
+        mapped = across_block_label_grouping_delayed(face, structure)
         all_mappings.append(mapped)
     all_mappings = da.concatenate(all_mappings, axis=1)
     i, j = all_mappings
-    mat = csr(i, j, nlabels + 1)
+    mat = to_csr_matrix(i, j, nlabels + 1)
     return mat
 
 
@@ -301,6 +363,43 @@ def chunk_faces(chunks, shape):
     return faces
 
 
+def block_ndi_label_delayed(block, structure):
+    """Delayed version of ``scipy.ndimage.label``.
+
+    Parameters
+    ----------
+    block : dask array (single chunk)
+        The input array to be labeled.
+    structure : array of bool
+        Structure defining the connectivity of the labeling.
+
+    Returns
+    -------
+    labeled : dask array, same shape as ``block``.
+        The labeled array.
+    n : delayed int
+        The number of labels in ``labeled``.
+    """
+    label = dask.delayed(functools.partial(scipy.ndimage.label,
+                                           structure=structure), nout=2)
+    labeled_block, n = label(block)
+    labeled = da.from_delayed(labeled_block, shape=block.shape,
+                              dtype=LABEL_DTYPE)
+    return labeled, n
+
+
+def connected_components_delayed(csr_matrix):
+    """Delayed version of scipy.sparse.csgraph.connected_components.
+
+    This version only returns the (delayed) connected component labelling, not
+    the number of components.
+    """
+    conn_comp = dask.delayed(functools.partial(csgraph.connected_components,
+                                               directed=False), nout=2)
+    return da.from_delayed(conn_comp(csr_matrix)[1],
+                           shape=(np.nan,), dtype=CONN_COMP_DTYPE)
+
+
 def label(input, structure=None):
     """Label features in an array.
 
@@ -331,34 +430,33 @@ def label(input, structure=None):
 
     input = dask.array.asarray(input)
 
-    label = dask.delayed(functools.partial(scipy.ndimage.label,
-                                           structure=structure), nout=2)
     labeled_blocks = np.empty(input.numblocks, dtype=object)
     total = 0
 
+    # First, label each block independently, incrementing the labels in that
+    # block by the total number of labels from previous blocks. This way, each
+    # block's labels are globally unique.
     for index in np.ndindex(*input.numblocks):
         input_block = input.blocks[index]
-        labeled_block, n = label(input_block)
-        labeled_block = da.from_delayed(labeled_block, shape=input_block.shape,
-                                        dtype=LABEL_DTYPE)
-        inc_nonzero = da.where(labeled_block > 0, total, 0).astype(LABEL_DTYPE)
-        labeled_block += inc_nonzero
+        labeled_block, n = block_ndi_label_delayed(input_block, structure)
+        block_label_offset = da.where(labeled_block > 0,
+                                      total, 0).astype(LABEL_DTYPE)
+        labeled_block += block_label_offset
         labeled_blocks[index] = labeled_block
         total += da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
 
-    result_array = da.block(labeled_blocks.tolist())
+    # Put all the blocks together
+    block_labeled = da.block(labeled_blocks.tolist())
 
-    # _label_adj_graph needs to be defined still; returns a csr_matrix
-    correspondences = _label_adj_graph(result_array, structure, total)
-    conn_comp = dask.delayed(functools.partial(csgraph.connected_components,
-                                               directed=False), nout=2)
-    _, comp_labels = conn_comp(correspondences)
-    comp_labels = da.from_delayed(comp_labels, shape=(np.nan,),
-                                  dtype=CONN_COMP_DTYPE)
-    relabeled_result_array = _relabel_components(result_array, comp_labels)
-    result = (relabeled_result_array, da.max(relabeled_result_array))
+    # Now, build a label connectivity graph that groups labels across blocks.
+    # We use this graph to find connected components and then relabel each
+    # block according to those.
+    label_groups = _label_adjacency_graph(block_labeled, structure, total)
+    new_labeling = connected_components_delayed(label_groups)
+    relabeled = _relabel_blocks(block_labeled, new_labeling)
+    n = da.max(relabeled)
 
-    return result
+    return (relabeled, n)
 
 
 def labeled_comprehension(input,
