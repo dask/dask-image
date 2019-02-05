@@ -229,11 +229,11 @@ def get_valid_matches(face):
     unique_matching = skimage.util.unique_rows(matching)
     valid = np.all(unique_matching, axis=1)
     unique_valid_matching = unique_matching[valid]
-    relabeled_unique, relabeled_counts = np.unique(unique_valid_matching[:, 0],
-                                                   return_counts=True)
-    real_mapped_labels = relabeled_unique[relabeled_counts > 1]
-    rows_we_keep = np.in1d(unique_valid_matching[:, 0], real_mapped_labels)
-    mapped = unique_valid_matching[rows_we_keep, 1].reshape((-1, 2)).T
+    common_labels, labels = unique_valid_matching.T
+    in_group = np.flatnonzero(np.diff(common_labels) == 0)
+    i = np.take(labels, in_group)
+    j = np.take(labels, in_group + 1)
+    mapped = np.stack((i, j), axis=0)
     return mapped
 
 
