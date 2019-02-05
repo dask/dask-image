@@ -393,9 +393,8 @@ def connected_components_delayed(csr_matrix):
     This version only returns the (delayed) connected component labelling, not
     the number of components.
     """
-    conn_comp = dask.delayed(functools.partial(csgraph.connected_components,
-                                               directed=False), nout=2)
-    return da.from_delayed(conn_comp(csr_matrix)[1],
+    conn_comp = dask.delayed(csgraph.connected_components, nout=2)
+    return da.from_delayed(conn_comp(csr_matrix, directed=False)[1],
                            shape=(np.nan,), dtype=CONN_COMP_DTYPE)
 
 
