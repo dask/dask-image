@@ -384,6 +384,7 @@ def block_ndi_label_delayed(block, structure):
     labeled_block, n = label(block, structure=structure)
     labeled = da.from_delayed(labeled_block, shape=block.shape,
                               dtype=LABEL_DTYPE)
+    n = da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
     return labeled, n
 
 
@@ -441,7 +442,7 @@ def label(input, structure=None):
                                       total, LABEL_DTYPE.type(0))
         labeled_block += block_label_offset
         labeled_blocks[index] = labeled_block
-        total += da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
+        total += n
 
     # Put all the blocks together
     block_labeled = da.block(labeled_blocks.tolist())
