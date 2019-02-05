@@ -380,9 +380,8 @@ def block_ndi_label_delayed(block, structure):
     n : delayed int
         The number of labels in ``labeled``.
     """
-    label = dask.delayed(functools.partial(scipy.ndimage.label,
-                                           structure=structure), nout=2)
-    labeled_block, n = label(block)
+    label = dask.delayed(scipy.ndimage.label, nout=2)
+    labeled_block, n = label(block, structure=structure)
     labeled = da.from_delayed(labeled_block, shape=block.shape,
                               dtype=LABEL_DTYPE)
     return labeled, n
