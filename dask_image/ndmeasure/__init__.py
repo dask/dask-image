@@ -382,6 +382,7 @@ def block_ndi_label_delayed(block, structure):
     """
     label = dask.delayed(scipy.ndimage.label, nout=2)
     labeled_block, n = label(block, structure=structure)
+    n = dask.delayed(LABEL_DTYPE.type)(n)
     labeled = da.from_delayed(labeled_block, shape=block.shape,
                               dtype=LABEL_DTYPE)
     n = da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
