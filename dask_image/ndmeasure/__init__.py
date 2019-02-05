@@ -31,6 +31,13 @@ def _get_ndimage_label_dtype():
 LABEL_DTYPE = _get_ndimage_label_dtype()
 
 
+def _get_connected_components_dtype():
+    return csgraph.connected_components(np.empty((0, 0), dtype=int))[0].dtype
+
+
+CONN_COMP_DTYPE = _get_connected_components_dtype()
+
+
 def center_of_mass(input, labels=None, index=None):
     """
     Find the center of mass over an image at specified subregions.
@@ -344,7 +351,8 @@ def label(input, structure=None):
     conn_comp = dask.delayed(functools.partial(csgraph.connected_components,
                                                directed=False), nout=2)
     _, comp_labels = conn_comp(correspondences)
-    comp_labels = da.from_delayed(comp_labels, shape=(np.nan,), dtype=int)
+    comp_labels = da.from_delayed(comp_labels, shape=(np.nan,),
+                                  dtype=CONN_COMP_DTYPE)
     relabeled_result_array = _relabel_components(result_array, comp_labels)
     result = (relabeled_result_array, da.max(relabeled_result_array))
 
