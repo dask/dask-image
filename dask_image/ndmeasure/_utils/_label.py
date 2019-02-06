@@ -52,7 +52,7 @@ def relabel_blocks(block_labeled, new_labeling):
     return relabeled
 
 
-def across_block_label_grouping(face, structure):
+def _across_block_label_grouping(face, structure):
     """Find a grouping of labels across block faces.
 
     We assume that the labels on either side of the block face are unique to
@@ -79,7 +79,7 @@ def across_block_label_grouping(face, structure):
     >>> face = numpy.array([[1, 1, 0, 2, 2, 0, 8],
     ...                  [0, 7, 7, 7, 7, 0, 9]])
     >>> structure = numpy.ones((3, 3), dtype=bool)
-    >>> across_block_label_grouping(face, structure)
+    >>> _across_block_label_grouping(face, structure)
     array([[1, 2, 8],
            [2, 7, 9]], dtype=numpy.int32)
 
@@ -99,17 +99,17 @@ def across_block_label_grouping(face, structure):
     return grouped
 
 
-def across_block_label_grouping_delayed(face, structure):
-    """Delayed version of :func:`across_block_label_grouping`."""
-    across_block_label_grouping_ = dask.delayed(across_block_label_grouping)
-    grouped = across_block_label_grouping_(face, structure)
+def _across_block_label_grouping_delayed(face, structure):
+    """Delayed version of :func:`_across_block_label_grouping`."""
+    _across_block_label_grouping_ = dask.delayed(_across_block_label_grouping)
+    grouped = _across_block_label_grouping_(face, structure)
     return dask.array.from_delayed(grouped,
                                    shape=(2, numpy.nan),
                                    dtype=LABEL_DTYPE)
 
 
 @dask.delayed
-def to_csr_matrix(i, j, n):
+def _to_csr_matrix(i, j, n):
     """Using i and j as coo-format coordinates, return csr matrix."""
     v = numpy.ones_like(i)
     mat = scipy.sparse.coo_matrix((v, (i, j)), shape=(n, n))
@@ -143,19 +143,19 @@ def label_adjacency_graph(labels, structure, nlabels):
         This matrix has value 1 at (i, j) if label i is connected to
         label j in the global volume, 0 everywhere else.
     """
-    faces = chunk_faces(labels.chunks, labels.shape)
+    faces = _chunk_faces(labels.chunks, labels.shape)
     all_mappings = [dask.array.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
     for face_slice in faces:
         face = labels[face_slice]
-        mapped = across_block_label_grouping_delayed(face, structure)
+        mapped = _across_block_label_grouping_delayed(face, structure)
         all_mappings.append(mapped)
     all_mappings = dask.array.concatenate(all_mappings, axis=1)
     i, j = all_mappings
-    mat = to_csr_matrix(i, j, nlabels + 1)
+    mat = _to_csr_matrix(i, j, nlabels + 1)
     return mat
 
 
-def chunk_faces(chunks, shape):
+def _chunk_faces(chunks, shape):
     """Return slices for two-pixel-wide boundaries between chunks.
 
     Parameters
