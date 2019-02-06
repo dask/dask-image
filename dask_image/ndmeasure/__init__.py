@@ -9,7 +9,6 @@ import functools
 
 import numpy
 
-import dask
 import dask.array
 
 from .. import _pycompat
