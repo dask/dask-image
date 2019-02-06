@@ -29,7 +29,7 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    "dask[array] >=0.18.2",
+    "dask[array] >=0.16.1",
     "numpy >=1.11.3",
     "scipy >=0.19.1",
     "pims >=0.4.1",

@@ -11,7 +11,7 @@ dependencies:
   - flake8==3.5.0
   - pytest==3.8.1
   - pytest-flake8==1.0.1
-  - dask==0.18.2
+  - dask==0.16.1
   - numpy==1.11.3
   - scipy==1.1.0
   - scikit-image==0.13.1
