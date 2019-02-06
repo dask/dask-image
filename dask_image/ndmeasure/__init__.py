@@ -233,10 +233,10 @@ def label(input, structure=None):
     # Now, build a label connectivity graph that groups labels across blocks.
     # We use this graph to find connected components and then relabel each
     # block according to those.
-    label_groups = _label._label_adjacency_graph(block_labeled, structure,
-                                                 total)
+    label_groups = _label.label_adjacency_graph(block_labeled, structure,
+                                                total)
     new_labeling = _label.connected_components_delayed(label_groups)
-    relabeled = _label._relabel_blocks(block_labeled, new_labeling)
+    relabeled = _label.relabel_blocks(block_labeled, new_labeling)
     n = da.max(relabeled)
 
     return (relabeled, n)

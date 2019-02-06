@@ -27,7 +27,7 @@ def _get_connected_components_dtype():
 CONN_COMP_DTYPE = _get_connected_components_dtype()
 
 
-def _relabel_blocks(block_labeled, new_labeling):
+def relabel_blocks(block_labeled, new_labeling):
     """Relabel a block-labeled array based on ``new_labeling``.
 
     Parameters
@@ -116,7 +116,7 @@ def to_csr_matrix(i, j, n):
     return mat.tocsr()
 
 
-def _label_adjacency_graph(labels, structure, nlabels):
+def label_adjacency_graph(labels, structure, nlabels):
     """Adjacency graph of labels between chunks of ``labels``.
 
     Each chunk in ``labels`` has been labeled independently, and the labels
