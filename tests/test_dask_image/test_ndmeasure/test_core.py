@@ -259,17 +259,19 @@ def _assert_equivalent_labeling(labels0, labels1):
 
 
 @pytest.mark.parametrize(
-    "shape, chunks, connectivity", [
-        ((15, 16), (4, 5), 1),
-        ((15, 16), (15, 16), 1),
-        ((15, 16), (15, 16), 2),
-        ((5, 6, 4), (5, 6, 4), 1),
-        ((5, 6, 4), (5, 6, 4), 2),
-        ((5, 6, 4), (5, 6, 4), 3),
+    "seed, prob, shape, chunks, connectivity", [
+        (42, 0.4, (15, 16), (15, 16), 1),
+        (42, 0.4, (15, 16), (4, 5), 1),
+        (42, 0.4, (15, 16), (4, 5), 2),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 1),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 2),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 3),
     ]
 )
-def test_label(shape, chunks, connectivity):
-    a = np.random.random(shape) < 0.5
+def test_label(seed, prob, shape, chunks, connectivity):
+    np.random.seed(seed)
+
+    a = np.random.random(shape) < prob
     d = da.from_array(a, chunks=chunks)
 
     s = spnd.generate_binary_structure(a.ndim, connectivity)
