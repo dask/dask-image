@@ -11,7 +11,6 @@ import numpy
 
 import dask
 import dask.array
-import dask.array as da
 
 from .. import _pycompat
 from . import _utils
@@ -228,7 +227,7 @@ def label(input, structure=None):
         total += n
 
     # Put all the blocks together
-    block_labeled = da.block(labeled_blocks.tolist())
+    block_labeled = dask.array.block(labeled_blocks.tolist())
 
     # Now, build a label connectivity graph that groups labels across blocks.
     # We use this graph to find connected components and then relabel each
@@ -237,7 +236,7 @@ def label(input, structure=None):
                                                 total)
     new_labeling = _label.connected_components_delayed(label_groups)
     relabeled = _label.relabel_blocks(block_labeled, new_labeling)
-    n = da.max(relabeled)
+    n = dask.array.max(relabeled)
 
     return (relabeled, n)
 
