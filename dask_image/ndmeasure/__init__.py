@@ -180,7 +180,8 @@ def histogram(input,
 
 
 def label(input, structure=None):
-    """Label features in an array.
+    """
+    Label features in an array.
 
     Parameters
     ----------
