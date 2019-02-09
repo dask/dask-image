@@ -250,7 +250,7 @@ def _assert_equivalent_labeling(labels0, labels1):
     between the two label volumes.
     """
     matching = np.stack((labels0.ravel(), labels1.ravel()), axis=1)
-    unique_matching = dask_image.ndmeasure._label._unique_axis_0(matching)
+    unique_matching = dask_image.ndmeasure._label._unique_axis(matching)
     bincount0 = np.bincount(unique_matching[:, 0])
     bincount1 = np.bincount(unique_matching[:, 1])
     assert np.all(bincount0 == 1)

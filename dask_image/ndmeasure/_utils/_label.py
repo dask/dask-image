@@ -52,11 +52,12 @@ def relabel_blocks(block_labeled, new_labeling):
     return relabeled
 
 
-def _unique_axis_0(a):
-    """Find unique 0th axis in N-D array."""
-    dt = numpy.dtype([("values", a.dtype, a.shape[1:])])
-    av = a.view(dt)
-    r = numpy.unique(av)["values"]
+def _unique_axis(a, axis=0):
+    """Find unique subarrays in axis in N-D array."""
+    at = numpy.ascontiguousarray(a.swapaxes(0, axis))
+    dt = numpy.dtype([("values", at.dtype, at.shape[1:])])
+    atv = at.view(dt)
+    r = numpy.unique(atv)["values"].swapaxes(0, axis)
     return r
 
 
@@ -97,7 +98,7 @@ def _across_block_label_grouping(face, structure):
     """
     common_labels = scipy.ndimage.label(face, structure)[0]
     matching = numpy.stack((common_labels.ravel(), face.ravel()), axis=1)
-    unique_matching = _unique_axis_0(matching)
+    unique_matching = _unique_axis(matching)
     valid = numpy.all(unique_matching, axis=1)
     unique_valid_matching = unique_matching[valid]
     common_labels, labels = unique_valid_matching.T
