@@ -27,7 +27,8 @@ CONN_COMP_DTYPE = _get_connected_components_dtype()
 
 
 def relabel_blocks(block_labeled, new_labeling):
-    """Relabel a block-labeled array based on ``new_labeling``.
+    """
+    Relabel a block-labeled array based on ``new_labeling``.
 
     Parameters
     ----------
@@ -60,7 +61,8 @@ def _unique_axis_0(a):
 
 
 def _across_block_label_grouping(face, structure):
-    """Find a grouping of labels across block faces.
+    """
+    Find a grouping of labels across block faces.
 
     We assume that the labels on either side of the block face are unique to
     that block. This is enforced elsewhere.
@@ -124,7 +126,8 @@ def _to_csr_matrix(i, j, n):
 
 
 def label_adjacency_graph(labels, structure, nlabels):
-    """Adjacency graph of labels between chunks of ``labels``.
+    """
+    Adjacency graph of labels between chunks of ``labels``.
 
     Each chunk in ``labels`` has been labeled independently, and the labels
     in different chunks are guaranteed to be unique.
@@ -163,7 +166,8 @@ def label_adjacency_graph(labels, structure, nlabels):
 
 
 def _chunk_faces(chunks, shape):
-    """Return slices for two-pixel-wide boundaries between chunks.
+    """
+    Return slices for two-pixel-wide boundaries between chunks.
 
     Parameters
     ----------
@@ -203,7 +207,8 @@ def _chunk_faces(chunks, shape):
 
 
 def block_ndi_label_delayed(block, structure):
-    """Delayed version of ``scipy.ndimage.label``.
+    """
+    Delayed version of ``scipy.ndimage.label``.
 
     Parameters
     ----------
@@ -229,7 +234,8 @@ def block_ndi_label_delayed(block, structure):
 
 
 def connected_components_delayed(csr_matrix):
-    """Delayed version of scipy.sparse.csgraph.connected_components.
+    """
+    Delayed version of scipy.sparse.csgraph.connected_components.
 
     This version only returns the (delayed) connected component labelling, not
     the number of components.
