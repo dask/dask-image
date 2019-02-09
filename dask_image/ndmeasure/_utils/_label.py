@@ -52,6 +52,14 @@ def relabel_blocks(block_labeled, new_labeling):
     return relabeled
 
 
+def _unique_axis_0(a):
+    """Find unique 0th axis in N-D array."""
+    dt = numpy.dtype([("values", a.dtype, a.shape[1:])])
+    av = a.view(dt)
+    r = numpy.unique(av)["values"]
+    return r
+
+
 def _across_block_label_grouping(face, structure):
     """Find a grouping of labels across block faces.
 
