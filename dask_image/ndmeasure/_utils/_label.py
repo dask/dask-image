@@ -6,7 +6,6 @@ import numpy
 import scipy.ndimage
 import scipy.sparse
 import scipy.sparse.csgraph
-import skimage.util
 
 import dask
 import dask.array
@@ -96,7 +95,7 @@ def _across_block_label_grouping(face, structure):
     """
     common_labels = scipy.ndimage.label(face, structure)[0]
     matching = numpy.stack((common_labels.ravel(), face.ravel()), axis=1)
-    unique_matching = skimage.util.unique_rows(matching)
+    unique_matching = _unique_axis_0(matching)
     valid = numpy.all(unique_matching, axis=1)
     unique_valid_matching = unique_matching[valid]
     common_labels, labels = unique_valid_matching.T
