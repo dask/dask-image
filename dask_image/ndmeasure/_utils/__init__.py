@@ -11,6 +11,12 @@ import dask
 import dask.array
 
 
+try:
+    from dask.array import blockwise as da_blockwise
+except ImportError:
+    from dask.array import atop as da_blockwise
+
+
 def _norm_input_labels_index(input, labels=None, index=None):
     """
     Normalize arguments to a standard form.
@@ -64,7 +70,7 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
         for i, c in enumerate(chunks)
     ]
 
-    indices = dask.array.atop(
+    indices = da_blockwise(
         _ravel_shape_indices_kernel, tuple(range(len(indices))),
         *sum([(a, (i,)) for i, a in enumerate(indices)], tuple()),
         dtype=dtype
