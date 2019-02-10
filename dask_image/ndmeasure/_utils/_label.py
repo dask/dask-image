@@ -87,7 +87,7 @@ def _across_block_label_grouping(face, structure):
     Examples
     --------
     >>> face = numpy.array([[1, 1, 0, 2, 2, 0, 8],
-    ...                  [0, 7, 7, 7, 7, 0, 9]])
+    ...                     [0, 7, 7, 7, 7, 0, 9]])
     >>> structure = numpy.ones((3, 3), dtype=bool)
     >>> _across_block_label_grouping(face, structure)
     array([[1, 2, 8],
