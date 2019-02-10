@@ -6,6 +6,7 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 
 import collections
 import functools
+import itertools
 
 import numpy
 
@@ -215,10 +216,12 @@ def label(input, structure=None):
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
     # block's labels are globally unique.
-    block_iter = zip(numpy.ndindex(*input.numblocks),
-                     dask.array.core.slices_from_chunks(input.chunks))
-    for index, cslice in block_iter:
-        input_block = input[cslice]
+    block_iter = itertools.starmap(
+        lambda i, sl: (i, input[sl]),
+        zip(numpy.ndindex(*input.numblocks),
+            dask.array.core.slices_from_chunks(input.chunks))
+    )
+    for index, input_block in block_iter:
         labeled_block, n = _label.block_ndi_label_delayed(input_block,
                                                           structure)
         block_label_offset = dask.array.where(labeled_block > 0,
