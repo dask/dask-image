@@ -6,15 +6,14 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 
 import collections
 import functools
-from warnings import warn
 
 import numpy
-import scipy.ndimage
 
 import dask.array
 
 from .. import _pycompat
 from . import _utils
+from ._utils import _label
 
 
 def center_of_mass(input, labels=None, index=None):
@@ -210,31 +209,37 @@ def label(input, structure=None):
 
     input = dask.array.asarray(input)
 
-    if not all([len(c) == 1 for c in input.chunks]):
-        warn(
-            "``input`` does not have 1 chunk in all dimensions; "
-            "it will be consolidated first",
-            RuntimeWarning
-        )
+    labeled_blocks = numpy.empty(input.numblocks, dtype=object)
+    total = _label.LABEL_DTYPE.type(0)
 
-    label_func = dask.delayed(scipy.ndimage.label, nout=2)
-    label, num_features = label_func(input, structure)
+    # First, label each block independently, incrementing the labels in that
+    # block by the total number of labels from previous blocks. This way, each
+    # block's labels are globally unique.
+    for index, cslice in zip(numpy.ndindex(*input.numblocks),
+                             dask.array.core.slices_from_chunks(input.chunks)):
+        input_block = input[cslice]
+        labeled_block, n = _label.block_ndi_label_delayed(input_block,
+                                                          structure)
+        block_label_offset = dask.array.where(labeled_block > 0,
+                                              total,
+                                              _label.LABEL_DTYPE.type(0))
+        labeled_block += block_label_offset
+        labeled_blocks[index] = labeled_block
+        total += n
 
-    label = dask.array.from_delayed(
-        label,
-        input.shape,
-        numpy.int32
-    )
+    # Put all the blocks together
+    block_labeled = dask.array.block(labeled_blocks.tolist())
 
-    num_features = dask.array.from_delayed(
-        num_features,
-        tuple(),
-        int
-    )
+    # Now, build a label connectivity graph that groups labels across blocks.
+    # We use this graph to find connected components and then relabel each
+    # block according to those.
+    label_groups = _label.label_adjacency_graph(block_labeled, structure,
+                                                total)
+    new_labeling = _label.connected_components_delayed(label_groups)
+    relabeled = _label.relabel_blocks(block_labeled, new_labeling)
+    n = dask.array.max(relabeled)
 
-    result = (label, num_features)
-
-    return result
+    return (relabeled, n)
 
 
 def labeled_comprehension(input,

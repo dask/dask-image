@@ -240,18 +240,39 @@ def test_histogram(shape, chunks, has_lbls, ind, min, max, bins):
                 assert np.allclose(a_r[i], d_r[i].compute(), equal_nan=True)
 
 
+def _assert_equivalent_labeling(labels0, labels1):
+    """Make sure the two label arrays are equivalent.
+
+    In the sense that if two pixels have the same label in labels0, they will
+    also have the same label in labels1, and vice-versa.
+
+    We check this by verifying that there is exactly a one-to-one mapping
+    between the two label volumes.
+    """
+    matching = np.stack((labels0.ravel(), labels1.ravel()), axis=1)
+    unique_matching = dask_image.ndmeasure._label._unique_axis(matching)
+    bincount0 = np.bincount(unique_matching[:, 0])
+    bincount1 = np.bincount(unique_matching[:, 1])
+    assert np.all(bincount0 == 1)
+    assert np.all(bincount1 == 1)
+
+
 @pytest.mark.parametrize(
-    "shape, chunks, connectivity", [
-        ((15, 16), (4, 5), 1),
-        ((15, 16), (15, 16), 1),
-        ((15, 16), (15, 16), 2),
-        ((5, 6, 4), (5, 6, 4), 1),
-        ((5, 6, 4), (5, 6, 4), 2),
-        ((5, 6, 4), (5, 6, 4), 3),
+    "seed, prob, shape, chunks, connectivity", [
+        (42, 0.4, (15, 16), (15, 16), 1),
+        (42, 0.4, (15, 16), (4, 5), 1),
+        (42, 0.4, (15, 16), (4, 5), 2),
+        (42, 0.4, (15, 16), (8, 5), 1),
+        (42, 0.4, (15, 16), (8, 5), 2),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 1),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 2),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 3),
     ]
 )
-def test_label(shape, chunks, connectivity):
-    a = np.random.random(shape) < 0.5
+def test_label(seed, prob, shape, chunks, connectivity):
+    np.random.seed(seed)
+
+    a = np.random.random(shape) < prob
     d = da.from_array(a, chunks=chunks)
 
     s = spnd.generate_binary_structure(a.ndim, connectivity)
@@ -263,7 +284,7 @@ def test_label(shape, chunks, connectivity):
 
     assert a_l.dtype == d_l.dtype
     assert a_l.shape == d_l.shape
-    assert np.allclose(np.array(a_l), np.array(d_l), equal_nan=True)
+    _assert_equivalent_labeling(a_l, d_l.compute())
 
 
 @pytest.mark.parametrize(
