@@ -211,7 +211,6 @@ def label(input, structure=None):
     input = dask.array.asarray(input)
 
     labeled_blocks = numpy.empty(input.numblocks, dtype=object)
-    total = _label.LABEL_DTYPE.type(0)
 
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
@@ -221,6 +220,9 @@ def label(input, structure=None):
         zip(numpy.ndindex(*input.numblocks),
             dask.array.core.slices_from_chunks(input.chunks))
     )
+    index, input_block = next(block_iter)
+    labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
+                                                                  structure)
     for index, input_block in block_iter:
         labeled_block, n = _label.block_ndi_label_delayed(input_block,
                                                           structure)
