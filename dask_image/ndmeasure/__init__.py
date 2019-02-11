@@ -6,6 +6,7 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 
 import collections
 import functools
+import operator
 
 import numpy
 
@@ -216,7 +217,7 @@ def label(input, structure=None):
     # block's labels are globally unique.
     block_iter = _pycompat.izip(
         numpy.ndindex(*input.numblocks),
-        _pycompat.imap(lambda sl: input[sl],
+        _pycompat.imap(functools.partial(operator.getitem, input),
                        dask.array.core.slices_from_chunks(input.chunks))
     )
     index, input_block = next(block_iter)
