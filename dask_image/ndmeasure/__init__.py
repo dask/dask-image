@@ -214,10 +214,10 @@ def label(input, structure=None):
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
     # block's labels are globally unique.
-    block_iter = zip(
+    block_iter = _pycompat.izip(
         numpy.ndindex(*input.numblocks),
-        map(lambda sl: input[sl],
-            dask.array.core.slices_from_chunks(input.chunks))
+        _pycompat.imap(lambda sl: input[sl],
+                       dask.array.core.slices_from_chunks(input.chunks))
     )
     index, input_block = next(block_iter)
     labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
