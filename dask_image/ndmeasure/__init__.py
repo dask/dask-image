@@ -6,6 +6,7 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 
 import collections
 import functools
+import operator
 
 import numpy
 
@@ -210,14 +211,19 @@ def label(input, structure=None):
     input = dask.array.asarray(input)
 
     labeled_blocks = numpy.empty(input.numblocks, dtype=object)
-    total = _label.LABEL_DTYPE.type(0)
 
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
     # block's labels are globally unique.
-    for index, cslice in zip(numpy.ndindex(*input.numblocks),
-                             dask.array.core.slices_from_chunks(input.chunks)):
-        input_block = input[cslice]
+    block_iter = _pycompat.izip(
+        numpy.ndindex(*input.numblocks),
+        _pycompat.imap(functools.partial(operator.getitem, input),
+                       dask.array.core.slices_from_chunks(input.chunks))
+    )
+    index, input_block = next(block_iter)
+    labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
+                                                                  structure)
+    for index, input_block in block_iter:
         labeled_block, n = _label.block_ndi_label_delayed(input_block,
                                                           structure)
         block_label_offset = dask.array.where(labeled_block > 0,
