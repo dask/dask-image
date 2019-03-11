@@ -18,6 +18,7 @@ Contents
    :maxdepth: 1
 
    installation
+   quickstart
    api
    contributing
    authors
