@@ -22,9 +22,9 @@ We highly recommend checking out the dask-image-quickstart.ipynb notebook
 
 https://github.com/dask/dask-examples
 
-All the example notebooks are available to launch with mybinder and test out
-interactively.
-
+You can find the dask-image quickstart notebook in the `applications` folder
+of this repository. All the example notebooks are available to launch with
+mybinder and test out interactively.
 
 
 An Even Quicker Start
