@@ -19,7 +19,7 @@ Dask Examples
 -------------
 We highly recommend checking out the dask-image-quickstart.ipynb notebook 
 (and any other dask-image example notebooks) at the dask-examples repository.
-You can find the dask-image quickstart notebook in the `applications` folder
+You can find the dask-image quickstart notebook in the ``applications`` folder
 of this repository:
 
 https://github.com/dask/dask-examples
@@ -33,7 +33,7 @@ An Even Quicker Start
 
 You can read files stored on disk into a dask array
 by passing the filename, or regex matching multiple filenames
-into `imread()`.
+into ``imread()``.
 
 .. code-block:: python
 
@@ -54,8 +54,9 @@ Calling dask-image functions is also easy.
 
 
 Many other functions can be applied to dask arrays.
-See the [dask array documentation](http://docs.dask.org/en/latest/array.html)
-for more detail on general array operations.
+See the dask_array_documentation_ for more detail on general array operations.
+
+.. _dask_array_documentation: http://docs.dask.org/en/latest/array.html
 
 .. code-block:: python
 
@@ -77,4 +78,3 @@ Good places to start include:
 
 * The dask-image API documentation: http://image.dask.org/en/latest/api.html
 * The documentation on working with dask arrays: http://docs.dask.org/en/latest/array.html
-
