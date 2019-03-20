@@ -62,14 +62,6 @@ See the dask_array_documentation_ for more detail on general array operations.
 
     result = function_name(images)
 
-Remember that dask computations are lazy. 
-That's a great thing to have, most of the time.
-If you need to force dask to run the computation, use the `compute()` method.
-
-.. code-block:: python
-
-    result.compute()
-
 
 Further Reading
 ---------------
