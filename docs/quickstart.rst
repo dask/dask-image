@@ -46,18 +46,20 @@ http://docs.dask.org/en/latest/array-stack.html
 
 
 Calling dask-image functions is also easy.
+
 .. code-block:: python
 
     import dask_image.ndfilters
     blurred_image = dask_image.ndfilters.gaussian_filter(images, sigma=10)
 
 
-If you have a function that accepts input numpy arrays,
-it is also likely to accept dask arrays without any modification. 
+Many other functions can be applied to dask arrays.
+See the [dask array documentation](http://docs.dask.org/en/latest/array.html)
+for more detail on general array operations.
 
 .. code-block:: python
 
-    result = my_function(images)
+    result = function_name(images)
 
 Remember that dask computations are lazy. 
 That's a great thing to have, most of the time.
