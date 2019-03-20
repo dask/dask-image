@@ -18,12 +18,13 @@ Import dask image is with an underscore, like this example:
 Dask Examples
 -------------
 We highly recommend checking out the dask-image-quickstart.ipynb notebook 
-(and any other dask-image example notebooks) at the dask-examples repository:
+(and any other dask-image example notebooks) at the dask-examples repository.
+You can find the dask-image quickstart notebook in the `applications` folder
+of this repository:
 
 https://github.com/dask/dask-examples
 
-You can find the dask-image quickstart notebook in the `applications` folder
-of this repository. All the example notebooks are available to launch with
+All the example notebooks are available to launch with
 mybinder and test out interactively.
 
 
