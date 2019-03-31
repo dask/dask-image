@@ -40,6 +40,10 @@ from ._smooth import (
     uniform_filter,
 )
 
+from ._thresholding import (
+    threshold_local,
+)
+
 
 convolve.__module__ = __name__
 correlate.__module__ = __name__
