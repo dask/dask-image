@@ -17,6 +17,38 @@ from . import _utils
 from ._utils import _label
 
 
+def area(input, labels=None, index=None):
+    """
+    Find the area of specified subregions in an image.
+
+    Parameters
+    ----------
+    input : ndarray
+        N-D image data
+    labels : ndarray, optional
+        Image features noted by integers. If None (default), all values.
+    index : int or sequence of ints, optional
+        Labels to include in output.  If None (default), all values where
+        non-zero ``labels`` are used.
+        The ``index`` argument only works when ``labels`` is specified.
+
+    Returns
+    -------
+    area : ndarray
+        Area of ``index`` selected regions from ``labels``.
+    """
+
+    input, labels, index = _utils._norm_input_labels_index(
+        input, labels, index
+    )
+
+    ones = dask.array.ones(labels.shape, dtype=bool, chunks=labels.chunks)
+
+    area_lbl = labeled_comprehension(ones, labels, index, len, int, int(0))
+
+    return area_lbl
+
+
 def center_of_mass(input, labels=None, index=None):
     """
     Find the center of mass over an image at specified subregions.
