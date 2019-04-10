@@ -62,6 +62,7 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
     >>> image = da.random.random((1000, 1000), chunks=(100, 100))
     >>> result = threshold_local(image, 15, 'gaussian')
     """
+    image = image.astype(np.float64)
     if method == 'generic':
         thresh_image = _generic.generic_filter(image, param, block_size,
                                                mode=mode, cval=cval)
