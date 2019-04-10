@@ -1,4 +1,5 @@
 import dask.array as da
+import numpy as np
 
 from . import _conv, _gaussian, _generic, _order
 
