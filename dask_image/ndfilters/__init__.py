@@ -66,3 +66,5 @@ rank_filter.__module__ = __name__
 percentile_filter.__module__ = __name__
 
 uniform_filter.__module__ = __name__
+
+threshold_local.__module__ = __name__
