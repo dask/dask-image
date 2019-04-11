@@ -76,18 +76,14 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
 
     elif method == 'gaussian':
         if param is None:
-            if isinstance(block_size, (int, float)):
-                chunksize = 1
-            elif isinstance(block_size, (list, tuple)):
-                chunksize = len(block_size)
-                block_size = np.array(block_size)
-            elif isinstance(block_size, np.ndarray):
-                chunksize = block_size.shape
+            if isinstance(block_size, (int, float, list, tuple, np.ndarray)):
+                sigma = (np.array(block_size) - 1) / 6.0
             elif isinstance(block_size, da.Array):
                 chunksize = block_size.chunks
+                sigma = (da.from_array(block_size, chunksize) - 1) / 6.0
             else:
                 raise ValueError('Unsupported type for "block_size" kwarg.')
-            sigma = (da.from_array(block_size, chunks=chunksize) - 1) / 6.0
+            sigma = (np.array(block_size) - 1) / 6.0
         else:
             sigma = param
         thresh_image = _gaussian.gaussian_filter(image, sigma, mode=mode,
