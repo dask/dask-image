@@ -89,12 +89,8 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
         thresh_image = _gaussian.gaussian_filter(image, sigma, mode=mode,
                                                  cval=cval)
     elif method == 'mean':
-        if isinstance(block_size, (list, tuple)):
-            block_size = np.array(block_size)  # avoids .ndim AttributeError
-
         if isinstance(block_size, int):
             block_size = [block_size] * image.ndim
-        # elif isinstance(block_size, list or tuple or np.ndarray or da.Array):
         elif isinstance(block_size, (list, tuple, np.ndarray, da.Array)):
             if len(block_size) == image.ndim:
                 pass
@@ -107,9 +103,7 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
             raise ValueError("{} type ".format(type(block_size)) +
                              "of 'block_size' input argument not "
                              "recognised! Must be numeric or listlike")
-        if isinstance(block_size, da.Array):
-            block_size = np.array(block_size)  # chunks value can't be lazy
-        mask = da.ones(block_size, chunks=block_size)
+        mask = np.ones(block_size)
         mask /= mask.sum()
         thresh_image = _conv.convolve(image, mask, mode=mode, cval=cval)
 
