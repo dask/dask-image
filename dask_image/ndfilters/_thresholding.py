@@ -101,8 +101,6 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
         elif isinstance(block_size, (list, tuple, np.ndarray, da.Array)):
             if len(block_size) == image.ndim:
                 pass
-            elif block_size.ndim == 0:
-                block_size = [block_size] * image.ndim
             else:
                 raise ValueError("Invalid block size. Please enter either:\n"
                                  "(1) A single value for use in all dimensions"
