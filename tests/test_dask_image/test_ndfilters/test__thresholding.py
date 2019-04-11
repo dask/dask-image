@@ -10,8 +10,8 @@ from dask_image.ndfilters import threshold_local
     3,
     [3, 3],
     np.array([3, 3]),
-    da.from_array([3, 3], chunks=1),
-    da.from_array([3, 3], chunks=2),
+    da.from_array(np.array([3, 3]), chunks=1),
+    da.from_array(np.array([3, 3]), chunks=2),
 ])
 class TestSimpleImage:
     def setup(self):
