@@ -80,6 +80,7 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
                 chunksize = 1
             elif isinstance(block_size, (list, tuple)):
                 chunksize = len(block_size)
+                block_size = np.array(block_size)
             elif isinstance(block_size, np.ndarray):
                 chunksize = block_size.shape
             elif isinstance(block_size, da.Array):
