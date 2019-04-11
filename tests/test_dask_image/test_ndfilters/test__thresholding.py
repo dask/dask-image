@@ -112,3 +112,7 @@ class TestInvalidArguments:
     def test_nan_blocksize(self, method, block_size, error_type):
         with pytest.raises(error_type):
             threshold_local(self.image, block_size, method=method)
+
+    def test_invalid_threshold_method(self):
+        with pytest.raises(ValueError):
+            threshold_local(self.image, 3, method='invalid')
