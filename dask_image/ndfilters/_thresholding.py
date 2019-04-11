@@ -8,7 +8,7 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
                     mode='reflect', param=None, cval=0):
     """Compute a threshold mask image based on local pixel neighborhood.
 
-    Also known as adaptive or dynamic thresholding. The threshold value is
+    Also known as adaptive or dynamic thresholding[1]_. The threshold value is
     the weighted mean for the local neighborhood of a pixel subtracted by a
     constant. Alternatively the threshold can be determined dynamically by a
     given function, using the 'generic' method.
@@ -54,7 +54,6 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
 
     References
     ----------
-    # adaptivethreshold
     .. [1] https://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html?highlight=threshold
 
     Examples
