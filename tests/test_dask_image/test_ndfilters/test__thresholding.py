@@ -102,10 +102,6 @@ class TestInvalidArguments:
     @pytest.mark.parametrize("method, block_size, error_type", [
         ('gaussian', np.nan, ValueError),
         ('gaussian', 'invalid', ValueError),
-        ('mean', np.nan, ValueError),
-        ('mean', 'invalid', ValueError),
-        ('mean', [3, 3, 3], ValueError),
-        ('mean', np.array([3, 3, 3]), ValueError),
         ('median', np.nan, TypeError),
         ('median', 'invalid', RuntimeError),
     ])

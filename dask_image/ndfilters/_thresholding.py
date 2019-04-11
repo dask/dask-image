@@ -73,7 +73,6 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
                              "'param' keyword argument.")
         thresh_image = _generic.generic_filter(image, param, block_size,
                                                mode=mode, cval=cval)
-
     elif method == 'gaussian':
         if param is None:
             if isinstance(block_size, (int, float, list, tuple, np.ndarray)):
@@ -89,25 +88,8 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
         thresh_image = _gaussian.gaussian_filter(image, sigma, mode=mode,
                                                  cval=cval)
     elif method == 'mean':
-        if isinstance(block_size, int):
-            block_size = [block_size] * image.ndim
-        elif isinstance(block_size, (list, tuple, np.ndarray, da.Array)):
-            if len(block_size) == image.ndim:
-                if isinstance(block_size, da.Array):
-                    block_size = np.array(block_size)
-            else:
-                raise ValueError("Invalid block size. Please enter either:\n"
-                                 "(1) A single value for use in all dimensions"
-                                 " or\n(2) A tuple, list or array with length "
-                                 "equal to image.ndim")
-        else:
-            raise ValueError("{} type ".format(type(block_size)) +
-                             "of 'block_size' input argument not "
-                             "recognised! Must be numeric or listlike")
-        mask = np.ones(block_size)
-        mask /= mask.sum()
-        thresh_image = _conv.convolve(image, mask, mode=mode, cval=cval)
-
+        thresh_image = _generic.generic_filter(image, np.mean, block_size,
+                                               mode=mode, cval=cval)
     elif method == 'median':
         thresh_image = _order.median_filter(image, block_size, mode=mode,
                                             cval=cval)
