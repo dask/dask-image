@@ -17,9 +17,11 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
     ----------
     image : (N, M) dask ndarray
         Input image.
-    block_size : int
+    block_size : int or list/tuple/array
         Size of pixel neighborhood which is used to calculate the
         threshold value.
+        (1) A single value for use in all dimensions or
+        (2) A tuple, list, or array with length equal to image.ndim
     method : {'generic', 'gaussian', 'mean', 'median'}, optional
         Method used to determine adaptive threshold for local neighbourhood in
         weighted mean image.
@@ -62,21 +64,41 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
     >>> image = da.random.random((1000, 1000), chunks=(100, 100))
     >>> result = threshold_local(image, 15, 'gaussian')
     """  # noqa
+
     image = image.astype(np.float64)
+
     if method == 'generic':
+        if not callable(param):
+            raise ValueError("Must include a valid function to use as the "
+                             "'param' keyword argument.")
         thresh_image = _generic.generic_filter(image, param, block_size,
                                                mode=mode, cval=cval)
-    if method == 'gaussian':
+
+    elif method == 'gaussian':
         if param is None:
-            sigma = (da.from_array(block_size, chunks=1) - 1) / 6.0
+            if isinstance(block_size, (int, float)):
+                chunksize = 1
+            elif isinstance(block_size, (list, tuple)):
+                chunksize = len(block_size)
+            elif isinstance(block_size, np.ndarray):
+                chunksize = block_size.shape
+            elif isinstance(block_size, da.Array):
+                chunksize = block_size.chunks
+            else:
+                raise ValueError('Unsupported type for "block_size" kwarg.')
+            sigma = (da.from_array(block_size, chunks=chunksize) - 1) / 6.0
         else:
             sigma = param
         thresh_image = _gaussian.gaussian_filter(image, sigma, mode=mode,
                                                  cval=cval)
     elif method == 'mean':
-        if isinstance(block_size, int or float):
+        if isinstance(block_size, (list, tuple)):
+            block_size = np.array(block_size)  # avoids .ndim AttributeError
+
+        if isinstance(block_size, int):
             block_size = [block_size] * image.ndim
-        elif isinstance(block_size, list or tuple):
+        # elif isinstance(block_size, list or tuple or np.ndarray or da.Array):
+        elif isinstance(block_size, (list, tuple, np.ndarray, da.Array)):
             if len(block_size) == image.ndim:
                 pass
             elif block_size.ndim == 0:
@@ -84,15 +106,18 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
             else:
                 raise ValueError("Invalid block size. Please enter either:\n"
                                  "(1) A single value for use in all dimensions"
-                                 " or\n(2) A tuple or list with length equal "
-                                 "to image.ndim")
+                                 " or\n(2) A tuple, list or array with length "
+                                 "equal to image.ndim")
         else:
             raise ValueError("{} type ".format(type(block_size)) +
                              "of 'block_size' input argument not "
                              "recognised! Must be numeric or listlike")
+        if isinstance(block_size, da.Array):
+            block_size = np.array(block_size)  # chunks value can't be lazy
         mask = da.ones(block_size, chunks=block_size)
         mask /= mask.sum()
         thresh_image = _conv.convolve(image, mask, mode=mode, cval=cval)
+
     elif method == 'median':
         thresh_image = _order.median_filter(image, block_size, mode=mode,
                                             cval=cval)
