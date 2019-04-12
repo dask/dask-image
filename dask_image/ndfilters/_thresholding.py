@@ -1,7 +1,7 @@
 import dask.array as da
 import numpy as np
 
-from . import _conv, _gaussian, _generic, _order
+from . import _gaussian, _generic, _order
 
 
 def threshold_local(image, block_size, method='gaussian', offset=0,
