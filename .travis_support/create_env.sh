@@ -19,8 +19,8 @@ export CONDA_ENV_PATH="${CONDA_ENV_PREFIX}/${CONDA_ENV_TYPE}"
 export CONDA_ENV_SPEC="${SCRIPT_DIR}/environments/${CONDA_ENV_TYPE}.yml"
 
 # Fill the temporary directory.
-conda env create -p "${CONDA_ENV_PATH}" -f "${CONDA_ENV_SPEC}"
-conda activate "${CONDA_ENV_PATH}"
+conda env create -n test -p "${CONDA_ENV_PATH}" -f "${CONDA_ENV_SPEC}"
+conda activate test
 
 # Unset all bash constraints.
 set +xeuo pipefail
