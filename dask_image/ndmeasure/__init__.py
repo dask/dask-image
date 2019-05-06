@@ -17,15 +17,16 @@ from . import _utils
 from ._utils import _label
 
 
-def area(input, labels, index=None):
+def area(input, labels=None, index=None):
     """Find the area of specified subregions in an image.
 
     Parameters
     ----------
     input : ndarray
         N-D image data
-    labels : ndarray
-        Image features noted by integers. If None (default), all values.
+    labels : ndarray, optional
+        Image features noted by integers.
+        If None (default), returns area of total image dimensions.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
         non-zero ``labels`` are used.
@@ -39,35 +40,44 @@ def area(input, labels, index=None):
     Example
     -------
     >>> import dask.array as da
+    >>> input = da.random.random((3, 3))
     >>> labels = da.from_array(
         [[1, 1, 0],
          [1, 0, 3],
          [0, 7, 0]], chunks=(1, 3))
 
+    >>> # No labels given, returns area of total image dimensions
+    >>> area(input)
+    9
+
     >>> # Combined area of all non-zero labels
-    >>> area(labels, labels).compute()
+    >>> area(input, labels).compute()
     5
 
     >>> # Areas of selected labels selected with the ``index`` keyword argument
-    >>> area(labels, labels, index=[0, 1, 3]).compute()
+    >>> area(input, labels, index=[0, 1, 3]).compute()
     array([4, 3, 1], dtype=int64)
 
     >>> # Areas of all labels, where the range of indices is not yet computed
     >>> # The zero or background label is included in ``lazy_indices``
     >>> lazy_indices = dask.array.arange(dask.array.max(labels) + 1)
-    >>> area(labels, labels, index=lazy_indices).compute()
+    >>> area(input, labels, index=lazy_indices).compute()
     array([4, 3, 0, 1, 0, 0, 0, 1])
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
-    )
+    if labels is None:
+        return dask.array.prod(numpy.array([i for i in input.shape]))
 
-    ones = dask.array.ones(labels.shape, dtype=bool, chunks=labels.chunks)
+    else:
+        input, labels, index = _utils._norm_input_labels_index(
+            input, labels, index
+        )
 
-    area_lbl = labeled_comprehension(ones, labels, index, len, int, int(0))
+        ones = dask.array.ones(labels.shape, dtype=bool, chunks=labels.chunks)
 
-    return area_lbl
+        area_lbl = labeled_comprehension(ones, labels, index, len, int, int(0))
+
+        return area_lbl
 
 
 def center_of_mass(input, labels=None, index=None):
