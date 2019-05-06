@@ -17,15 +17,14 @@ from . import _utils
 from ._utils import _label
 
 
-def area(input, labels=None, index=None):
-    """
-    Find the area of specified subregions in an image.
+def area(input, labels, index=None):
+    """Find the area of specified subregions in an image.
 
     Parameters
     ----------
     input : ndarray
         N-D image data
-    labels : ndarray, optional
+    labels : ndarray
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
@@ -36,6 +35,28 @@ def area(input, labels=None, index=None):
     -------
     area : ndarray
         Area of ``index`` selected regions from ``labels``.
+
+    Example
+    -------
+    >>> import dask.array as da
+    >>> labels = da.from_array(
+        [[1, 1, 0],
+         [1, 0, 3],
+         [0, 7, 0]], chunks=(1, 3))
+
+    >>> # Combined area of all non-zero labels
+    >>> area(labels, labels).compute()
+    5
+
+    >>> # Areas of selected labels selected with the ``index`` keyword argument
+    >>> area(labels, labels, index=[0, 1, 3]).compute()
+    array([4, 3, 1], dtype=int64)
+
+    >>> # Areas of all labels, where the range of indices is not yet computed
+    >>> # The zero or background label is included in ``lazy_indices``
+    >>> lazy_indices = dask.array.arange(dask.array.max(labels) + 1)
+    >>> area(labels, labels, index=lazy_indices).compute()
+    array([4, 3, 0, 1, 0, 0, 0, 1])
     """
 
     input, labels, index = _utils._norm_input_labels_index(
