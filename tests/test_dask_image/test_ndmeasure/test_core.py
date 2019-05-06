@@ -180,7 +180,7 @@ def test_area(shape, chunks, has_lbls, ind):
     else:
         a_r = np.array(a.size)[()]
 
-    d_r = dask_ndmeasure.area(d, d_lbls, ind)
+    d_r = dask_image.ndmeasure.area(d, d_lbls, ind)
 
     assert np.allclose(np.array(a_r), np.array(d_r), equal_nan=True)
 
