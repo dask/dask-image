@@ -55,14 +55,8 @@ def area(input, labels=None, index=None):
     5
 
     >>> # Areas of selected labels selected with the ``index`` keyword argument
-    >>> area(input, labels, index=[0, 1, 3]).compute()
-    array([4, 3, 1], dtype=int64)
-
-    >>> # Areas of all labels, where the range of indices is not yet computed
-    >>> # The zero or background label is included in ``lazy_indices``
-    >>> lazy_indices = dask.array.arange(dask.array.max(labels) + 1)
-    >>> area(input, labels, index=lazy_indices).compute()
-    array([4, 3, 0, 1, 0, 0, 0, 1])
+    >>> area(input, labels, index=[0, 1, 2, 3]).compute()
+    array([4, 3, 0, 1], dtype=int64)
     """
 
     if labels is None:
