@@ -5,6 +5,8 @@ __author__ = """John Kirkham"""
 __email__ = "kirkhamj@janelia.hhmi.org"
 
 
+import matplotlib
+matplotlib.use('Agg')  # noqa: E402
 import numpy
 import pims
 
