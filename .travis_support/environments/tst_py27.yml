@@ -1,6 +1,7 @@
 name: dask_image_py27_env
 
 channels:
+  - defaults
   - conda-forge
 
 dependencies:
