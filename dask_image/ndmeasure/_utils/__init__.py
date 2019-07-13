@@ -147,7 +147,7 @@ def _extrema(a, positions, shape, dtype):
     return result[0]
 
 
-def _histogram(input,
+def _histogram(image,
                min,
                max,
                bins):
@@ -157,7 +157,7 @@ def _histogram(input,
     Also reformats the arguments.
     """
 
-    return numpy.histogram(input, bins, (min, max))[0]
+    return numpy.histogram(image, bins, (min, max))[0]
 
 
 @dask.delayed
