@@ -597,13 +597,13 @@ def standard_deviation(image, labels=None, index=None):
     return std_lbl
 
 
-def sum(input, labels=None, index=None):
+def sum(image, labels=None, index=None):
     """
     Find the sum over an image at specified subregions.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -616,21 +616,21 @@ def sum(input, labels=None, index=None):
     Returns
     -------
     sum : ndarray
-        Sum of ``input`` over the ``index`` selected regions from ``labels``.
+        Sum of ``image`` over the ``index`` selected regions from ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     sum_lbl = labeled_comprehension(
-        input, labels, index, numpy.sum, numpy.float64, numpy.float64(0)
+        image, labels, index, numpy.sum, numpy.float64, numpy.float64(0)
     )
 
     return sum_lbl
 
 
-def variance(input, labels=None, index=None):
+def variance(image, labels=None, index=None):
     """
     Find the variance over an image at specified subregions.
 
