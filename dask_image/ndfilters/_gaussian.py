@@ -34,8 +34,8 @@ def _get_sigmas(image, sigma):
     return nsigmas
 
 
-def _get_border(input, sigma, truncate):
-    sigma = numpy.array(_get_sigmas(input, sigma))
+def _get_border(image, sigma, truncate):
+    sigma = numpy.array(_get_sigmas(image, sigma))
 
     if not isinstance(truncate, numbers.Real):
         raise TypeError("Must have a real truncate value.")
