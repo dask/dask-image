@@ -447,13 +447,13 @@ def mean(image, labels=None, index=None):
     return mean_lbl
 
 
-def median(input, labels=None, index=None):
+def median(image, labels=None, index=None):
     """
     Find the median over an image at specified subregions.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -466,18 +466,18 @@ def median(input, labels=None, index=None):
     Returns
     -------
     medians : ndarray
-        Median of ``input`` over the ``index`` selected regions from
+        Median of ``image`` over the ``index`` selected regions from
         ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     nan = numpy.float64(numpy.nan)
 
     return labeled_comprehension(
-        input, labels, index, numpy.median, numpy.float64, nan
+        image, labels, index, numpy.median, numpy.float64, nan
     )
 
 
