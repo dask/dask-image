@@ -11,17 +11,17 @@ from . import _ops
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_closing)
-def binary_closing(input,
+def binary_closing(image,
                    structure=None,
                    iterations=1,
                    origin=0):
-    input = (input != 0)
+    image = (image != 0)
 
-    structure = _utils._get_structure(input, structure)
+    structure = _utils._get_structure(image, structure)
     iterations = _utils._get_iterations(iterations)
     origin = _utils._get_origin(structure.shape, origin)
 
-    result = input
+    result = image
     result = binary_dilation(
         result, structure=structure, iterations=iterations, origin=origin
     )
