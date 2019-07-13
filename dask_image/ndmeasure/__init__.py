@@ -179,20 +179,20 @@ def histogram(image,
     return result
 
 
-def label(input, structure=None):
+def label(image, structure=None):
     """
     Label features in an array.
 
     Parameters
     ----------
-    input : ndarray
-        An array-like object to be labeled.  Any non-zero values in ``input``
+    image : ndarray
+        An array-like object to be labeled.  Any non-zero values in ``image``
         are counted as features and zero values are considered the background.
     structure : ndarray, optional
         A structuring element that defines feature connections.
         ``structure`` must be symmetric.  If no structuring element is
         provided, one is automatically generated with a squared connectivity
-        equal to one.  That is, for a 2-D ``input`` array, the default
+        equal to one.  That is, for a 2-D ``image`` array, the default
         structuring element is::
 
             [[0,1,0],
@@ -202,23 +202,23 @@ def label(input, structure=None):
     Returns
     -------
     label : ndarray or int
-        An integer ndarray where each unique feature in ``input`` has a unique
+        An integer ndarray where each unique feature in ``image`` has a unique
         label in the returned array.
     num_features : int
         How many objects were found.
     """
 
-    input = dask.array.asarray(input)
+    image = dask.array.asarray(image)
 
-    labeled_blocks = numpy.empty(input.numblocks, dtype=object)
+    labeled_blocks = numpy.empty(image.numblocks, dtype=object)
 
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
     # block's labels are globally unique.
     block_iter = _pycompat.izip(
-        numpy.ndindex(*input.numblocks),
-        _pycompat.imap(functools.partial(operator.getitem, input),
-                       dask.array.core.slices_from_chunks(input.chunks))
+        numpy.ndindex(*image.numblocks),
+        _pycompat.imap(functools.partial(operator.getitem, image),
+                       dask.array.core.slices_from_chunks(image.chunks))
     )
     index, input_block = next(block_iter)
     labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
