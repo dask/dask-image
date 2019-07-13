@@ -513,13 +513,13 @@ def minimum(image, labels=None, index=None):
     )
 
 
-def minimum_position(input, labels=None, index=None):
+def minimum_position(image, labels=None, index=None):
     """
     Find the positions of minima over an image at specified subregions.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -532,25 +532,25 @@ def minimum_position(input, labels=None, index=None):
     Returns
     -------
     minima_positions : ndarray
-        Maxima positions of ``input`` over the ``index`` selected regions from
+        Maxima positions of ``image`` over the ``index`` selected regions from
         ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     if index.shape:
         index = index.flatten()
 
-    out_dtype = numpy.dtype([("pos", int, (input.ndim,))])
+    out_dtype = numpy.dtype([("pos", int, (image.ndim,))])
     default_1d = numpy.zeros((1,), dtype=out_dtype)
 
     func = functools.partial(
-        _utils._argmin, shape=input.shape, dtype=out_dtype
+        _utils._argmin, shape=image.shape, dtype=out_dtype
     )
     min_pos_lbl = labeled_comprehension(
-        input, labels, index,
+        image, labels, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
     min_pos_lbl = min_pos_lbl["pos"]
