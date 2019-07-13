@@ -361,16 +361,16 @@ def maximum(image, labels=None, index=None):
     )
 
 
-def maximum_position(input, labels=None, index=None):
+def maximum_position(image, labels=None, index=None):
     """
     Find the positions of maxima over an image at specified subregions.
 
     For each region specified by ``labels``, the position of the maximum
-    value of ``input`` within the region is returned.
+    value of ``image`` within the region is returned.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -383,25 +383,25 @@ def maximum_position(input, labels=None, index=None):
     Returns
     -------
     maxima_positions : ndarray
-        Maxima positions of ``input`` over the ``index`` selected regions from
+        Maxima positions of ``image`` over the ``index`` selected regions from
         ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     if index.shape:
         index = index.flatten()
 
-    out_dtype = numpy.dtype([("pos", int, (input.ndim,))])
+    out_dtype = numpy.dtype([("pos", int, (image.ndim,))])
     default_1d = numpy.zeros((1,), dtype=out_dtype)
 
     func = functools.partial(
-        _utils._argmax, shape=input.shape, dtype=out_dtype
+        _utils._argmax, shape=image.shape, dtype=out_dtype
     )
     max_pos_lbl = labeled_comprehension(
-        input, labels, index,
+        image, labels, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
     max_pos_lbl = max_pos_lbl["pos"]
