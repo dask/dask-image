@@ -77,7 +77,7 @@ def fourier_gaussian(image, sigma, n=-1, axis=-1):
     return result
 
 
-def fourier_shift(input, shift, n=-1, axis=-1):
+def fourier_shift(image, shift, n=-1, axis=-1):
     """
     Multi-dimensional fourier shift filter.
 
@@ -85,16 +85,16 @@ def fourier_shift(input, shift, n=-1, axis=-1):
 
     Parameters
     ----------
-    input : array_like
-        The input array.
+    image : array_like
+        The input image.
     shift : float or sequence
         The size of the box used for filtering.
         If a float, `shift` is the same for all axes. If a sequence, `shift`
         has to contain one value for each axis.
     n : int, optional
-        If `n` is negative (default), then the input is assumed to be the
+        If `n` is negative (default), then the image is assumed to be the
         result of a complex fft.
-        If `n` is larger than or equal to zero, the input is assumed to be the
+        If `n` is larger than or equal to zero, the image is assumed to be the
         result of a real fft, and `n` gives the length of the array before
         transformation along the real transform direction.
     axis : int, optional
@@ -112,27 +112,27 @@ def fourier_shift(input, shift, n=-1, axis=-1):
     >>> fig, (ax1, ax2) = plt.subplots(1, 2)
     >>> plt.gray()  # show the filtered result in grayscale
     >>> ascent = misc.ascent()
-    >>> input_ = numpy.fft.fft2(ascent)
-    >>> result = ndimage.fourier_shift(input_, shift=200)
+    >>> image = numpy.fft.fft2(ascent)
+    >>> result = ndimage.fourier_shift(image, shift=200)
     >>> result = numpy.fft.ifft2(result)
     >>> ax1.imshow(ascent)
     >>> ax2.imshow(result.real)  # the imaginary part is an artifact
     >>> plt.show()
     """
 
-    if issubclass(input.dtype.type, numbers.Real):
-        input = input.astype(complex)
+    if issubclass(image.dtype.type, numbers.Real):
+        image = image.astype(complex)
 
     # Validate and normalize arguments
-    input, shift, n, axis = _utils._norm_args(input, shift, n=n, axis=axis)
+    image, shift, n, axis = _utils._norm_args(image, shift, n=n, axis=axis)
 
     # Constants with type converted
-    J = input.dtype.type(1j)
+    J = image.dtype.type(1j)
 
     # Get the grid of frequencies
     ang_freq_grid = _utils._get_ang_freq_grid(
-        input.shape,
-        chunks=input.chunks,
+        image.shape,
+        chunks=image.chunks,
         dtype=shift.dtype
     )
 
@@ -140,7 +140,7 @@ def fourier_shift(input, shift, n=-1, axis=-1):
     phase_shift = dask.array.exp(
         (-J) * dask.array.tensordot(shift, ang_freq_grid, axes=1)
     )
-    result = input * phase_shift
+    result = image * phase_shift
 
     return result
 
