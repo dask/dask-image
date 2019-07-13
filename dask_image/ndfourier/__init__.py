@@ -145,7 +145,7 @@ def fourier_shift(image, shift, n=-1, axis=-1):
     return result
 
 
-def fourier_uniform(input, size, n=-1, axis=-1):
+def fourier_uniform(image, size, n=-1, axis=-1):
     """
     Multi-dimensional uniform fourier filter.
 
@@ -154,16 +154,16 @@ def fourier_uniform(input, size, n=-1, axis=-1):
 
     Parameters
     ----------
-    input : array_like
-        The input array.
+    image : array_like
+        The input image.
     size : float or sequence
         The size of the box used for filtering.
         If a float, `size` is the same for all axes. If a sequence, `size` has
         to contain one value for each axis.
     n : int, optional
-        If `n` is negative (default), then the input is assumed to be the
+        If `n` is negative (default), then the image is assumed to be the
         result of a complex fft.
-        If `n` is larger than or equal to zero, the input is assumed to be the
+        If `n` is larger than or equal to zero, the image is assumed to be the
         result of a real fft, and `n` gives the length of the array before
         transformation along the real transform direction.
     axis : int, optional
@@ -172,7 +172,7 @@ def fourier_uniform(input, size, n=-1, axis=-1):
     Returns
     -------
     fourier_uniform : Dask Array
-        The filtered input. If `output` is given as a parameter, None is
+        The filtered image. If `output` is given as a parameter, None is
         returned.
 
     Examples
@@ -183,8 +183,8 @@ def fourier_uniform(input, size, n=-1, axis=-1):
     >>> fig, (ax1, ax2) = plt.subplots(1, 2)
     >>> plt.gray()  # show the filtered result in grayscale
     >>> ascent = misc.ascent()
-    >>> input_ = numpy.fft.fft2(ascent)
-    >>> result = ndimage.fourier_uniform(input_, size=20)
+    >>> image = numpy.fft.fft2(ascent)
+    >>> result = ndimage.fourier_uniform(image, size=20)
     >>> result = numpy.fft.ifft2(result)
     >>> ax1.imshow(ascent)
     >>> ax2.imshow(result.real)  # the imaginary part is an artifact
@@ -192,21 +192,21 @@ def fourier_uniform(input, size, n=-1, axis=-1):
     """
 
     # Validate and normalize arguments
-    input, size, n, axis = _utils._norm_args(input, size, n=n, axis=axis)
+    image, size, n, axis = _utils._norm_args(image, size, n=n, axis=axis)
 
     # Get the grid of frequencies
     freq_grid = _utils._get_freq_grid(
-        input.shape,
-        chunks=input.chunks,
+        image.shape,
+        chunks=image.chunks,
         dtype=size.dtype
     )
 
     # Compute uniform filter
     uniform = dask.array.sinc(
-        size[(slice(None),) + input.ndim * (None,)] * freq_grid
+        size[(slice(None),) + image.ndim * (None,)] * freq_grid
     )
     uniform = dask.array.prod(uniform, axis=0)
 
-    result = input * uniform
+    result = image * uniform
 
     return result
