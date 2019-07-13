@@ -64,13 +64,13 @@ def center_of_mass(image, labels=None, index=None):
     return com_lbl
 
 
-def extrema(input, labels=None, index=None):
+def extrema(image, labels=None, index=None):
     """
     Find the min and max with positions over an image at specified subregions.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -86,23 +86,23 @@ def extrema(input, labels=None, index=None):
         Values and coordinates of minimums and maximums in each feature.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     out_dtype = numpy.dtype([
-        ("min_val", input.dtype),
-        ("max_val", input.dtype),
-        ("min_pos", numpy.dtype(numpy.int), input.ndim),
-        ("max_pos", numpy.dtype(numpy.int), input.ndim)
+        ("min_val", image.dtype),
+        ("max_val", image.dtype),
+        ("min_pos", numpy.dtype(numpy.int), image.ndim),
+        ("max_pos", numpy.dtype(numpy.int), image.ndim)
     ])
     default_1d = numpy.zeros((1,), dtype=out_dtype)
 
     func = functools.partial(
-        _utils._extrema, shape=input.shape, dtype=out_dtype
+        _utils._extrema, shape=image.shape, dtype=out_dtype
     )
     extrema_lbl = labeled_comprehension(
-        input, labels, index,
+        image, labels, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
     extrema_lbl = collections.OrderedDict([
