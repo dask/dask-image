@@ -17,13 +17,13 @@ from . import _utils
 from ._utils import _label
 
 
-def center_of_mass(input, labels=None, index=None):
+def center_of_mass(image, labels=None, index=None):
     """
     Find the center of mass over an image at specified subregions.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -36,12 +36,12 @@ def center_of_mass(input, labels=None, index=None):
     Returns
     -------
     center_of_mass : ndarray
-        Coordinates of centers-of-mass of ``input`` over the ``index`` selected
+        Coordinates of centers-of-mass of ``image`` over the ``index`` selected
         regions from ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     # SciPy transposes these for some reason.
@@ -49,14 +49,14 @@ def center_of_mass(input, labels=None, index=None):
     # This only matters if index is some array.
     index = index.T
 
-    out_dtype = numpy.dtype([("com", input.dtype, (input.ndim,))])
+    out_dtype = numpy.dtype([("com", image.dtype, (image.ndim,))])
     default_1d = numpy.full((1,), numpy.nan, dtype=out_dtype)
 
     func = functools.partial(
-        _utils._center_of_mass, shape=input.shape, dtype=out_dtype
+        _utils._center_of_mass, shape=image.shape, dtype=out_dtype
     )
     com_lbl = labeled_comprehension(
-        input, labels, index,
+        image, labels, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
     com_lbl = com_lbl["com"]
