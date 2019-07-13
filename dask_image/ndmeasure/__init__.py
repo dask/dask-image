@@ -248,7 +248,7 @@ def label(image, structure=None):
     return (relabeled, n)
 
 
-def labeled_comprehension(input,
+def labeled_comprehension(image,
                           labels,
                           index,
                           func,
@@ -258,16 +258,16 @@ def labeled_comprehension(input,
     """
     Compute a function over an image at specified subregions.
 
-    Roughly equivalent to [func(input[labels == i]) for i in index].
+    Roughly equivalent to [func(image[labels == i]) for i in index].
 
-    Sequentially applies an arbitrary function (that works on array_like input)
+    Sequentially applies an arbitrary function (that works on array_like image)
     to subsets of an n-D image array specified by ``labels`` and ``index``.
     The option exists to provide the function with positional parameters as the
     second argument.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -278,7 +278,7 @@ def labeled_comprehension(input,
         The ``index`` argument only works when ``labels`` is specified.
 
     func : callable
-        Python function to apply to ``labels`` from ``input``.
+        Python function to apply to ``labels`` from ``image``.
     out_dtype : dtype
         Dtype to use for ``result``.
     default : int, float or None
@@ -291,12 +291,12 @@ def labeled_comprehension(input,
     Returns
     -------
     result : ndarray
-        Result of applying ``func`` on ``input`` over the ``index`` selected
+        Result of applying ``func`` on ``image`` over the ``index`` selected
         regions from ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     out_dtype = numpy.dtype(out_dtype)
@@ -304,12 +304,12 @@ def labeled_comprehension(input,
 
     pass_positions = bool(pass_positions)
 
-    args = (input,)
+    args = (image,)
     if pass_positions:
         positions = _utils._ravel_shape_indices(
-            input.shape, chunks=input.chunks
+            image.shape, chunks=image.chunks
         )
-        args = (input, positions)
+        args = (image, positions)
 
     result = numpy.empty(index.shape, dtype=object)
     for i in numpy.ndindex(index.shape):
