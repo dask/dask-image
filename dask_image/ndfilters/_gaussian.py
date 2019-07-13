@@ -9,8 +9,8 @@ import scipy.ndimage.filters
 from . import _utils
 
 
-def _get_sigmas(input, sigma):
-    ndim = input.ndim
+def _get_sigmas(image, sigma):
+    ndim = image.ndim
 
     nsigmas = numpy.array(sigma)
     if nsigmas.ndim == 0:
@@ -23,7 +23,7 @@ def _get_sigmas(input, sigma):
 
     if ndim != len(nsigmas):
         raise RuntimeError(
-            "Must have an equal number of sigmas to input dimensions."
+            "Must have an equal number of sigmas to image dimensions."
         )
 
     if not issubclass(nsigmas.dtype.type, numbers.Real):
