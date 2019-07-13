@@ -71,23 +71,23 @@ def rank_filter(image,
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.percentile_filter)
-def percentile_filter(input,
+def percentile_filter(image,
                       percentile,
                       size=None,
                       footprint=None,
                       mode='reflect',
                       cval=0.0,
                       origin=0):
-    footprint = _utils._get_footprint(input.ndim, size, footprint)
+    footprint = _utils._get_footprint(image.ndim, size, footprint)
     origin = _utils._get_origin(footprint.shape, origin)
     depth = _utils._get_depth(footprint.shape, origin)
     depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
-    result = input.map_overlap(
+    result = image.map_overlap(
         scipy.ndimage.filters.percentile_filter,
         depth=depth,
         boundary=boundary,
-        dtype=input.dtype,
+        dtype=image.dtype,
         percentile=percentile,
         footprint=footprint,
         mode=mode,
