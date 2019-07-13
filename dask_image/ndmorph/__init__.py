@@ -81,17 +81,17 @@ def binary_erosion(image,
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_opening)
-def binary_opening(input,
+def binary_opening(image,
                    structure=None,
                    iterations=1,
                    origin=0):
-    input = (input != 0)
+    image = (image != 0)
 
-    structure = _utils._get_structure(input, structure)
+    structure = _utils._get_structure(image, structure)
     iterations = _utils._get_iterations(iterations)
     origin = _utils._get_origin(structure.shape, origin)
 
-    result = input
+    result = image
     result = binary_erosion(
         result, structure=structure, iterations=iterations, origin=origin
     )
