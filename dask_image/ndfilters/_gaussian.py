@@ -73,22 +73,22 @@ def gaussian_filter(image,
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.gaussian_gradient_magnitude)
-def gaussian_gradient_magnitude(input,
+def gaussian_gradient_magnitude(image,
                                 sigma,
                                 mode='reflect',
                                 cval=0.0,
                                 truncate=4.0,
                                 **kwargs):
-    sigma = _get_sigmas(input, sigma)
-    depth = _get_border(input, sigma, truncate)
+    sigma = _get_sigmas(image, sigma)
+    depth = _get_border(image, sigma, truncate)
 
-    depth, boundary = _utils._get_depth_boundary(input.ndim, depth, "none")
+    depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
-    result = input.map_overlap(
+    result = image.map_overlap(
         scipy.ndimage.filters.gaussian_gradient_magnitude,
         depth=depth,
         boundary=boundary,
-        dtype=input.dtype,
+        dtype=image.dtype,
         sigma=sigma,
         mode=mode,
         cval=cval,
