@@ -127,7 +127,7 @@ def extrema(image, labels=None, index=None):
     return result
 
 
-def histogram(input,
+def histogram(image,
               min,
               max,
               bins,
@@ -143,7 +143,7 @@ def histogram(input,
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     min : int
         Minimum value of range of histogram bins.
@@ -162,19 +162,19 @@ def histogram(input,
     Returns
     -------
     histogram : ndarray
-        Histogram of ``input`` over the ``index`` selected regions from
+        Histogram of ``image`` over the ``index`` selected regions from
         ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
     min = int(min)
     max = int(max)
     bins = int(bins)
 
     func = functools.partial(_utils._histogram, min=min, max=max, bins=bins)
-    result = labeled_comprehension(input, labels, index, func, object, None)
+    result = labeled_comprehension(image, labels, index, func, object, None)
 
     return result
 
