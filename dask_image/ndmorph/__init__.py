@@ -57,7 +57,7 @@ def binary_dilation(image,
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_erosion)
-def binary_erosion(input,
+def binary_erosion(image,
                    structure=None,
                    iterations=1,
                    mask=None,
@@ -68,7 +68,7 @@ def binary_erosion(input,
 
     result = _ops._binary_op(
         scipy.ndimage.binary_erosion,
-        input,
+        image,
         structure=structure,
         iterations=iterations,
         mask=mask,
