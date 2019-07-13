@@ -481,13 +481,13 @@ def median(image, labels=None, index=None):
     )
 
 
-def minimum(input, labels=None, index=None):
+def minimum(image, labels=None, index=None):
     """
     Find the minima over an image at specified subregions.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -500,16 +500,16 @@ def minimum(input, labels=None, index=None):
     Returns
     -------
     minima : ndarray
-        Minima of ``input`` over the ``index`` selected regions from
+        Minima of ``image`` over the ``index`` selected regions from
         ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     return labeled_comprehension(
-        input, labels, index, numpy.min, input.dtype, input.dtype.type(0)
+        image, labels, index, numpy.min, image.dtype, image.dtype.type(0)
     )
 
 
