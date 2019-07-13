@@ -55,14 +55,14 @@ def _get_dtype(a):
     return getattr(a, "dtype", numpy.dtype(type(a)))
 
 
-def _get_mask(input, mask):
+def _get_mask(image, mask):
     if mask is None:
         mask = True
 
     mask_type = _get_dtype(mask).type
     if isinstance(mask, (numpy.ndarray, dask.array.Array)):
-        if mask.shape != input.shape:
-            raise RuntimeError("`mask` must have the same shape as `input`.")
+        if mask.shape != image.shape:
+            raise RuntimeError("`mask` must have the same shape as `image`.")
         if not issubclass(mask_type, numpy.bool8):
             mask = (mask != 0)
     elif issubclass(mask_type, numpy.bool8):
