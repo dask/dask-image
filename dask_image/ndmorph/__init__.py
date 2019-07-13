@@ -33,7 +33,7 @@ def binary_closing(image,
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_dilation)
-def binary_dilation(input,
+def binary_dilation(image,
                     structure=None,
                     iterations=1,
                     mask=None,
@@ -44,7 +44,7 @@ def binary_dilation(input,
 
     result = _ops._binary_op(
         scipy.ndimage.binary_dilation,
-        input,
+        image,
         structure=structure,
         iterations=iterations,
         mask=mask,
