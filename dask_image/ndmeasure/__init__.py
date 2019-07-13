@@ -329,13 +329,13 @@ def labeled_comprehension(image,
     return result
 
 
-def maximum(input, labels=None, index=None):
+def maximum(image, labels=None, index=None):
     """
     Find the maxima over an image at specified subregions.
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers. If None (default), all values.
@@ -348,16 +348,16 @@ def maximum(input, labels=None, index=None):
     Returns
     -------
     maxima : ndarray
-        Maxima of ``input`` over the ``index`` selected regions from
+        Maxima of ``image`` over the ``index`` selected regions from
         ``labels``.
     """
 
-    input, labels, index = _utils._norm_input_labels_index(
-        input, labels, index
+    image, labels, index = _utils._norm_input_labels_index(
+        image, labels, index
     )
 
     return labeled_comprehension(
-        input, labels, index, numpy.max, input.dtype, input.dtype.type(0)
+        image, labels, index, numpy.max, image.dtype, image.dtype.type(0)
     )
 
 
