@@ -49,7 +49,7 @@ def _update_wrapper(func):
 
 
 def _get_depth_boundary(ndim, depth, boundary=None):
-    strlike = (bytes, unicode)
+    strlike = (bytes, str)
 
     if not isinstance(ndim, numbers.Integral):
         raise TypeError("Expected integer value for `ndim`.")
