@@ -17,7 +17,6 @@ matplotlib.use('Agg')  # noqa: E402
 import numpy
 import pims
 
-from .. import _pycompat
 from . import _utils
 
 
@@ -67,13 +66,13 @@ def imread(fname, nframes=1):
         )
 
     lower_iter, upper_iter = itertools.tee(itertools.chain(
-        _pycompat.irange(0, shape[0], nframes),
+        range(0, shape[0], nframes),
         [shape[0]]
     ))
     next(upper_iter)
 
     a = []
-    for i, j in _pycompat.izip(lower_iter, upper_iter):
+    for i, j in zip(lower_iter, upper_iter):
         a.append(dask.array.from_delayed(
             dask.delayed(_utils._read_frame)(fname, slice(i, j)),
             (j - i,) + shape[1:],

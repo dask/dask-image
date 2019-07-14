@@ -13,7 +13,6 @@ env:
   - PYVER="37"
   - PYVER="36"
   - PYVER="35"
-  - PYVER="27"
 
 install:
   # Install and Configure Miniconda.
