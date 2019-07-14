@@ -7,8 +7,6 @@ import numpy
 
 import dask.array
 
-from .._pycompat import izip
-
 
 def _get_freq_grid(shape, chunks, dtype=float):
     assert len(shape) == len(chunks)
@@ -21,7 +19,7 @@ def _get_freq_grid(shape, chunks, dtype=float):
 
     freq_grid = [
         dask.array.fft.fftfreq(s, chunks=c).astype(dtype)
-        for s, c in izip(shape, chunks)
+        for s, c in zip(shape, chunks)
     ]
     freq_grid = dask.array.meshgrid(*freq_grid, indexing="ij")
     freq_grid = dask.array.stack(freq_grid)

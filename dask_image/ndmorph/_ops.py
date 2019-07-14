@@ -4,7 +4,6 @@
 import dask.array
 
 from . import _utils
-from .._pycompat import irange
 
 
 def _binary_op(func,
@@ -26,7 +25,7 @@ def _binary_op(func,
     depth, boundary = _utils._get_depth_boundary(structure.ndim, depth, "none")
 
     result = input
-    for i in irange(iterations):
+    for i in range(iterations):
         iter_result = result.map_overlap(
             func,
             depth=depth,
