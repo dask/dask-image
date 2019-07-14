@@ -1,7 +1,6 @@
 name: dask_image_dpl_env
 
 channels:
-  - defaults
   - conda-forge
 
 dependencies:
