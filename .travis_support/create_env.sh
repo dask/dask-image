@@ -21,5 +21,8 @@ export CONDA_ENV_SPEC=".travis_support/environments/${CONDA_ENV_TYPE}.yml"
 conda env create -p "${CONDA_ENV_PATH}" -f "${CONDA_ENV_SPEC}"
 conda activate "${CONDA_ENV_PATH}"
 
+# The Python library pims requres matplotlib with the 'Agg' backend
+export MPLBACKEND='Agg'
+
 # Unset all bash constraints.
 set +xeuo pipefail

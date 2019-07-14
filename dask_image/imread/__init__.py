@@ -12,8 +12,6 @@ import warnings
 import dask
 import dask.array
 import dask.delayed
-import matplotlib
-matplotlib.use('Agg')  # noqa: E402
 import numpy
 import pims
 
