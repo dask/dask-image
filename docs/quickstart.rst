@@ -17,10 +17,8 @@ Import dask image is with an underscore, like this example:
 
 Dask Examples
 -------------
-We highly recommend checking out the dask-image-quickstart.ipynb notebook 
-(and any other dask-image example notebooks) at the dask-examples repository.
-You can find the dask-image quickstart notebook in the ``applications`` folder
-of this repository:
+We highly recommend checking out the image-processing.ipynb notebook 
+in the ``applications/`` folder of the dask-examples repository:
 
 https://github.com/dask/dask-examples
 
