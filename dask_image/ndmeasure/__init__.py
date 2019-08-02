@@ -12,7 +12,6 @@ import numpy
 
 import dask.array
 
-from .. import _pycompat
 from . import _utils
 from ._utils import _label
 
@@ -272,10 +271,10 @@ def label(input, structure=None):
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
     # block's labels are globally unique.
-    block_iter = _pycompat.izip(
+    block_iter = zip(
         numpy.ndindex(*input.numblocks),
-        _pycompat.imap(functools.partial(operator.getitem, input),
-                       dask.array.core.slices_from_chunks(input.chunks))
+        map(functools.partial(operator.getitem, input),
+            dask.array.core.slices_from_chunks(input.chunks))
     )
     index, input_block = next(block_iter)
     labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
@@ -376,7 +375,7 @@ def labeled_comprehension(input,
             func, out_dtype, default_1d, *args_lbl_mtch_i
         )
 
-    for i in _pycompat.irange(result.ndim - 1, -1, -1):
+    for i in range(result.ndim - 1, -1, -1):
         result2 = result[..., 0]
         for j in numpy.ndindex(index.shape[:i]):
             result2[j] = dask.array.stack(result[j].tolist(), axis=0)

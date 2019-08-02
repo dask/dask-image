@@ -9,13 +9,13 @@ dependencies:
   - wheel==0.31.1
   - coverage==4.5.1
   - flake8==3.5.0
-  - pytest==3.8.1
-  - pytest-flake8==1.0.1
-  - dask==0.16.1
   - numpy==1.11.3
   - scipy==1.1.0
-  - scikit-image==0.13.1
   - pims==0.4.1
   - slicerator==0.9.8
   - pip:
     - slicerator==0.9.8
+    - pytest==3.8.1
+    - pytest-flake8==1.0.1
+    - dask==0.16.1
+    - scikit-image==0.13.1
