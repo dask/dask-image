@@ -12,9 +12,65 @@ import numpy
 
 import dask.array
 
-from .. import _pycompat
 from . import _utils
 from ._utils import _label
+
+
+def area(image, labels=None, index=None):
+    """Find the area of specified subregions in an image.
+
+    Parameters
+    ----------
+    input : ndarray
+        N-D image data
+    labels : ndarray, optional
+        Image features noted by integers.
+        If None (default), returns area of total image dimensions.
+    index : int or sequence of ints, optional
+        Labels to include in output.  If None (default), all values where
+        non-zero ``labels`` are used.
+        The ``index`` argument only works when ``labels`` is specified.
+
+    Returns
+    -------
+    area : ndarray
+        Area of ``index`` selected regions from ``labels``.
+
+    Example
+    -------
+    >>> import dask.array as da
+    >>> input = da.random.random((3, 3))
+    >>> labels = da.from_array(
+        [[1, 1, 0],
+         [1, 0, 3],
+         [0, 7, 0]], chunks=(1, 3))
+
+    >>> # No labels given, returns area of total image dimensions
+    >>> area(input)
+    9
+
+    >>> # Combined area of all non-zero labels
+    >>> area(input, labels).compute()
+    5
+
+    >>> # Areas of selected labels selected with the ``index`` keyword argument
+    >>> area(input, labels, index=[0, 1, 2, 3]).compute()
+    array([4, 3, 0, 1], dtype=int64)
+    """
+
+    if labels is None:
+        return dask.array.prod(numpy.array([i for i in input.shape]))
+
+    else:
+        input, labels, index = _utils._norm_input_labels_index(
+            input, labels, index
+        )
+
+        ones = dask.array.ones(labels.shape, dtype=bool, chunks=labels.chunks)
+
+        area_lbl = labeled_comprehension(ones, labels, index, len, int, int(0))
+
+        return area_lbl
 
 
 def center_of_mass(image, labels=None, index=None):
@@ -215,10 +271,10 @@ def label(image, structure=None):
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
     # block's labels are globally unique.
-    block_iter = _pycompat.izip(
+    block_iter = zip(
         numpy.ndindex(*image.numblocks),
-        _pycompat.imap(functools.partial(operator.getitem, image),
-                       dask.array.core.slices_from_chunks(image.chunks))
+        map(functools.partial(operator.getitem, image),
+            dask.array.core.slices_from_chunks(image.chunks))
     )
     index, input_block = next(block_iter)
     labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
@@ -319,7 +375,7 @@ def labeled_comprehension(image,
             func, out_dtype, default_1d, *args_lbl_mtch_i
         )
 
-    for i in _pycompat.irange(result.ndim - 1, -1, -1):
+    for i in range(result.ndim - 1, -1, -1):
         result2 = result[..., 0]
         for j in numpy.ndindex(index.shape[:i]):
             result2[j] = dask.array.stack(result[j].tolist(), axis=0)

@@ -9,8 +9,6 @@ import re
 
 import numpy
 
-from .._pycompat import irange, izip, strlike
-
 
 def _get_docstring(func):
     # Drop the output parameter from the docstring.
@@ -53,6 +51,8 @@ def _update_wrapper(func):
 
 
 def _get_depth_boundary(ndim, depth, boundary=None):
+    strlike = (bytes, str)
+
     if not isinstance(ndim, numbers.Integral):
         raise TypeError("Expected integer value for `ndim`.")
     if ndim <= 0:
@@ -65,7 +65,7 @@ def _get_depth_boundary(ndim, depth, boundary=None):
     if len(depth) != ndim:
         raise ValueError("Expected `depth` to have a length equal to `ndim`.")
     if isinstance(depth, collections.Sequence):
-        depth = dict(izip(irange(ndim), depth))
+        depth = dict(zip(range(ndim), depth))
     if not isinstance(depth, collections.Mapping):
         raise TypeError("Unexpected type for `depth`.")
 
@@ -85,7 +85,7 @@ def _get_depth_boundary(ndim, depth, boundary=None):
             "Expected `boundary` to have a length equal to `ndim`."
         )
     if isinstance(boundary, collections.Sequence):
-        boundary = dict(izip(irange(ndim), boundary))
+        boundary = dict(zip(range(ndim), boundary))
     if not isinstance(boundary, collections.Mapping):
         raise TypeError("Unexpected type for `boundary`.")
 

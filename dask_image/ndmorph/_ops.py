@@ -4,7 +4,6 @@
 import dask.array
 
 from . import _utils
-from .._pycompat import irange
 
 
 def _binary_op(func,
