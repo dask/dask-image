@@ -21,7 +21,7 @@ def area(image, labels=None, index=None):
 
     Parameters
     ----------
-    input : ndarray
+    image : ndarray
         N-D image data
     labels : ndarray, optional
         Image features noted by integers.
@@ -39,31 +39,31 @@ def area(image, labels=None, index=None):
     Example
     -------
     >>> import dask.array as da
-    >>> input = da.random.random((3, 3))
+    >>> image = da.random.random((3, 3))
     >>> labels = da.from_array(
         [[1, 1, 0],
          [1, 0, 3],
          [0, 7, 0]], chunks=(1, 3))
 
     >>> # No labels given, returns area of total image dimensions
-    >>> area(input)
+    >>> area(image)
     9
 
     >>> # Combined area of all non-zero labels
-    >>> area(input, labels).compute()
+    >>> area(image, labels).compute()
     5
 
     >>> # Areas of selected labels selected with the ``index`` keyword argument
-    >>> area(input, labels, index=[0, 1, 2, 3]).compute()
+    >>> area(image, labels, index=[0, 1, 2, 3]).compute()
     array([4, 3, 0, 1], dtype=int64)
     """
 
     if labels is None:
-        return dask.array.prod(numpy.array([i for i in input.shape]))
+        return dask.array.prod(numpy.array([i for i in image.shape]))
 
     else:
-        input, labels, index = _utils._norm_input_labels_index(
-            input, labels, index
+        image, labels, index = _utils._norm_input_labels_index(
+            image, labels, index
         )
 
         ones = dask.array.ones(labels.shape, dtype=bool, chunks=labels.chunks)
