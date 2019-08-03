@@ -17,12 +17,6 @@ import dask.array as da
 import dask_image.ndmeasure
 
 
-try:
-    irange = xrange
-except NameError:
-    irange = range
-
-
 @pytest.mark.parametrize(
     "funcname", [
         "center_of_mass",
@@ -224,7 +218,7 @@ def test_extrema(shape, chunks, has_lbls, ind):
 
     assert len(a_r) == len(d_r)
 
-    for i in irange(len(a_r)):
+    for i in range(len(a_r)):
         a_r_i = np.array(a_r[i])
         if a_r_i.dtype != d_r[i].dtype:
             wrn.warn(
@@ -285,7 +279,7 @@ def test_histogram(shape, chunks, has_lbls, ind, min, max, bins):
     else:
         assert a_r.dtype == d_r.dtype
         assert a_r.shape == d_r.shape
-        for i in it.product(*[irange(_) for _ in a_r.shape]):
+        for i in it.product(*[range(_) for _ in a_r.shape]):
             if a_r[i] is None:
                 assert d_r[i].compute() is None
             else:
@@ -511,7 +505,7 @@ def test_labeled_comprehension_object(shape, chunks, ind):
     else:
         assert a_r.dtype == d_r.dtype
         assert a_r.shape == d_r.shape
-        for i in it.product(*[irange(_) for _ in a_r.shape]):
+        for i in it.product(*[range(_) for _ in a_r.shape]):
             if a_r[i] is None:
                 assert d_r[i].compute() is None
             else:
