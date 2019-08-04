@@ -11,17 +11,17 @@ from . import _ops
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_closing)
-def binary_closing(input,
+def binary_closing(image,
                    structure=None,
                    iterations=1,
                    origin=0):
-    input = (input != 0)
+    image = (image != 0)
 
-    structure = _utils._get_structure(input, structure)
+    structure = _utils._get_structure(image, structure)
     iterations = _utils._get_iterations(iterations)
     origin = _utils._get_origin(structure.shape, origin)
 
-    result = input
+    result = image
     result = binary_dilation(
         result, structure=structure, iterations=iterations, origin=origin
     )
@@ -33,7 +33,7 @@ def binary_closing(input,
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_dilation)
-def binary_dilation(input,
+def binary_dilation(image,
                     structure=None,
                     iterations=1,
                     mask=None,
@@ -44,7 +44,7 @@ def binary_dilation(input,
 
     result = _ops._binary_op(
         scipy.ndimage.binary_dilation,
-        input,
+        image,
         structure=structure,
         iterations=iterations,
         mask=mask,
@@ -57,7 +57,7 @@ def binary_dilation(input,
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_erosion)
-def binary_erosion(input,
+def binary_erosion(image,
                    structure=None,
                    iterations=1,
                    mask=None,
@@ -68,7 +68,7 @@ def binary_erosion(input,
 
     result = _ops._binary_op(
         scipy.ndimage.binary_erosion,
-        input,
+        image,
         structure=structure,
         iterations=iterations,
         mask=mask,
@@ -81,17 +81,17 @@ def binary_erosion(input,
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_opening)
-def binary_opening(input,
+def binary_opening(image,
                    structure=None,
                    iterations=1,
                    origin=0):
-    input = (input != 0)
+    image = (image != 0)
 
-    structure = _utils._get_structure(input, structure)
+    structure = _utils._get_structure(image, structure)
     iterations = _utils._get_iterations(iterations)
     origin = _utils._get_origin(structure.shape, origin)
 
-    result = input
+    result = image
     result = binary_erosion(
         result, structure=structure, iterations=iterations, origin=origin
     )
