@@ -17,21 +17,23 @@ except ImportError:
     from dask.array import atop as da_blockwise
 
 
-def _norm_input_labels_index(image, labels=None, index=None):
+def _norm_input_labels_index(image, label_image=None, index=None):
     """
     Normalize arguments to a standard form.
     """
 
     image = dask.array.asarray(image)
 
-    if labels is None:
-        labels = dask.array.ones(image.shape, dtype=int, chunks=image.chunks)
+    if label_image is None:
+        label_image = dask.array.ones(
+            image.shape, dtype=int, chunks=image.chunks,
+        )
         index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
     elif index is None:
-        labels = (labels > 0).astype(int)
+        label_image = (label_image > 0).astype(int)
         index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
 
-    labels = dask.array.asarray(labels)
+    label_image = dask.array.asarray(label_image)
     index = dask.array.asarray(index)
 
     if index.ndim > 1:
@@ -40,10 +42,12 @@ def _norm_input_labels_index(image, labels=None, index=None):
             FutureWarning
         )
 
-    if image.shape != labels.shape:
-        raise ValueError("The image and labels arrays must be the same shape.")
+    if image.shape != label_image.shape:
+        raise ValueError(
+            "The image and label_image arrays must be the same shape."
+        )
 
-    return (image, labels, index)
+    return (image, label_image, index)
 
 
 def _ravel_shape_indices_kernel(*args):

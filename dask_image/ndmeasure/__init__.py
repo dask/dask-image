@@ -16,31 +16,31 @@ from . import _utils
 from ._utils import _label
 
 
-def area(image, labels=None, index=None):
+def area(image, label_image=None, index=None):
     """Find the area of specified subregions in an image.
 
     Parameters
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers.
         If None (default), returns area of total image dimensions.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
-        The ``index`` argument only works when ``labels`` is specified.
+        non-zero ``label_image`` are used.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     area : ndarray
-        Area of ``index`` selected regions from ``labels``.
+        Area of ``index`` selected regions from ``label_image``.
 
     Example
     -------
     >>> import dask.array as da
     >>> image = da.random.random((3, 3))
-    >>> labels = da.from_array(
+    >>> label_image = da.from_array(
         [[1, 1, 0],
          [1, 0, 3],
          [0, 7, 0]], chunks=(1, 3))
@@ -50,30 +50,34 @@ def area(image, labels=None, index=None):
     9
 
     >>> # Combined area of all non-zero labels
-    >>> area(image, labels).compute()
+    >>> area(image, label_image).compute()
     5
 
     >>> # Areas of selected labels selected with the ``index`` keyword argument
-    >>> area(image, labels, index=[0, 1, 2, 3]).compute()
+    >>> area(image, label_image, index=[0, 1, 2, 3]).compute()
     array([4, 3, 0, 1], dtype=int64)
     """
 
-    if labels is None:
+    if label_image is None:
         return dask.array.prod(numpy.array([i for i in image.shape]))
 
     else:
-        image, labels, index = _utils._norm_input_labels_index(
-            image, labels, index
+        image, label_image, index = _utils._norm_input_labels_index(
+            image, label_image, index
         )
 
-        ones = dask.array.ones(labels.shape, dtype=bool, chunks=labels.chunks)
+        ones = dask.array.ones(
+            label_image.shape, dtype=bool, chunks=label_image.chunks
+        )
 
-        area_lbl = labeled_comprehension(ones, labels, index, len, int, int(0))
+        area_lbl = labeled_comprehension(
+            ones, label_image, index, len, int, int(0)
+        )
 
         return area_lbl
 
 
-def center_of_mass(image, labels=None, index=None):
+def center_of_mass(image, label_image=None, index=None):
     """
     Find the center of mass over an image at specified subregions.
 
@@ -81,23 +85,23 @@ def center_of_mass(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     center_of_mass : ndarray
         Coordinates of centers-of-mass of ``image`` over the ``index`` selected
-        regions from ``labels``.
+        regions from ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     # SciPy transposes these for some reason.
@@ -112,7 +116,7 @@ def center_of_mass(image, labels=None, index=None):
         _utils._center_of_mass, shape=image.shape, dtype=out_dtype
     )
     com_lbl = labeled_comprehension(
-        image, labels, index,
+        image, label_image, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
     com_lbl = com_lbl["com"]
@@ -120,7 +124,7 @@ def center_of_mass(image, labels=None, index=None):
     return com_lbl
 
 
-def extrema(image, labels=None, index=None):
+def extrema(image, label_image=None, index=None):
     """
     Find the min and max with positions over an image at specified subregions.
 
@@ -128,13 +132,13 @@ def extrema(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
@@ -142,8 +146,8 @@ def extrema(image, labels=None, index=None):
         Values and coordinates of minimums and maximums in each feature.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     out_dtype = numpy.dtype([
@@ -158,7 +162,7 @@ def extrema(image, labels=None, index=None):
         _utils._extrema, shape=image.shape, dtype=out_dtype
     )
     extrema_lbl = labeled_comprehension(
-        image, labels, index,
+        image, label_image, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
     extrema_lbl = collections.OrderedDict([
@@ -187,15 +191,15 @@ def histogram(image,
               min,
               max,
               bins,
-              labels=None,
+              label_image=None,
               index=None):
     """
     Find the histogram over an image at specified subregions.
 
     Histogram calculates the frequency of values in an array within bins
-    determined by ``min``, ``max``, and ``bins``. The ``labels`` and ``index``
-    keywords can limit the scope of the histogram to specified sub-regions
-    within the array.
+    determined by ``min``, ``max``, and ``bins``. The ``label_image`` and
+    ``index`` keywords can limit the scope of the histogram to specified
+    sub-regions within the array.
 
     Parameters
     ----------
@@ -207,30 +211,32 @@ def histogram(image,
         Maximum value of range of histogram bins.
     bins : int
         Number of bins.
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     histogram : ndarray
         Histogram of ``image`` over the ``index`` selected regions from
-        ``labels``.
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
     min = int(min)
     max = int(max)
     bins = int(bins)
 
     func = functools.partial(_utils._histogram, min=min, max=max, bins=bins)
-    result = labeled_comprehension(image, labels, index, func, object, None)
+    result = labeled_comprehension(
+        image, label_image, index, func, object, None
+    )
 
     return result
 
@@ -305,7 +311,7 @@ def label(image, structure=None):
 
 
 def labeled_comprehension(image,
-                          labels,
+                          label_image,
                           index,
                           func,
                           out_dtype,
@@ -317,29 +323,29 @@ def labeled_comprehension(image,
     Roughly equivalent to [func(image[labels == i]) for i in index].
 
     Sequentially applies an arbitrary function (that works on array_like image)
-    to subsets of an n-D image array specified by ``labels`` and ``index``.
-    The option exists to provide the function with positional parameters as the
-    second argument.
+    to subsets of an n-D image array specified by ``label_image`` and
+    ``index``. The option exists to provide the function with positional
+    parameters as the second argument.
 
     Parameters
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     func : callable
-        Python function to apply to ``labels`` from ``image``.
+        Python function to apply to ``label_image`` from ``image``.
     out_dtype : dtype
         Dtype to use for ``result``.
     default : int, float or None
         Default return value when a element of ``index`` does not exist
-        in ``labels``.
+        in ``label_image``.
     pass_positions : bool, optional
         If True, pass linear indices to ``func`` as a second argument.
         Default is False.
@@ -348,11 +354,11 @@ def labeled_comprehension(image,
     -------
     result : ndarray
         Result of applying ``func`` on ``image`` over the ``index`` selected
-        regions from ``labels``.
+        regions from ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     out_dtype = numpy.dtype(out_dtype)
@@ -369,7 +375,7 @@ def labeled_comprehension(image,
 
     result = numpy.empty(index.shape, dtype=object)
     for i in numpy.ndindex(index.shape):
-        lbl_mtch_i = (labels == index[i])
+        lbl_mtch_i = (label_image == index[i])
         args_lbl_mtch_i = tuple(e[lbl_mtch_i] for e in args)
         result[i] = _utils._labeled_comprehension_func(
             func, out_dtype, default_1d, *args_lbl_mtch_i
@@ -385,7 +391,7 @@ def labeled_comprehension(image,
     return result
 
 
-def maximum(image, labels=None, index=None):
+def maximum(image, label_image=None, index=None):
     """
     Find the maxima over an image at specified subregions.
 
@@ -393,58 +399,58 @@ def maximum(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     maxima : ndarray
         Maxima of ``image`` over the ``index`` selected regions from
-        ``labels``.
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     return labeled_comprehension(
-        image, labels, index, numpy.max, image.dtype, image.dtype.type(0)
+        image, label_image, index, numpy.max, image.dtype, image.dtype.type(0)
     )
 
 
-def maximum_position(image, labels=None, index=None):
+def maximum_position(image, label_image=None, index=None):
     """
     Find the positions of maxima over an image at specified subregions.
 
-    For each region specified by ``labels``, the position of the maximum
+    For each region specified by ``label_image``, the position of the maximum
     value of ``image`` within the region is returned.
 
     Parameters
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     maxima_positions : ndarray
         Maxima positions of ``image`` over the ``index`` selected regions from
-        ``labels``.
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     if index.shape:
@@ -457,7 +463,7 @@ def maximum_position(image, labels=None, index=None):
         _utils._argmax, shape=image.shape, dtype=out_dtype
     )
     max_pos_lbl = labeled_comprehension(
-        image, labels, index,
+        image, label_image, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
     max_pos_lbl = max_pos_lbl["pos"]
@@ -468,7 +474,7 @@ def maximum_position(image, labels=None, index=None):
     return max_pos_lbl
 
 
-def mean(image, labels=None, index=None):
+def mean(image, label_image=None, index=None):
     """
     Find the mean over an image at specified subregions.
 
@@ -476,34 +482,35 @@ def mean(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     means : ndarray
-        Mean of ``image`` over the ``index`` selected regions from ``labels``.
+        Mean of ``image`` over the ``index`` selected regions from
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     nan = numpy.float64(numpy.nan)
 
     mean_lbl = labeled_comprehension(
-        image, labels, index, numpy.mean, numpy.float64, nan
+        image, label_image, index, numpy.mean, numpy.float64, nan
     )
 
     return mean_lbl
 
 
-def median(image, labels=None, index=None):
+def median(image, label_image=None, index=None):
     """
     Find the median over an image at specified subregions.
 
@@ -511,33 +518,33 @@ def median(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     medians : ndarray
         Median of ``image`` over the ``index`` selected regions from
-        ``labels``.
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     nan = numpy.float64(numpy.nan)
 
     return labeled_comprehension(
-        image, labels, index, numpy.median, numpy.float64, nan
+        image, label_image, index, numpy.median, numpy.float64, nan
     )
 
 
-def minimum(image, labels=None, index=None):
+def minimum(image, label_image=None, index=None):
     """
     Find the minima over an image at specified subregions.
 
@@ -545,31 +552,31 @@ def minimum(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     minima : ndarray
         Minima of ``image`` over the ``index`` selected regions from
-        ``labels``.
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     return labeled_comprehension(
-        image, labels, index, numpy.min, image.dtype, image.dtype.type(0)
+        image, label_image, index, numpy.min, image.dtype, image.dtype.type(0)
     )
 
 
-def minimum_position(image, labels=None, index=None):
+def minimum_position(image, label_image=None, index=None):
     """
     Find the positions of minima over an image at specified subregions.
 
@@ -577,23 +584,23 @@ def minimum_position(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     minima_positions : ndarray
         Maxima positions of ``image`` over the ``index`` selected regions from
-        ``labels``.
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     if index.shape:
@@ -606,7 +613,7 @@ def minimum_position(image, labels=None, index=None):
         _utils._argmin, shape=image.shape, dtype=out_dtype
     )
     min_pos_lbl = labeled_comprehension(
-        image, labels, index,
+        image, label_image, index,
         func, out_dtype, default_1d[0], pass_positions=True
     )
     min_pos_lbl = min_pos_lbl["pos"]
@@ -617,7 +624,7 @@ def minimum_position(image, labels=None, index=None):
     return min_pos_lbl
 
 
-def standard_deviation(image, labels=None, index=None):
+def standard_deviation(image, label_image=None, index=None):
     """
     Find the standard deviation over an image at specified subregions.
 
@@ -625,35 +632,35 @@ def standard_deviation(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     standard_deviation : ndarray
         Standard deviation of ``image`` over the ``index`` selected regions
-        from ``labels``.
+        from ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     nan = numpy.float64(numpy.nan)
 
     std_lbl = labeled_comprehension(
-        image, labels, index, numpy.std, numpy.float64, nan
+        image, label_image, index, numpy.std, numpy.float64, nan
     )
 
     return std_lbl
 
 
-def sum(image, labels=None, index=None):
+def sum(image, label_image=None, index=None):
     """
     Find the sum over an image at specified subregions.
 
@@ -661,32 +668,33 @@ def sum(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     sum : ndarray
-        Sum of ``image`` over the ``index`` selected regions from ``labels``.
+        Sum of ``image`` over the ``index`` selected regions from
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     sum_lbl = labeled_comprehension(
-        image, labels, index, numpy.sum, numpy.float64, numpy.float64(0)
+        image, label_image, index, numpy.sum, numpy.float64, numpy.float64(0)
     )
 
     return sum_lbl
 
 
-def variance(image, labels=None, index=None):
+def variance(image, label_image=None, index=None):
     """
     Find the variance over an image at specified subregions.
 
@@ -694,29 +702,29 @@ def variance(image, labels=None, index=None):
     ----------
     image : ndarray
         N-D image data
-    labels : ndarray, optional
+    label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
         Labels to include in output.  If None (default), all values where
-        non-zero ``labels`` are used.
+        non-zero ``label_image`` are used.
 
-        The ``index`` argument only works when ``labels`` is specified.
+        The ``index`` argument only works when ``label_image`` is specified.
 
     Returns
     -------
     variance : ndarray
         Variance of ``image`` over the ``index`` selected regions from
-        ``labels``.
+        ``label_image``.
     """
 
-    image, labels, index = _utils._norm_input_labels_index(
-        image, labels, index
+    image, label_image, index = _utils._norm_input_labels_index(
+        image, label_image, index
     )
 
     nan = numpy.float64(numpy.nan)
 
     var_lbl = labeled_comprehension(
-        image, labels, index, numpy.var, numpy.float64, nan
+        image, label_image, index, numpy.var, numpy.float64, nan
     )
 
     return var_lbl
