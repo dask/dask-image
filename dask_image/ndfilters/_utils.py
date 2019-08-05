@@ -20,6 +20,7 @@ def _get_docstring(func):
         l for l in split_doc_params(func_doc) if drop_doc_param(l)
     ])
     cleaned_docstring = cleaned_docstring.replace('input', 'image')
+    cleaned_docstring = cleaned_docstring.replace('labels', 'label_image')
     cleaned_docstring = cleaned_docstring.split('Examples')[0].strip()
 
     docstring = """
