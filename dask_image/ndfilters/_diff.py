@@ -7,12 +7,12 @@ from . import _utils
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.laplace)
-def laplace(input, mode='reflect', cval=0.0):
-    result = input.map_overlap(
+def laplace(image, mode='reflect', cval=0.0):
+    result = image.map_overlap(
         scipy.ndimage.filters.laplace,
-        depth=(input.ndim * (1,)),
+        depth=(image.ndim * (1,)),
         boundary="none",
-        dtype=input.dtype,
+        dtype=image.dtype,
         mode=mode,
         cval=cval
     )

@@ -17,15 +17,15 @@ except ImportError:
     from dask.array import atop as da_blockwise
 
 
-def _norm_input_labels_index(input, labels=None, index=None):
+def _norm_input_labels_index(image, labels=None, index=None):
     """
     Normalize arguments to a standard form.
     """
 
-    input = dask.array.asarray(input)
+    image = dask.array.asarray(image)
 
     if labels is None:
-        labels = dask.array.ones(input.shape, dtype=int, chunks=input.chunks)
+        labels = dask.array.ones(image.shape, dtype=int, chunks=image.chunks)
         index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
     elif index is None:
         labels = (labels > 0).astype(int)
@@ -40,10 +40,10 @@ def _norm_input_labels_index(input, labels=None, index=None):
             FutureWarning
         )
 
-    if input.shape != labels.shape:
-        raise ValueError("The input and labels arrays must be the same shape.")
+    if image.shape != labels.shape:
+        raise ValueError("The image and labels arrays must be the same shape.")
 
-    return (input, labels, index)
+    return (image, labels, index)
 
 
 def _ravel_shape_indices_kernel(*args):
@@ -147,7 +147,7 @@ def _extrema(a, positions, shape, dtype):
     return result[0]
 
 
-def _histogram(input,
+def _histogram(image,
                min,
                max,
                bins):
@@ -157,7 +157,7 @@ def _histogram(input,
     Also reformats the arguments.
     """
 
-    return numpy.histogram(input, bins, (min, max))[0]
+    return numpy.histogram(image, bins, (min, max))[0]
 
 
 @dask.delayed

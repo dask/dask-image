@@ -7,7 +7,7 @@ from . import _utils
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.generic_filter)
-def generic_filter(input,
+def generic_filter(image,
                    function,
                    size=None,
                    footprint=None,
@@ -16,16 +16,16 @@ def generic_filter(input,
                    origin=0,
                    extra_arguments=tuple(),
                    extra_keywords=dict()):
-    footprint = _utils._get_footprint(input.ndim, size, footprint)
+    footprint = _utils._get_footprint(image.ndim, size, footprint)
     origin = _utils._get_origin(footprint.shape, origin)
     depth = _utils._get_depth(footprint.shape, origin)
     depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
-    result = input.map_overlap(
+    result = image.map_overlap(
         scipy.ndimage.filters.generic_filter,
         depth=depth,
         boundary=boundary,
-        dtype=input.dtype,
+        dtype=image.dtype,
         function=function,
         footprint=footprint,
         mode=mode,
