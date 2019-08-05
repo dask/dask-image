@@ -52,6 +52,19 @@ def test_measure_props_err(funcname):
         da_func(d, lbls, ind)
 
 
+def test_center_of_mass():
+    shape, chunks = (5, 6, 4), (2, 3, 2)
+
+    np.random.seed(2019)
+    a = np.random.random(shape)
+    d = da.from_array(a, chunks=chunks)
+
+    actual = dask_image.ndmeasure.center_of_mass(d).compute()
+    expected = [1.87356586, 2.38911909, 1.59579601]
+
+    assert np.allclose(actual, expected, equal_nan=True)
+
+
 @pytest.mark.parametrize(
     "funcname", [
         "center_of_mass",
