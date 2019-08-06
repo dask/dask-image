@@ -17,10 +17,16 @@ Import dask image is with an underscore, like this example:
 
 Dask Examples
 -------------
-We highly recommend checking out the image-processing.ipynb notebook 
-in the ``applications/`` folder of the dask-examples repository:
+We highly recommend checking out the dask-image-quickstart.ipynb notebook
+(and any other dask-image example notebooks) at the dask-examples repository.
+You can find the dask-image quickstart notebook in the ``applications`` folder
+of this repository:
 
 https://github.com/dask/dask-examples
+
+The direct link to the notebook file is here:
+
+https://github.com/dask/dask-examples/blob/master/applications/image-processing.ipynb
 
 All the example notebooks are available to launch with
 mybinder and test out interactively.
@@ -38,7 +44,7 @@ into ``imread()``.
     filename_pattern = 'path/to/image-*.png'
     images = dask_image.imread.imread(filename_pattern)
 
-If your images are parts of a much larger image, 
+If your images are parts of a much larger image,
 dask can stack, concatenate or block chunks together:
 http://docs.dask.org/en/latest/array-stack.html
 
