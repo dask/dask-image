@@ -32,7 +32,7 @@ import dask_image.ndmeasure
         "variance",
     ]
 )
-def _props_err(funcname):
+def test_measure_props_err(funcname):
     da_func = getattr(dask_image.ndmeasure, funcname)
 
     shape = (15, 16)
