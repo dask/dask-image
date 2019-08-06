@@ -56,7 +56,10 @@ def test_center_of_mass():
     shape, chunks = (5, 6, 4), (2, 3, 2)
 
     np.random.seed(2019)
-    a = np.random.random(shape)
+    # multiply so values are in 8-bit range 0-255
+    a = np.random.random(shape) * 255
+    # convert to signed 64-bit integer data
+    a = a.astype(np.int64)
     d = da.from_array(a, chunks=chunks)
 
     actual = dask_image.ndmeasure.center_of_mass(d).compute()
