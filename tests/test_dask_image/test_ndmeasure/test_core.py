@@ -63,7 +63,7 @@ def test_center_of_mass():
     d = da.from_array(a, chunks=chunks)
 
     actual = dask_image.ndmeasure.center_of_mass(d).compute()
-    expected = [1.87356586, 2.38911909, 1.59579601]
+    expected = [1.87289252, 2.38889621, 1.59628556]
 
     assert np.allclose(actual, expected, equal_nan=True)
 
