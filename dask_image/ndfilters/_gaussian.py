@@ -9,8 +9,8 @@ import scipy.ndimage.filters
 from . import _utils
 
 
-def _get_sigmas(input, sigma):
-    ndim = input.ndim
+def _get_sigmas(image, sigma):
+    ndim = image.ndim
 
     nsigmas = numpy.array(sigma)
     if nsigmas.ndim == 0:
@@ -23,7 +23,7 @@ def _get_sigmas(input, sigma):
 
     if ndim != len(nsigmas):
         raise RuntimeError(
-            "Must have an equal number of sigmas to input dimensions."
+            "Must have an equal number of sigmas to image dimensions."
         )
 
     if not issubclass(nsigmas.dtype.type, numbers.Real):
@@ -34,8 +34,8 @@ def _get_sigmas(input, sigma):
     return nsigmas
 
 
-def _get_border(input, sigma, truncate):
-    sigma = numpy.array(_get_sigmas(input, sigma))
+def _get_border(image, sigma, truncate):
+    sigma = numpy.array(_get_sigmas(image, sigma))
 
     if not isinstance(truncate, numbers.Real):
         raise TypeError("Must have a real truncate value.")
@@ -46,22 +46,22 @@ def _get_border(input, sigma, truncate):
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.gaussian_filter)
-def gaussian_filter(input,
+def gaussian_filter(image,
                     sigma,
                     order=0,
                     mode='reflect',
                     cval=0.0,
                     truncate=4.0):
-    sigma = _get_sigmas(input, sigma)
-    depth = _get_border(input, sigma, truncate)
+    sigma = _get_sigmas(image, sigma)
+    depth = _get_border(image, sigma, truncate)
 
-    depth, boundary = _utils._get_depth_boundary(input.ndim, depth, "none")
+    depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
-    result = input.map_overlap(
+    result = image.map_overlap(
         scipy.ndimage.filters.gaussian_filter,
         depth=depth,
         boundary=boundary,
-        dtype=input.dtype,
+        dtype=image.dtype,
         sigma=sigma,
         order=order,
         mode=mode,
@@ -73,22 +73,22 @@ def gaussian_filter(input,
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.gaussian_gradient_magnitude)
-def gaussian_gradient_magnitude(input,
+def gaussian_gradient_magnitude(image,
                                 sigma,
                                 mode='reflect',
                                 cval=0.0,
                                 truncate=4.0,
                                 **kwargs):
-    sigma = _get_sigmas(input, sigma)
-    depth = _get_border(input, sigma, truncate)
+    sigma = _get_sigmas(image, sigma)
+    depth = _get_border(image, sigma, truncate)
 
-    depth, boundary = _utils._get_depth_boundary(input.ndim, depth, "none")
+    depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
-    result = input.map_overlap(
+    result = image.map_overlap(
         scipy.ndimage.filters.gaussian_gradient_magnitude,
         depth=depth,
         boundary=boundary,
-        dtype=input.dtype,
+        dtype=image.dtype,
         sigma=sigma,
         mode=mode,
         cval=cval,
@@ -100,22 +100,22 @@ def gaussian_gradient_magnitude(input,
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.gaussian_laplace)
-def gaussian_laplace(input,
+def gaussian_laplace(image,
                      sigma,
                      mode='reflect',
                      cval=0.0,
                      truncate=4.0,
                      **kwargs):
-    sigma = _get_sigmas(input, sigma)
-    depth = _get_border(input, sigma, truncate)
+    sigma = _get_sigmas(image, sigma)
+    depth = _get_border(image, sigma, truncate)
 
-    depth, boundary = _utils._get_depth_boundary(input.ndim, depth, "none")
+    depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
-    result = input.map_overlap(
+    result = image.map_overlap(
         scipy.ndimage.filters.gaussian_laplace,
         depth=depth,
         boundary=boundary,
-        dtype=input.dtype,
+        dtype=image.dtype,
         sigma=sigma,
         mode=mode,
         cval=cval,

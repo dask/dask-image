@@ -21,14 +21,14 @@ _get_origin = _get_origin
 _get_depth = _get_depth
 
 
-def _get_structure(input, structure):
+def _get_structure(image, structure):
     # Create square connectivity as default
     if structure is None:
-        structure = scipy.ndimage.generate_binary_structure(input.ndim, 1)
+        structure = scipy.ndimage.generate_binary_structure(image.ndim, 1)
     elif isinstance(structure, (numpy.ndarray, dask.array.Array)):
-        if structure.ndim != input.ndim:
+        if structure.ndim != image.ndim:
             raise RuntimeError(
-                "`structure` must have the same rank as `input`."
+                "`structure` must have the same rank as `image`."
             )
         if not issubclass(structure.dtype.type, numpy.bool8):
             structure = (structure != 0)
@@ -55,14 +55,14 @@ def _get_dtype(a):
     return getattr(a, "dtype", numpy.dtype(type(a)))
 
 
-def _get_mask(input, mask):
+def _get_mask(image, mask):
     if mask is None:
         mask = True
 
     mask_type = _get_dtype(mask).type
     if isinstance(mask, (numpy.ndarray, dask.array.Array)):
-        if mask.shape != input.shape:
-            raise RuntimeError("`mask` must have the same shape as `input`.")
+        if mask.shape != image.shape:
+            raise RuntimeError("`mask` must have the same shape as `image`.")
         if not issubclass(mask_type, numpy.bool8):
             mask = (mask != 0)
     elif issubclass(mask_type, numpy.bool8):

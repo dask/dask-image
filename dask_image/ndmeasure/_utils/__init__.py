@@ -17,21 +17,23 @@ except ImportError:
     from dask.array import atop as da_blockwise
 
 
-def _norm_input_labels_index(input, labels=None, index=None):
+def _norm_input_labels_index(image, label_image=None, index=None):
     """
     Normalize arguments to a standard form.
     """
 
-    input = dask.array.asarray(input)
+    image = dask.array.asarray(image)
 
-    if labels is None:
-        labels = dask.array.ones(input.shape, dtype=int, chunks=input.chunks)
+    if label_image is None:
+        label_image = dask.array.ones(
+            image.shape, dtype=int, chunks=image.chunks,
+        )
         index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
     elif index is None:
-        labels = (labels > 0).astype(int)
+        label_image = (label_image > 0).astype(int)
         index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
 
-    labels = dask.array.asarray(labels)
+    label_image = dask.array.asarray(label_image)
     index = dask.array.asarray(index)
 
     if index.ndim > 1:
@@ -40,10 +42,12 @@ def _norm_input_labels_index(input, labels=None, index=None):
             FutureWarning
         )
 
-    if input.shape != labels.shape:
-        raise ValueError("The input and labels arrays must be the same shape.")
+    if image.shape != label_image.shape:
+        raise ValueError(
+            "The image and label_image arrays must be the same shape."
+        )
 
-    return (input, labels, index)
+    return (image, label_image, index)
 
 
 def _ravel_shape_indices_kernel(*args):
@@ -169,7 +173,7 @@ def _find_object(pos, shape):
     return result
 
 
-def _histogram(input,
+def _histogram(image,
                min,
                max,
                bins):
@@ -179,7 +183,7 @@ def _histogram(input,
     Also reformats the arguments.
     """
 
-    return numpy.histogram(input, bins, (min, max))[0]
+    return numpy.histogram(image, bins, (min, max))[0]
 
 
 @dask.delayed

@@ -17,12 +17,6 @@ import dask.array as da
 import dask_image.ndmeasure
 
 
-try:
-    irange = xrange
-except NameError:
-    irange = range
-
-
 @pytest.mark.parametrize(
     "funcname", [
         "center_of_mass",
@@ -124,11 +118,63 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
     # See the linked issue for details.
     # ref: https://github.com/scipy/scipy/issues/7706
     if (
-            funcname == "median" and
-            ind is not None and
-            not np.in1d(np.atleast_1d(ind), lbls).all()
-       ):
+        funcname == "median" and
+        ind is not None and
+        not np.in1d(np.atleast_1d(ind), lbls).all()
+    ):
         pytest.skip("SciPy's `median` mishandles missing labels.")
+
+    assert np.allclose(np.array(a_r), np.array(d_r), equal_nan=True)
+
+
+@pytest.mark.parametrize(
+    "shape, chunks, has_lbls, ind", [
+        ((15, 16), (4, 5), False, None),
+        ((5, 6, 4), (2, 3, 2), False, None),
+        ((15, 16), (4, 5), True, None),
+        ((15, 16), (4, 5), True, 0),
+        ((15, 16), (4, 5), True, 1),
+        ((15, 16), (4, 5), True, [1]),
+        ((15, 16), (4, 5), True, [1, 2]),
+        ((5, 6, 4), (2, 3, 2), True, [1, 2]),
+        ((15, 16), (4, 5), True, [1, 100]),
+        ((5, 6, 4), (2, 3, 2), True, [1, 100]),
+        ((15, 16), (4, 5), True, [[1, 2, 3, 4]]),
+        ((15, 16), (4, 5), True, [[1, 2], [3, 4]]),
+        ((15, 16), (4, 5), True, [[[1], [2], [3], [4]]]),
+    ]
+)
+def test_area(shape, chunks, has_lbls, ind):
+    a = np.random.random(shape)
+    d = da.from_array(a, chunks=chunks)
+
+    lbls = None
+    d_lbls = None
+
+    if has_lbls:
+        lbls = np.zeros(a.shape, dtype=np.int64)
+        lbls += (
+            (a < 0.5).astype(lbls.dtype) +
+            (a < 0.25).astype(lbls.dtype) +
+            (a < 0.125).astype(lbls.dtype) +
+            (a < 0.0625).astype(lbls.dtype)
+        )
+        d_lbls = da.from_array(lbls, chunks=d.chunks)
+
+    a_r = None
+    if has_lbls:
+        if ind is None:
+            a_r = lbls.astype(bool).astype(np.int64).sum()
+        else:
+            a_r = np.bincount(
+                lbls.flatten(),
+                minlength=(1 + max(np.array(ind).flatten()))
+            )
+            a_r = a_r[np.asarray(ind)]
+    else:
+        a_r = np.array(a.size)[()]
+
+    d_r = dask_image.ndmeasure.area(d, d_lbls, ind)
 
     assert np.allclose(np.array(a_r), np.array(d_r), equal_nan=True)
 
@@ -172,7 +218,7 @@ def test_extrema(shape, chunks, has_lbls, ind):
 
     assert len(a_r) == len(d_r)
 
-    for i in irange(len(a_r)):
+    for i in range(len(a_r)):
         a_r_i = np.array(a_r[i])
         if a_r_i.dtype != d_r[i].dtype:
             wrn.warn(
@@ -258,7 +304,7 @@ def test_histogram(shape, chunks, has_lbls, ind, min, max, bins):
     else:
         assert a_r.dtype == d_r.dtype
         assert a_r.shape == d_r.shape
-        for i in it.product(*[irange(_) for _ in a_r.shape]):
+        for i in it.product(*[range(_) for _ in a_r.shape]):
             if a_r[i] is None:
                 assert d_r[i].compute() is None
             else:
@@ -484,7 +530,7 @@ def test_labeled_comprehension_object(shape, chunks, ind):
     else:
         assert a_r.dtype == d_r.dtype
         assert a_r.shape == d_r.shape
-        for i in it.product(*[irange(_) for _ in a_r.shape]):
+        for i in it.product(*[range(_) for _ in a_r.shape]):
             if a_r[i] is None:
                 assert d_r[i].compute() is None
             else:

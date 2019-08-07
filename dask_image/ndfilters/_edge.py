@@ -16,14 +16,14 @@ def _validate_axis(ndim, axis):
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.prewitt)
-def prewitt(input, axis=-1, mode='reflect', cval=0.0):
-    _validate_axis(input.ndim, axis)
+def prewitt(image, axis=-1, mode='reflect', cval=0.0):
+    _validate_axis(image.ndim, axis)
 
-    result = input.map_overlap(
+    result = image.map_overlap(
         scipy.ndimage.filters.prewitt,
-        depth=(input.ndim * (1,)),
+        depth=(image.ndim * (1,)),
         boundary="none",
-        dtype=input.dtype,
+        dtype=image.dtype,
         axis=axis,
         mode=mode,
         cval=cval
@@ -33,14 +33,14 @@ def prewitt(input, axis=-1, mode='reflect', cval=0.0):
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.sobel)
-def sobel(input, axis=-1, mode='reflect', cval=0.0):
-    _validate_axis(input.ndim, axis)
+def sobel(image, axis=-1, mode='reflect', cval=0.0):
+    _validate_axis(image.ndim, axis)
 
-    result = input.map_overlap(
+    result = image.map_overlap(
         scipy.ndimage.filters.sobel,
-        depth=(input.ndim * (1,)),
+        depth=(image.ndim * (1,)),
         boundary="none",
-        dtype=input.dtype,
+        dtype=image.dtype,
         axis=axis,
         mode=mode,
         cval=cval
