@@ -252,7 +252,7 @@ def test_find_objects(max_labels):
 
         assert len(n_r) == len(d_r)
 
-        for i in irange(len(n_r)):
+        for i in range(len(n_r)):
             assert n_r[i] == d_r[i].compute()
 
 
