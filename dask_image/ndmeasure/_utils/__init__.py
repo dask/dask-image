@@ -117,7 +117,7 @@ def _center_of_mass(a, positions, shape, dtype):
     positions_nd = numpy.unravel_index(positions, shape)
     a_sum = numpy.sum(a)
 
-    a_wt_i = numpy.empty_like(a)
+    a_wt_i = numpy.empty(a.shape)
     for i, pos_nd_i in enumerate(positions_nd):
         a_wt_sum_i = numpy.multiply(a, pos_nd_i, out=a_wt_i).sum()
         result["com"][0, i] = a_wt_sum_i / a_sum
