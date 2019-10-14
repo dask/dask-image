@@ -52,20 +52,30 @@ def test_measure_props_err(funcname):
         da_func(d, lbls, ind)
 
 
-def test_center_of_mass():
-    shape, chunks = (5, 6, 4), (2, 3, 2)
-
-    np.random.seed(2019)
-    # multiply so values are in 8-bit range 0-255
-    a = np.random.random(shape) * 255
-    # convert to signed 64-bit integer data
-    a = a.astype(np.int64)
-    d = da.from_array(a, chunks=chunks)
+@pytest.mark.parametrize(
+    "datatype", [
+        int,
+        float,
+        np.bool,
+        np.uint8,
+        np.uint16,
+        np.uint32,
+        np.uint64,
+        np.int16,
+        np.int32,
+        np.int64,
+        np.float32,
+        np.float64,
+    ]
+)
+def test_center_of_mass(datatype):
+    a = np.array([[1, 1], [0, 0]]).astype(datatype)
+    d = da.from_array(a, chunks=(1, 2))
 
     actual = dask_image.ndmeasure.center_of_mass(d).compute()
-    expected = [1.87289252, 2.38889621, 1.59628556]
+    expected = [0., 0.5]
 
-    assert np.allclose(actual, expected, equal_nan=True)
+    assert np.allclose(actual, expected)
 
 
 @pytest.mark.parametrize(
