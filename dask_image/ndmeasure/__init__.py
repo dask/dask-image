@@ -109,7 +109,7 @@ def center_of_mass(image, label_image=None, index=None):
     # This only matters if index is some array.
     index = index.T
 
-    out_dtype = numpy.dtype([("com", image.dtype, (image.ndim,))])
+    out_dtype = numpy.dtype([("com", float, (image.ndim,))])
     default_1d = numpy.full((1,), numpy.nan, dtype=out_dtype)
 
     func = functools.partial(
