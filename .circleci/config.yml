@@ -1,6 +1,50 @@
 version: 2
 
 jobs:
+  build_py38:
+    working_directory: ~/test
+    machine: true
+    environment:
+      - PYVER: "38"
+    steps:
+      - checkout
+      - run:
+          name: Fast finish outdated PRs and merge PRs
+          command: |
+            ./.circleci/fast_finish_ci_pr_build.sh
+            ./.circleci/checkout_merge_commit.sh
+      - run:
+          name: Install and Configure Miniconda
+          command: |
+            source .circleci/install_miniconda.sh
+            echo "MINICONDA_DIR=${MINICONDA_DIR}" >> "${BASH_ENV}"
+      - run:
+          name: Create the test environment
+          command: |
+            export CONDA_ENV_TYPE="tst_py${PYVER}"
+            source .circleci/create_env.sh
+            echo "CONDA_ENV_PATH=${CONDA_ENV_PATH}" >> "${BASH_ENV}"
+      - run:
+          name: Install the package and dependencies
+          command: |
+            source "${MINICONDA_DIR}/etc/profile.d/conda.sh"
+            conda activate "${CONDA_ENV_PATH}"
+            pip install -e .
+      - run:
+          name: Run tests and measure test coverage
+          command: |
+            source "${MINICONDA_DIR}/etc/profile.d/conda.sh"
+            conda activate "${CONDA_ENV_PATH}"
+            coverage erase
+            coverage run --source . setup.py test
+            coverage report -m
+      - run:
+          name: Report coverage
+          command: |
+            export CONDA_ENV_TYPE="dpl"
+            source .circleci/create_env.sh
+            coveralls
+
   build_py37:
     working_directory: ~/test
     machine: true
