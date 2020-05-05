@@ -30,15 +30,20 @@ def _match_cumulative_cdf(source, template):
     # This requires an in-memory array which could have a length equal in size
     # to the unique values of the underlying dtype.  This is why we limit to
     # small integers.
-    src_quantiles, tmpl_quantiles, tmpl_values = dask.compute(src_quantiles,
-                                                              tmpl_quantiles,
-                                                              tmpl_values)
-    interp_a_values = np.interp(src_quantiles, tmpl_quantiles, tmpl_values)
+    interp_a_values = dask.delayed(_interpolate)(src_quantiles, tmpl_quantiles, tmpl_values)
+    interp_a_values = da.from_delayed(interp_a_values, dtype=np.float, shape=src_quantiles.shape)
 
     result = src_unique_indices.map_blocks(lambda chunk, values: values[chunk],
                                            interp_a_values,
                                            dtype=interp_a_values.dtype)
     return result.reshape(source.shape)
+
+
+def _interpolate(src_quantiles, tmpl_quantiles, tmpl_values):
+    src_quantiles, tmpl_quantiles, tmpl_values = dask.compute(src_quantiles,
+                                                              tmpl_quantiles,
+                                                              tmpl_values)
+    return np.interp(src_quantiles, tmpl_quantiles, tmpl_values)
 
 
 def match_histograms(image, reference, *, multichannel=False):
