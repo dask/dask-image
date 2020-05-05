@@ -17,14 +17,14 @@ def _match_cumulative_cdf(source, template):
                          'only for small integer types, not: %s %s' %
                          (source.dtype, template.dtype))
 
-    _, src_unique_indices, src_counts = np.unique(source.ravel(),
+    _, src_unique_indices, src_counts = da.unique(source.ravel(),
                                                   return_inverse=True,
                                                   return_counts=True)
-    tmpl_values, tmpl_counts = np.unique(template.ravel(), return_counts=True)
+    tmpl_values, tmpl_counts = da.unique(template.ravel(), return_counts=True)
 
     # calculate normalized quantiles for each array
-    src_quantiles = np.cumsum(src_counts) / source.size
-    tmpl_quantiles = np.cumsum(tmpl_counts) / template.size
+    src_quantiles = da.cumsum(src_counts) / source.size
+    tmpl_quantiles = da.cumsum(tmpl_counts) / template.size
 
     # The interpolation is a bottleneck and must be done on local node.
     # This requires an in-memory array which could have a length equal in size
