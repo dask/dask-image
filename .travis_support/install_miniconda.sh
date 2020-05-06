@@ -4,11 +4,11 @@
 set -xeuo pipefail
 
 # Miniconda Config:
-export MINICONDA_VERSION="4.5.12"
-export MINICONDA_MD5="a583d1e174e1dc960e87fb4b026a9370"
+export MINICONDA_VERSION="4.8.2"
+export MINICONDA_MD5="e0320c20ea13d04407424ecf57b70eaf"
 export MINICONDA_INSTALLER="${HOME}/miniconda.sh"
 export MINICONDA_DIR="${HOME}/miniconda"
-export MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-MacOSX-x86_64.sh"
+export MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-py37_${MINICONDA_VERSION}-MacOSX-x86_64.sh"
 
 # Install Miniconda.
 curl -L "${MINICONDA_URL}" > "${MINICONDA_INSTALLER}"
