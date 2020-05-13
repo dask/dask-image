@@ -16,7 +16,10 @@ import pytest
 @pytest.mark.parametrize('array, template, expected_array', [
     (da.arange(10, dtype=np.int16, chunks=5),
         da.arange(100, dtype=np.int16, chunks=10),
-        da.arange(9, 100, 10)),
+        da.arange(9, 100, 10, dtype=np.float)),
+    # (da.arange(-5, 5, dtype=np.uint16, chunks=5),
+    #     da.arange(-50, 50, dtype=np.uint16, chunks=10),
+    #     da.arange(-41, 50, 10, dtype=np.float)),
     (da.random.randint(0, 10, 4, dtype=np.int16, chunks=2),
         da.ones(3, dtype=np.int16),
         da.ones(4))
@@ -27,6 +30,17 @@ def test_match_array_values(array, template, expected_array):
 
     # then
     assert_array_almost_equal(matched, expected_array)
+
+
+@pytest.mark.parametrize('array, template', [
+    (da.arange(10, dtype=np.int64), da.arange(100, dtype=np.int16)),
+    (da.arange(10, dtype=np.int16), da.arange(100, dtype=np.int64)),
+    (da.arange(10, dtype=np.float), da.arange(100, dtype=np.int16)),
+    (da.arange(10, dtype=np.int16), da.arange(100, dtype=np.float)),
+])
+def test_raises_value_error_on_unimplemented_dtypes(array, template):
+    with pytest.raises(ValueError):
+        histogram_matching._match_cumulative_cdf(array, template)
 
 
 class TestMatchHistogram:
