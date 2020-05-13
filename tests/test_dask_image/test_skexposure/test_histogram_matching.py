@@ -32,13 +32,15 @@ def test_match_array_values(array, template, expected_array):
     assert_array_almost_equal(matched, expected_array)
 
 
-@pytest.mark.parametrize('array, template', [
-    (da.arange(10, dtype=np.int64), da.arange(100, dtype=np.int16)),
-    (da.arange(10, dtype=np.int16), da.arange(100, dtype=np.int64)),
-    (da.arange(10, dtype=np.float), da.arange(100, dtype=np.int16)),
-    (da.arange(10, dtype=np.int16), da.arange(100, dtype=np.float)),
+@pytest.mark.parametrize('dtype1, dtype2', [
+    (np.int64, np.int16),
+    (np.int16, np.int64),
+    (np.float, np.int16),
+    (np.int16, np.float),
 ])
-def test_raises_value_error_on_unimplemented_dtypes(array, template):
+def test_raises_value_error_on_unimplemented_dtypes(dtype1, dtype2):
+    array = da.arange(10, dtype=dtype1)
+    template = da.arange(100, dtype=dtype2)
     with pytest.raises(ValueError):
         histogram_matching._match_cumulative_cdf(array, template)
 
@@ -83,6 +85,12 @@ class TestMatchHistogram:
     def test_raises_value_error_on_channels_mismatch(self, image, reference):
         with pytest.raises(ValueError):
             skexposure.match_histograms(image, reference)
+
+    def test_raises_value_error_on_multichannels_mismatch(self):
+        with pytest.raises(ValueError):
+            skexposure.match_histograms(self.image_rgb,
+                                        self.template_rgb[..., :1],
+                                        multichannel=True)
 
     @classmethod
     def _calculate_image_empirical_pdf(cls, image):
