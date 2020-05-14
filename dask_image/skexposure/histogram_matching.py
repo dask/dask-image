@@ -3,26 +3,26 @@ import dask.array as da
 import numpy as np
 
 
-def _match_cumulative_cdf(source, template):
+def _match_cumulative_cdf(source, template, dtype=np.float):
     """
     Return modified source array so that the cumulative density function of
     its values matches the cumulative density function of the template.
     """
     # Only these types are allowed, since some intermediate memory storage
     # scales as the number of unique values in the range of the dtype.
-    dtypes = (np.uint8, np.uint16, np.int8, np.int16)
+    allowed_dtypes = (np.uint8, np.uint16, np.int8, np.int16)
 
-    if source.dtype not in dtypes:
+    if source.dtype not in allowed_dtypes:
         raise ValueError('_match_cumulative_cdf does not support input data '
                          'of type %s.  Please consider converting your data '
                          'to one of the following types: %s' %
-                         (source.dtype, dtypes))
+                         (source.dtype, allowed_dtypes))
 
-    if template.dtype not in dtypes:
+    if template.dtype not in allowed_dtypes:
         raise ValueError('_match_cumulative_cdf does not support input data '
                          'of type %s.  Please consider converting your data '
                          'to one of the following types: %s' %
-                         (template.dtype, dtypes))
+                         (template.dtype, allowed_dtypes))
 
     _, src_unique_indices, src_counts = da.unique(source.ravel(),
                                                   return_inverse=True,
@@ -38,8 +38,8 @@ def _match_cumulative_cdf(source, template):
     # to the unique values of the underlying dtype.  This is why we limit to
     # small integers.
     interp_a_values = dask.delayed(_interpolate)(src_quantiles, tmpl_quantiles,
-                                                 tmpl_values)
-    interp_a_values = da.from_delayed(interp_a_values, dtype=np.float,
+                                                 tmpl_values, dtype)
+    interp_a_values = da.from_delayed(interp_a_values, dtype=dtype,
                                       shape=src_quantiles.shape)
 
     result = src_unique_indices.map_blocks(lambda chunk, values: values[chunk],
@@ -48,14 +48,14 @@ def _match_cumulative_cdf(source, template):
     return result.reshape(source.shape)
 
 
-def _interpolate(src_quantiles, tmpl_quantiles, tmpl_values):
+def _interpolate(src_quantiles, tmpl_quantiles, tmpl_values, dtype):
     src_quantiles, tmpl_quantiles, tmpl_values = dask.compute(src_quantiles,
                                                               tmpl_quantiles,
                                                               tmpl_values)
-    return np.interp(src_quantiles, tmpl_quantiles, tmpl_values)
+    return np.interp(src_quantiles, tmpl_quantiles, tmpl_values).astype(dtype)
 
 
-def match_histograms(image, reference, *, multichannel=False):
+def match_histograms(image, reference, *, multichannel=False, dtype=np.float):
     """Adjust an image so that its cumulative histogram matches that of another.
 
     This is a port of the scikit-image v0.17.2 exposure.match_histograms function.
@@ -102,10 +102,11 @@ def match_histograms(image, reference, *, multichannel=False):
         matched = []
         for channel in range(image.shape[-1]):
             matched_channel = _match_cumulative_cdf(image[..., channel],
-                                                    reference[..., channel])
+                                                    reference[..., channel],
+                                                    dtype=dtype)
             matched.append(matched_channel)
         matched = da.stack(matched, axis=-1)
     else:
-        matched = _match_cumulative_cdf(image, reference)
+        matched = _match_cumulative_cdf(image, reference, dtype)
 
     return matched

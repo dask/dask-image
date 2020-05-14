@@ -38,6 +38,18 @@ def test_match_array_values(array, template, expected_array):
     assert_array_almost_equal(matched, expected_array)
 
 
+def test_match_array_dtype():
+    array = da.arange(10, dtype=np.int16, chunks=5)
+    template = da.arange(100, dtype=np.int16, chunks=10)
+    matched = histogram_matching._match_cumulative_cdf(array, template,
+                                                       dtype=np.int16)
+    assert matched.dtype == np.int16
+
+    # Also check the array is still correct.
+    expected_array = da.arange(9, 100, 10, dtype=np.int16)
+    assert_array_almost_equal(matched, expected_array)
+
+
 @pytest.mark.parametrize('dtype1, dtype2', [
     (np.int64, np.int16),
     (np.int16, np.int64),
