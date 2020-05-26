@@ -1,0 +1,3 @@
+PyGithub>=1.44.1
+twine>=3.1.1
+tqdm
