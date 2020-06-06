@@ -16,7 +16,7 @@ Highlights
 New Features
 
 * Distributed labeling has been impolemented (#94)
-* Area measurement function added to dask_image.ndmeasure (#115)
+* Area function added to dask_image.ndmeasure (#115)
 
 Improvements
 
@@ -35,6 +35,7 @@ API Changes
 
 Support
 
+* Update HISTORY for 0.2.0 release  [ci skip] (#85)
 * Update installation instructions so conda is the preferred method (#88)
 * Add Python 3.7 to Travis CI (#89)
 * Add instructions for building docs with sphinx to CONTRIBUTING.rst (#90)
@@ -45,6 +46,7 @@ Support
 * Fix the Travis MacOS builds (update XCode to version 9.4 and use matplotlib 'Agg' backend) (#113)
 
 7 authors added to this release (alphabetical)
+
 * `Amir Khalighi <https://github.com/dask/dask-image/commits?author=akhalighi>`_ - @akhalighi
 * `Elliana May <https://github.com/dask/dask-image/commits?author=Mause>`_ - @Mause
 * `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
@@ -54,6 +56,7 @@ Support
 * `timbo8 <https://github.com/dask/dask-image/commits?author=timbo8>`_ - @timbo8
 
 2 reviewers added to this release (alphabetical)
+
 - `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
 - `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
 
