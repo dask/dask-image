@@ -15,7 +15,7 @@ Highlights
 
 New Features
 
-* Distributed labeling has been impolemented (#94)
+* Distributed labeling has been implemented (#94)
 * Area measurement function added to dask_image.ndmeasure (#115)
 
 Improvements
