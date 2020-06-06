@@ -16,7 +16,7 @@ Highlights
 New Features
 
 * Distributed labeling has been impolemented (#94)
-* Area function added to dask_image.ndmeasure (#115)
+* Area measurement function added to dask_image.ndmeasure (#115)
 
 Improvements
 
@@ -35,7 +35,6 @@ API Changes
 
 Support
 
-* Update HISTORY for 0.2.0 release  [ci skip] (#85)
 * Update installation instructions so conda is the preferred method (#88)
 * Add Python 3.7 to Travis CI (#89)
 * Add instructions for building docs with sphinx to CONTRIBUTING.rst (#90)
