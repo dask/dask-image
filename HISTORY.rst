@@ -45,6 +45,7 @@ Support
 * Fix the Travis MacOS builds (update XCode to version 9.4 and use matplotlib 'Agg' backend) (#113)
 
 7 authors added to this release (alphabetical)
+
 * `Amir Khalighi <https://github.com/dask/dask-image/commits?author=akhalighi>`_ - @akhalighi
 * `Elliana May <https://github.com/dask/dask-image/commits?author=Mause>`_ - @Mause
 * `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
@@ -54,6 +55,7 @@ Support
 * `timbo8 <https://github.com/dask/dask-image/commits?author=timbo8>`_ - @timbo8
 
 2 reviewers added to this release (alphabetical)
+
 - `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
 - `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
 
