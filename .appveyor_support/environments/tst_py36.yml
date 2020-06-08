@@ -14,7 +14,7 @@ dependencies:
   - dask==0.16.1
   - numpy==1.11.3
   - scipy==1.1.0
-  - scikit-image==0.14.2
+  - tifffile==2018.10.18
   - pims==0.4.1
   - slicerator==0.9.8
   - pip:

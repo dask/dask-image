@@ -18,4 +18,4 @@ dependencies:
     - pytest==5.2.0
     - pytest-flake8==1.0.4
     - dask==1.1.1
-    - scikit-image==0.14.2
+    - tifffile==2018.10.18
