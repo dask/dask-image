@@ -33,13 +33,16 @@ requirements = [
     "numpy >=1.11.3",
     "scipy >=0.19.1",
     "pims >=0.4.1",
+    "tifffile >=2020.6.3",
+    "imageio >=2.8.0",
+    "imageio-ffmpeg >=0.4.2",
+    "jpype1 >=0.7.5",
 ]
 
 test_requirements = [
     "flake8 >=3.4.1",
     "pytest >=3.0.5",
     "pytest-flake8 >=0.8.1",
-    "scikit-image >=0.12.3",
 ]
 
 cmdclasses = {
