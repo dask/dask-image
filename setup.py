@@ -39,7 +39,7 @@ test_requirements = [
     "flake8 >=3.4.1",
     "pytest >=3.0.5",
     "pytest-flake8 >=0.8.1",
-    "scikit-image >=0.12.3",
+    "tifffile >=2018.10.18",
 ]
 
 cmdclasses = {
