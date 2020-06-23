@@ -29,6 +29,40 @@ def _window_sum_3d(image, window_shape):
 
 def match_template(image, template, pad_input=False, mode='constant',
                    constant_values=0):
+    '''
+    Ported from skimage.feature.match_template
+    Replaced scipy.signal.fftconvolve by dask_image.ndfilters.convolve and
+    address boundary issue accordingly
+    Worked around fancy indexing like array[boolean_mask]
+
+    Match a template to a 2-D or 3-D image using normalized correlation.
+    The output is an array with values between -1.0 and 1.0. The value at a
+    given position corresponds to the correlation coefficient between the image
+    and the template.
+    For `pad_input=True` matches correspond to the center and otherwise to the
+    top-left corner of the template. To find the best match you must search for
+    peaks in the response (output) image.
+    Parameters
+    ----------
+    image : (M, N[, D]) array
+        2-D or 3-D input image.
+    template : (m, n[, d]) array
+        Template to locate. It must be `(m <= M, n <= N[, d <= D])`.
+    pad_input : bool
+        If True, pad `image` so that output is the same size as the image, and
+        output values correspond to the template center. Otherwise, the output
+        is an array with shape `(M - m + 1, N - n + 1)` for an `(M, N)` image
+        and an `(m, n)` template, and matches correspond to origin
+        (top-left corner) of the template.
+    mode : see `numpy.pad`, optional
+        Padding mode.
+    constant_values : see `numpy.pad`, optional
+        Constant values used in conjunction with ``mode='constant'``.
+    Returns
+    -------
+    output : array
+        Response image with correlation coefficients.
+    '''
     if image.ndim < template.ndim:
         raise ValueError("Dimensionality of template must be less than or "
                          "equal to the dimensionality of image.")
