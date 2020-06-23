@@ -2,6 +2,7 @@ import numpy as np
 import dask.array as da
 from dask_image import ndfilters
 
+
 def _window_sum_2d(image, window_shape):
 
     window_sum = da.cumsum(image, axis=0)
@@ -59,12 +60,12 @@ def match_template(image, template, pad_input=False, mode='constant',
 
     indent = [d//2+1 for d in template.shape]
     if image.ndim == 2:
-        xcorr = ndfilters.convolve(image, template[::-1, ::-1],
-                mode=mode)[indent[0]:-indent[0], indent[1]:-indent[1]]
+        xcorr = (ndfilters.convolve(image, template[::-1, ::-1], mode=mode)
+                 [indent[0]:-indent[0], indent[1]:-indent[1]])
     elif image.ndim == 3:
-        xcorr = ndfilters.convolve(image, template[::-1, ::-1, ::-1],
-                mode=mode)[indent[0]:-indent[0], indent[1]:-indent[1],
-                        indent[2]:-indent[2]]
+        xcorr = (ndfilters.convolve(image, template[::-1, ::-1, ::-1],
+                 mode=mode)[indent[0]:-indent[0], indent[1]:-indent[1],
+                 indent[2]:-indent[2]])
 
     numerator = xcorr - image_window_sum * template_mean
 
@@ -73,7 +74,9 @@ def match_template(image, template, pad_input=False, mode='constant',
     np.divide(image_window_sum, template_volume, out=image_window_sum)
     denominator -= image_window_sum
     denominator *= template_ssd
-    da.maximum(denominator, 0, out=denominator)  # sqrt of negative number not allowed
+
+    # sqrt of negative number not allowed
+    da.maximum(denominator, 0, out=denominator)
     da.sqrt(denominator, out=denominator)
 
     # avoid zero-division
