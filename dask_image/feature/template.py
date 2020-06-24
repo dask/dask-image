@@ -15,6 +15,7 @@ def _window_sum_2d(image, window_shape):
 
     return window_sum
 
+
 def _window_sum_3d(image, window_shape):
 
     window_sum = _window_sum_2d(image, window_shape)
@@ -24,6 +25,7 @@ def _window_sum_3d(image, window_shape):
                   - window_sum[:, :, :-window_shape[2] - 1])
 
     return window_sum
+
 
 def match_template(image, template, pad_input=False, mode='constant',
                    constant_values=0):
