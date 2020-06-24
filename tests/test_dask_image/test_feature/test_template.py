@@ -12,7 +12,7 @@ import dask_image.feature as da_feat
 def test_match_template():
     img = data.astronaut()
     img = color.rgb2gray(img)
-    img = da.from_array(img, chunks='auto')
+    img = da.from_array(img, chunks=img.shape)
     p = dict(image=img, template=morphology.square(3), mode='constant',
              pad_input=True)
 
