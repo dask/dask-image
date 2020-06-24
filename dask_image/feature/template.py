@@ -15,7 +15,6 @@ def _window_sum_2d(image, window_shape):
 
     return window_sum
 
-
 def _window_sum_3d(image, window_shape):
 
     window_sum = _window_sum_2d(image, window_shape)
@@ -25,7 +24,6 @@ def _window_sum_3d(image, window_shape):
                   - window_sum[:, :, :-window_shape[2] - 1])
 
     return window_sum
-
 
 def match_template(image, template, pad_input=False, mode='constant',
                    constant_values=0):
@@ -74,10 +72,10 @@ def match_template(image, template, pad_input=False, mode='constant',
 
     pad_width = tuple((width, width) for width in template.shape)
     if mode == 'constant':
-        image = da.pad(image, pad_width=pad_width, mode=mode,
+        image = np.pad(image, pad_width=pad_width, mode=mode,
                        constant_values=constant_values)
     else:
-        image = da.pad(image, pad_width=pad_width, mode=mode)
+        image = np.pad(image, pad_width=pad_width, mode=mode)
 
     # Use special case for 2-D images for much better performance in
     # computation of integral images
