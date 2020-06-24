@@ -15,7 +15,6 @@ def _window_sum_2d(image, window_shape):
 
     return window_sum
 
-
 def _window_sum_3d(image, window_shape):
 
     window_sum = _window_sum_2d(image, window_shape)
@@ -25,7 +24,6 @@ def _window_sum_3d(image, window_shape):
                   - window_sum[:, :, :-window_shape[2] - 1])
 
     return window_sum
-
 
 def match_template(image, template, pad_input=False, mode='constant',
                    constant_values=0):
@@ -66,7 +64,7 @@ def match_template(image, template, pad_input=False, mode='constant',
     if image.ndim < template.ndim:
         raise ValueError("Dimensionality of template must be less than or "
                          "equal to the dimensionality of image.")
-    if da.any(np.less(image.shape, template.shape)):
+    if np.any(np.less(image.shape, template.shape)):
         raise ValueError("Image must be larger than template.")
 
     image_shape = image.shape
