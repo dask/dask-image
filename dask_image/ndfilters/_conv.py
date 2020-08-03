@@ -21,7 +21,7 @@ def convolve_func(func,
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
     result = image.map_overlap(
-        scipy.ndimage.filters.convolve,
+        func,
         depth=depth,
         boundary=boundary,
         dtype=image.dtype,
