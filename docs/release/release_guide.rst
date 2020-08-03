@@ -171,5 +171,5 @@ Before merging the pull request, first you should check:
 
 Once that all looks good you can merge the pull request,
 and the newest version of ``dask-image`` will automatically be made
-available on conda-forge.
+available on conda-forge. We're finished!
 
