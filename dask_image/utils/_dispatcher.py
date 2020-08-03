@@ -1,5 +1,6 @@
 from dask.utils import Dispatch
 
+
 class Dispatcher(Dispatch):
     """Simple single dispatch for different dask array types."""
 

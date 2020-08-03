@@ -4,7 +4,7 @@ import numpy as np
 import scipy.ndimage.filters
 
 from . import _utils
-from ..utils import Dispatcher
+from ..utils._dispatcher import Dispatcher
 
 convolve = Dispatcher(name="convolve")
 
@@ -46,7 +46,9 @@ def register_cupy():
 
     @convolve.register(cupy.ndarray)
     def cupy_convolve(*args, **kwargs):
-        return convolve_func(cupyx.scipy.ndimage.filters.convolve, *args, **kwargs)
+        return convolve_func(cupyx.scipy.ndimage.filters.convolve,
+                             *args,
+                             **kwargs)
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.correlate)
