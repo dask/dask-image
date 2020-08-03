@@ -39,7 +39,7 @@ def numpy_convolve(*args, **kwargs):
     return convolve_func(scipy.ndimage.filters.convolve, *args, **kwargs)
 
 
-@sizeof.register_lazy("cupy")
+@convolve.register_lazy("cupy")
 def register_cupy():
     import cupy
 
