@@ -42,6 +42,7 @@ def numpy_convolve(*args, **kwargs):
 @convolve.register_lazy("cupy")
 def register_cupy():
     import cupy
+    import cupyx
 
     @convolve.register(cupy.ndarray)
     def cupy_convolve(*args, **kwargs):
