@@ -8,7 +8,5 @@ class Dispatcher(Dispatch):
         """
         Call the corresponding method based on type of dask array.
         """
-        # TODO: fix dask array type lookup after dask issue #6442 is resolved
-        # https://github.com/dask/dask/issues/6442
         meth = self.dispatch(type(arg._meta))
         return meth(arg, *args, **kwargs)
