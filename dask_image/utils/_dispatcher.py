@@ -3,6 +3,23 @@ import scipy.ndimage.filters
 from dask.utils import Dispatch
 
 
+def check_arraytypes_compatible(*args):
+    """"""
+    arraytypes = [get_type(arg) for arg in args]
+    if len(set(arraytypes)) != 1:
+        raise ValueError("Array types must be compatible.")
+
+
+
+def get_type(arg):
+    """"""
+    try:
+        datatype = type(arg._meta)  # Check chunk type backing dask array
+    except AttributeError:
+        datatype = type(arg)  # For all non-dask arrays
+    return datatype
+
+
 class Dispatcher(Dispatch):
     """Simple single dispatch for different dask array types."""
 
@@ -10,23 +27,24 @@ class Dispatcher(Dispatch):
         """
         Call the corresponding method based on type of dask array.
         """
-        meth = self.dispatch(type(arg._meta))
+        datatype = get_type(arg)
+        meth = self.dispatch(datatype)
         return meth(arg, *args, **kwargs)
 
 
-convolve_dispatch = Dispatcher(name="convolve_dispatch")
+dispatch_convolve = Dispatcher(name="dispatch_convolve")
 
 
-@convolve_dispatch.register(np.ndarray)
+@dispatch_convolve.register(np.ndarray)
 def numpy_convolve(*args, **kwargs):
-    return scipy.ndimage.filters.convolve
+    return scipy.ndimage.filters.convolve(*args, **kwargs)
 
 
-@convolve_dispatch.register_lazy("cupy")
+@dispatch_convolve.register_lazy("cupy")
 def register_cupy():
     import cupy
     import cupyx.scipy.ndimage
 
-    @convolve_dispatch.register(cupy.ndarray)
+    @dispatch_convolve.register(cupy.ndarray)
     def cupy_convolve(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.convolve
+        return cupyx.scipy.ndimage.filters.convolve(*args, **kwargs)
