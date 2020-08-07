@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import dask.array as da
 import scipy.ndimage.filters
 
 from . import _utils
@@ -18,8 +18,9 @@ def convolve(image,
     depth = _utils._get_depth(weights.shape, origin)
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
-    result = image.map_overlap(
+    result = da.map_overlap(
         dispatch_convolve,
+        image,
         depth=depth,
         boundary=boundary,
         meta=image._meta,
