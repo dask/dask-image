@@ -39,12 +39,12 @@ def numpy_convolve(*args, **kwargs):
     return scipy.ndimage.filters.convolve(*args, **kwargs)
 
 
-import cupy
-import cupyx.scipy.ndimage
+# import cupy
+# import cupyx.scipy.ndimage
 
-@dispatch_convolve.register(cupy.core.core.ndarray)
-def cupy_convolve(*args, **kwargs):
-    return cupyx.scipy.ndimage.filters.convolve(*args, **kwargs)
+# @dispatch_convolve.register(cupy.core.core.ndarray)
+# def cupy_convolve(*args, **kwargs):
+#     return cupyx.scipy.ndimage.filters.convolve(*args, **kwargs)
 
 
 # @dispatch_convolve.register_lazy("numpy")
@@ -57,11 +57,11 @@ def cupy_convolve(*args, **kwargs):
 #         return scipy.ndimage.filters.convolve(*args, **kwargs)
 
 
-# @dispatch_convolve.register_lazy("cupy")
-# def register_cupy():
-#     import cupy
-#     import cupyx.scipy.ndimage
+@dispatch_convolve.register_lazy("cupy")
+def register_cupy():
+    import cupy
+    import cupyx.scipy.ndimage
 
-#     @dispatch_convolve.register(cupy.core.core.ndarray)
-#     def cupy_convolve(*args, **kwargs):
-#         return cupyx.scipy.ndimage.filters.convolve(*args, **kwargs)
+    @dispatch_convolve.register(cupy.core.core.ndarray)
+    def cupy_convolve(*args, **kwargs):
+        return cupyx.scipy.ndimage.filters.convolve(*args, **kwargs)
