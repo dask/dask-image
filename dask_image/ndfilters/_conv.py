@@ -18,11 +18,11 @@ def convolve(image,
     depth = _utils._get_depth(weights.shape, origin)
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
-    result = da.map_overlap(
+    result = image.map_overlap(
         dispatch_convolve,
-        image,
         depth=depth,
         boundary=boundary,
+        dtype=image.dtype,
         meta=image._meta,
         weights=weights,
         mode=mode,
