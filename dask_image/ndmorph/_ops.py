@@ -31,6 +31,7 @@ def _binary_op(func,
             depth=depth,
             boundary=boundary,
             dtype=bool,
+            meta=image._meta,
             structure=structure,
             origin=origin,
             **kwargs
