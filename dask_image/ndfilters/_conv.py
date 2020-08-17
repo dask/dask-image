@@ -23,13 +23,12 @@ def convolve(image,
         depth=depth,
         boundary=boundary,
         dtype=image.dtype,
+        meta=image._meta,
         weights=weights,
         mode=mode,
         cval=cval,
         origin=origin
     )
-    # TODO: fix displayed chunktype of result array
-    # result._meta = cp.empty(result.ndim * (0,), dtype=r.dtype)
 
     return result
 
