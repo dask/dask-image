@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import dask.array as da
 import scipy.ndimage.filters
 
 from . import _utils
