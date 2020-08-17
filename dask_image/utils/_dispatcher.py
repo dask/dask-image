@@ -47,15 +47,14 @@ dispatch_convolve = Dispatcher(name="dispatch_convolve")
 
 @dispatch_convolve.register(np.ndarray)
 def numpy_convolve(*args, **kwargs):
-    return scipy.ndimage.filters.convolve(*args, **kwargs)
+    return scipy.ndimage.filters.convolve
 
 
 @dispatch_convolve.register_lazy("cupy")
 def register_cupy():
     import cupy
-    import cupy.core.core
     import cupyx.scipy.ndimage
 
-    @dispatch_convolve.register(cupy.core.core.ndarray)
+    @dispatch_convolve.register(cupy.ndarray)
     def cupy_convolve(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.convolve(*args, **kwargs)
+        return cupyx.scipy.ndimage.filters.convolve
