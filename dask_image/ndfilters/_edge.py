@@ -6,6 +6,12 @@ import numbers
 import scipy.ndimage.filters
 
 from . import _utils
+from ..dispatch._dispatch_ndfilters import dispatch_prewitt, dispatch_sobel
+
+__all__ = [
+    "prewitt",
+    "sobel",
+]
 
 
 def _validate_axis(ndim, axis):
@@ -20,10 +26,11 @@ def prewitt(image, axis=-1, mode='reflect', cval=0.0):
     _validate_axis(image.ndim, axis)
 
     result = image.map_overlap(
-        scipy.ndimage.filters.prewitt,
+        dispatch_prewitt(image),
         depth=(image.ndim * (1,)),
         boundary="none",
         dtype=image.dtype,
+        meta=image._meta,
         axis=axis,
         mode=mode,
         cval=cval
@@ -37,10 +44,11 @@ def sobel(image, axis=-1, mode='reflect', cval=0.0):
     _validate_axis(image.ndim, axis)
 
     result = image.map_overlap(
-        scipy.ndimage.filters.sobel,
+        dispatch_sobel(image),
         depth=(image.ndim * (1,)),
         boundary="none",
         dtype=image.dtype,
+        meta=image._meta,
         axis=axis,
         mode=mode,
         cval=cval

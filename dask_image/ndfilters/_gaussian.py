@@ -7,6 +7,16 @@ import numpy
 import scipy.ndimage.filters
 
 from . import _utils
+from ..dispatch._dispatch_ndfilters import (
+    dispatch_gaussian_filter,
+    dispatch_gaussian_gradient_magnitude,
+    dispatch_gaussian_laplace)
+
+__all__ = [
+    "gaussian_filter",
+    "gaussian_gradient_magnitude",
+    "gaussian_laplace",
+]
 
 
 def _get_sigmas(image, sigma):
@@ -58,10 +68,11 @@ def gaussian_filter(image,
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
     result = image.map_overlap(
-        scipy.ndimage.filters.gaussian_filter,
+        dispatch_gaussian_filter(image),
         depth=depth,
         boundary=boundary,
         dtype=image.dtype,
+        meta=image._meta,
         sigma=sigma,
         order=order,
         mode=mode,
@@ -85,10 +96,11 @@ def gaussian_gradient_magnitude(image,
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
     result = image.map_overlap(
-        scipy.ndimage.filters.gaussian_gradient_magnitude,
+        dispatch_gaussian_gradient_magnitude(image),
         depth=depth,
         boundary=boundary,
         dtype=image.dtype,
+        meta=image._meta,
         sigma=sigma,
         mode=mode,
         cval=cval,
@@ -112,10 +124,11 @@ def gaussian_laplace(image,
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
     result = image.map_overlap(
-        scipy.ndimage.filters.gaussian_laplace,
+        dispatch_gaussian_laplace(image),
         depth=depth,
         boundary=boundary,
         dtype=image.dtype,
+        meta=image._meta,
         sigma=sigma,
         mode=mode,
         cval=cval,
