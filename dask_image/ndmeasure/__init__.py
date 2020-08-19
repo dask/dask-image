@@ -15,6 +15,24 @@ import dask.array
 from . import _utils
 from ._utils import _label
 
+__all__ = [
+    "area",
+    "center_of_mass",
+    "extrema",
+    "histogram",
+    "label",
+    "labeled_comprehension",
+    "maximum",
+    "maximum_position",
+    "mean",
+    "median",
+    "minimum",
+    "minimum_position",
+    "standard_deviation",
+    "sum",
+    "variance",
+]
+
 
 def area(image, label_image=None, index=None):
     """Find the area of specified subregions in an image.

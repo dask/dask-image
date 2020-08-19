@@ -13,6 +13,12 @@ import dask.array
 
 from . import _utils
 
+__all__ = [
+    "fourier_gaussian",
+    "fourier_shift",
+    "fourier_uniform",
+]
+
 
 def fourier_gaussian(image, sigma, n=-1, axis=-1):
     """
