@@ -81,7 +81,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
     for i, j in zip(lower_iter, upper_iter):
         a.append(dask.array.from_delayed(
             dask.delayed(_utils._read_frame)(fname, slice(i, j),
-                arrayfunc=arrayfunc),
+                                             arrayfunc=arrayfunc),
             (j - i,) + shape[1:],
             dtype,
             meta=arrayfunc([])
