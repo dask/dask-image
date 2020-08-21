@@ -18,7 +18,7 @@ import pims
 from . import _utils
 
 
-def imread(fname, nframes=1, arraytype="numpy"):
+def imread(fname, nframes=1, *, arraytype="numpy"):
     """
     Read image data into a Dask Array.
 
