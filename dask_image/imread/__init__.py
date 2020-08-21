@@ -18,7 +18,7 @@ import pims
 from . import _utils
 
 
-def imread(fname, nframes=1):
+def imread(fname, nframes=1, arraytype="numpy"):
     """
     Read image data into a Dask Array.
 
@@ -31,6 +31,8 @@ def imread(fname, nframes=1):
         A glob like string that may match one or multiple filenames.
     nframes : int, optional
         Number of the frames to include in each chunk (default: 1).
+    arraytype : str, optional
+        Array type for dask chunks. Available options: "numpy", "cupy".
 
     Returns
     -------
@@ -42,6 +44,12 @@ def imread(fname, nframes=1):
         raise ValueError("`nframes` must be an integer.")
     if (nframes != -1) and not (nframes > 0):
         raise ValueError("`nframes` must be greater than zero.")
+
+    if arraytype == "numpy":
+        arrayfunc = numpy.asanyarray
+    elif arraytype == "cupy":
+        import cupy
+        arrayfunc = cupy.asanyarray
 
     with pims.open(fname) as imgs:
         shape = (len(imgs),) + imgs.frame_shape
@@ -72,9 +80,11 @@ def imread(fname, nframes=1):
     a = []
     for i, j in zip(lower_iter, upper_iter):
         a.append(dask.array.from_delayed(
-            dask.delayed(_utils._read_frame)(fname, slice(i, j)),
+            dask.delayed(_utils._read_frame)(fname, slice(i, j),
+                arrayfunc=arrayfunc),
             (j - i,) + shape[1:],
-            dtype
+            dtype,
+            meta=arrayfunc([])
         ))
     a = dask.array.concatenate(a)
 
