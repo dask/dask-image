@@ -7,7 +7,7 @@ coverage of dask-image vs scipy ndimage functions
 
 The table below shows which SciPy ndimage functions can be directly used in dask-image. 
 
-.. list-table:: Title
+.. list-table:: 
    :widths: 25 25 50
    :header-rows: 1
 
