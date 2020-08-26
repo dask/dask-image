@@ -1,15 +1,15 @@
-*****
+*****************
 Function Coverage 
-*****
+*****************
 
 Coverage of dask-image vs scipy ndimage functions
-**********************
+*************************************************
 
 This table shows which SciPy ndimage functions are supported by dask-image. 
 
 .. list-table:: 
    :widths: 25 25 50
-   :header-rows: 1
+   :header-rows: 0
 
    * - Function name
      - SciPy ndimage
@@ -137,7 +137,7 @@ This table shows which SciPy ndimage functions are supported by dask-image.
    * - ``label``
      - X
      - X
-   * - ``labeled_comprehension	``
+   * - ``labeled_comprehension``
      - X
      - X
    * - ``laplace``
