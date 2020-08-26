@@ -5,7 +5,7 @@ Function Coverage
 coverage of dask-image vs scipy ndimage functions
 **********************
 
-The table below shows which SciPy ndimage functions can be directly used in dask-image. 
+This table shows which SciPy ndimage functions are supported by dask-image. 
 
 .. list-table:: 
    :widths: 25 25 50
