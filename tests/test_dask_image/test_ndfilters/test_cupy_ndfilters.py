@@ -7,7 +7,7 @@ import pytest
 
 from dask_image import ndfilters
 
-cupy = pytest.importorskip("cupy", minversion="7.0.0")
+cupy = pytest.importorskip("cupy", minversion="7.7.0")
 
 
 @pytest.fixture
