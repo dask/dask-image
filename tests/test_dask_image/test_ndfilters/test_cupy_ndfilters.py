@@ -13,7 +13,8 @@ cupy = pytest.importorskip("cupy", minversion="7.7.0")
 @pytest.fixture
 def array():
     s = (10, 10)
-    a = da.from_array(cupy.arange(int(np.prod(s)), dtype=cupy.float32).reshape(s), chunks=5)
+    a = da.from_array(cupy.arange(int(np.prod(s)),
+                      dtype=cupy.float32).reshape(s), chunks=5)
     return a
 
 
