@@ -67,15 +67,18 @@ def test_cupy_generic(array):
 
 
 @pytest.mark.cupy
-@pytest.mark.parametrize("func", [
-    ndfilters.minimum_filter,
-    ndfilters.median_filter,
-    ndfilters.maximum_filter,
-    ndfilters.rank_filter,
-    ndfilters.percentile_filter,
+@pytest.mark.parametrize("func, extra_arg, size", [
+    (ndfilters.minimum_filter, None, 3),
+    (ndfilters.median_filter, None, 3),
+    (ndfilters.maximum_filter, None, 3),
+    (ndfilters.rank_filter, 5, 3),
+    (ndfilters.percentile_filter, 50, 3),
 ])
-def test_cupy_order(array, func):
-    result = func(array)
+def test_cupy_order(array, func, extra_arg, size):
+    if extra_arg is not None:
+        result = func(array, extra_arg, size=size)
+    else:
+        result = func(array, size=size)
     result.compute()
 
 
