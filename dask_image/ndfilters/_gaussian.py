@@ -11,6 +11,8 @@ from ..dispatch._dispatch_ndfilters import (
     dispatch_gaussian_filter,
     dispatch_gaussian_gradient_magnitude,
     dispatch_gaussian_laplace)
+from ..dispatch._utils import dispatch_array
+
 
 __all__ = [
     "gaussian_filter",
@@ -22,9 +24,10 @@ __all__ = [
 def _get_sigmas(image, sigma):
     ndim = image.ndim
 
-    nsigmas = numpy.array(sigma)
+    arrayfunc = dispatch_array(image)
+    nsigmas = arrayfunc(sigma)
     if nsigmas.ndim == 0:
-        nsigmas = numpy.array(ndim * [nsigmas[()]])
+        nsigmas = arrayfunc(ndim * [nsigmas[()]])
 
     if nsigmas.ndim != 1:
         raise RuntimeError(
@@ -45,7 +48,8 @@ def _get_sigmas(image, sigma):
 
 
 def _get_border(image, sigma, truncate):
-    sigma = numpy.array(_get_sigmas(image, sigma))
+    arrayfunc = dispatch_array(image)
+    sigma = arrayfunc(_get_sigmas(image, sigma))
 
     if not isinstance(truncate, numbers.Real):
         raise TypeError("Must have a real truncate value.")
