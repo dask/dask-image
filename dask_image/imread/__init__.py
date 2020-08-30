@@ -47,7 +47,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
 
     if arraytype == "numpy":
         arrayfunc = numpy.asanyarray
-    elif arraytype == "cupy":
+    elif arraytype == "cupy":   # pragma: no cover
         import cupy
         arrayfunc = cupy.asanyarray
 
