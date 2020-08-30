@@ -27,7 +27,7 @@ def register_cupy_binary_dilation():
 
     @dispatch_binary_dilation.register(cupy.ndarray)
     def cupy_binary_dilation(*args, **kwargs):
-        return cupyx.scipy.ndimage.binary_dilation
+        return cupyx.scipy.ndimage.grey_dilation  # no binary_dilation in cupy
 
 
 # ================== binary_erosion ==================
@@ -43,4 +43,4 @@ def register_cupy_binary_erosion():
 
     @dispatch_binary_erosion.register(cupy.ndarray)
     def cupy_binary_erosion(*args, **kwargs):
-        return cupyx.scipy.ndimage.binary_erosion
+        return cupyx.scipy.ndimage.grey_erosion  # no binary_erosion in cupy
