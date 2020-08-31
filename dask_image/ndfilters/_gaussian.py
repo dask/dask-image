@@ -24,10 +24,9 @@ __all__ = [
 def _get_sigmas(image, sigma):
     ndim = image.ndim
 
-    arrayfunc = dispatch_array(image)
-    nsigmas = arrayfunc(sigma)
+    nsigmas = numpy.array(sigma)
     if nsigmas.ndim == 0:
-        nsigmas = arrayfunc(ndim * [nsigmas[()]])
+        nsigmas = numpy.array(ndim * [nsigmas[()]])
 
     if nsigmas.ndim != 1:
         raise RuntimeError(
@@ -48,8 +47,7 @@ def _get_sigmas(image, sigma):
 
 
 def _get_border(image, sigma, truncate):
-    arrayfunc = dispatch_array(image)
-    sigma = arrayfunc(_get_sigmas(image, sigma))
+    sigma = numpy.array(_get_sigmas(image, sigma))
 
     if not isinstance(truncate, numbers.Real):
         raise TypeError("Must have a real truncate value.")
