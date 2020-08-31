@@ -9,7 +9,7 @@ import numbers
 import pytest
 
 import numpy as np
-from skimage.external import tifffile
+import tifffile
 
 import dask.array.utils as dau
 import dask_image.imread

@@ -26,3 +26,4 @@ omit =
     */versioneer.py
     */_version.py
     */_vendor/*
+    */dispatch/*

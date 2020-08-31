@@ -9,6 +9,6 @@ import numpy
 import pims
 
 
-def _read_frame(fn, i):
+def _read_frame(fn, i, *, arrayfunc=numpy.asanyarray):
     with pims.open(fn) as imgs:
-        return numpy.asanyarray(imgs[i])
+        return arrayfunc(imgs[i])

@@ -53,6 +53,32 @@ def test_measure_props_err(funcname):
 
 
 @pytest.mark.parametrize(
+    "datatype", [
+        int,
+        float,
+        np.bool,
+        np.uint8,
+        np.uint16,
+        np.uint32,
+        np.uint64,
+        np.int16,
+        np.int32,
+        np.int64,
+        np.float32,
+        np.float64,
+    ]
+)
+def test_center_of_mass(datatype):
+    a = np.array([[1, 1], [0, 0]]).astype(datatype)
+    d = da.from_array(a, chunks=(1, 2))
+
+    actual = dask_image.ndmeasure.center_of_mass(d).compute()
+    expected = [0., 0.5]
+
+    assert np.allclose(actual, expected)
+
+
+@pytest.mark.parametrize(
     "funcname", [
         "center_of_mass",
         "maximum",

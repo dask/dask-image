@@ -4,6 +4,11 @@
 import scipy.ndimage.filters
 
 from . import _utils
+from ..dispatch._dispatch_ndfilters import dispatch_generic_filter
+
+__all__ = [
+    "generic_filter",
+]
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.generic_filter)
@@ -22,10 +27,11 @@ def generic_filter(image,
     depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
     result = image.map_overlap(
-        scipy.ndimage.filters.generic_filter,
+        dispatch_generic_filter(image),
         depth=depth,
         boundary=boundary,
         dtype=image.dtype,
+        meta=image._meta,
         function=function,
         footprint=footprint,
         mode=mode,

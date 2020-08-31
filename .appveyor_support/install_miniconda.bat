@@ -2,11 +2,11 @@
 @echo on
 
 :: Miniconda Config:
-set "MINICONDA_VERSION=4.5.4"
-set "MINICONDA_MD5=1c73051ccd997770288275ee6474b423"
+set "MINICONDA_VERSION=4.8.2"
+set "MINICONDA_MD5=20d6bd9b3bd62f1fd874315b6b38c159"
 set "MINICONDA_INSTALLER=%USERPROFILE%\miniconda.exe"
 set "MINICONDA_DIR=%USERPROFILE%\miniconda"
-set "MINICONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-%MINICONDA_VERSION%-Windows-x86_64.exe"
+set "MINICONDA_URL=https://repo.anaconda.com/miniconda/Miniconda3-py37_%MINICONDA_VERSION%-Windows-x86_64.exe"
 
 :: Install Miniconda.
 powershell -Command "(New-Object Net.WebClient).DownloadFile('%MINICONDA_URL%', '%MINICONDA_INSTALLER%')"

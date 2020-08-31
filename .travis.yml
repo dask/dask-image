@@ -6,9 +6,9 @@ os: osx
 osx_image: xcode9.4
 
 env:
+  - PYVER="38"
   - PYVER="37"
   - PYVER="36"
-  - PYVER="35"
 
 install:
   # Install and Configure Miniconda.
