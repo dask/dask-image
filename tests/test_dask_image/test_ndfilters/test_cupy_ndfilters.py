@@ -61,8 +61,16 @@ def test_cupy_gaussian(array, func):
     result.compute()
 
 
-def test_cupy_generic(array):
-    result = ndfilters.generic_filter(array, sum, size=3)
+@pytest.mark.parametrize(
+    "function, size, footprint",
+    [
+        (lambda x: x, 1, None),
+        (lambda x: x, (1, 1), None),
+        (lambda x: x, None, np.ones((1, 1))),
+    ]
+)
+def test_cupy_generic(array, function, size, footprint):
+    result = ndfilters.generic_filter(array, function, size=size, footprint=footprint)
     result.compute()
 
 
