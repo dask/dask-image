@@ -11,7 +11,7 @@ cupy = pytest.importorskip("cupy", minversion="7.7.0")
 def test_cupy_imread(tmp_path):
     a = np.random.uniform(low=0.0, high=1.0, size=(1, 4, 3)).astype(np.float32)
 
-    fn = str(tmp_path.join("test.tiff"))
+    fn = str(tmp_path/"test.tiff")
     with tifffile.TiffWriter(fn) as fh:
         for i in range(len(a)):
             fh.save(a[i])
