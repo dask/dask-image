@@ -56,7 +56,7 @@ def test_cupy_edge(array, func):
     ndfilters.gaussian_laplace,
 ])
 def test_cupy_gaussian(array, func):
-    sigma = 3
+    sigma = 1
     result = func(array, sigma)
     result.compute()
 
