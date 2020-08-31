@@ -62,7 +62,7 @@ def test_cupy_gaussian(array, func):
 
 
 def test_cupy_generic(array):
-    result = ndfilters.generic_filter(array, sum)
+    result = ndfilters.generic_filter(array, sum, size=3)
     result.compute()
 
 
