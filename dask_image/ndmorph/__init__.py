@@ -8,16 +8,6 @@ import scipy.ndimage
 
 from . import _utils
 from . import _ops
-from ..dispatch._dispatch_ndmorph import (
-    dispatch_binary_dilation,
-    dispatch_binary_erosion)
-
-__all__ = [
-    "binary_closing",
-    "binary_dilation",
-    "binary_erosion",
-    "binary_opening",
-]
 
 
 @_utils._update_wrapper(scipy.ndimage.binary_closing)
@@ -53,7 +43,7 @@ def binary_dilation(image,
     border_value = _utils._get_border_value(border_value)
 
     result = _ops._binary_op(
-        dispatch_binary_dilation(image),
+        scipy.ndimage.binary_dilation,
         image,
         structure=structure,
         iterations=iterations,
@@ -77,7 +67,7 @@ def binary_erosion(image,
     border_value = _utils._get_border_value(border_value)
 
     result = _ops._binary_op(
-        dispatch_binary_erosion(image),
+        scipy.ndimage.binary_erosion,
         image,
         structure=structure,
         iterations=iterations,
