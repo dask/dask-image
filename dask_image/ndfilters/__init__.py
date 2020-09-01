@@ -19,6 +19,7 @@ __all__ = [
     "rank_filter",
     "percentile_filter",
     "uniform_filter",
+    "threshold_local",
 ]
 
 from ._conv import (
@@ -57,7 +58,7 @@ from ._smooth import (
     uniform_filter,
 )
 
-from ._thresholding import (
+from ._threshold import (
     threshold_local,
 )
 

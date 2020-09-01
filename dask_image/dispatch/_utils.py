@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
-
 from ._dispatcher import get_type
 
 __all__ = [

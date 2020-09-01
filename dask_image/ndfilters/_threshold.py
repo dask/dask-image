@@ -2,6 +2,11 @@ import dask.array as da
 import numpy as np
 
 from . import _gaussian, _generic, _order
+from ..dispatch._dispatch_ndfilters import dispatch_threshold_local_mean
+
+__all__ = [
+    "threshold_local",
+]
 
 
 def threshold_local(image, block_size, method='gaussian', offset=0,
@@ -75,21 +80,15 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
                                                mode=mode, cval=cval)
     elif method == 'gaussian':
         if param is None:
-            if isinstance(block_size, (int, float, list, tuple, np.ndarray)):
-                sigma = (np.array(block_size) - 1) / 6.0
-            elif isinstance(block_size, da.Array):
-                chunksize = block_size.chunks
-                sigma = (da.from_array(block_size, chunksize) - 1) / 6.0
-            else:
-                raise ValueError('Unsupported type for "block_size" kwarg.')
-            sigma = (np.array(block_size) - 1) / 6.0
+            sigma = (da.asarray(block_size) - 1) / 6.0
         else:
             sigma = param
         thresh_image = _gaussian.gaussian_filter(image, sigma, mode=mode,
                                                  cval=cval)
     elif method == 'mean':
-        thresh_image = _generic.generic_filter(image, np.mean, block_size,
-                                               mode=mode, cval=cval)
+        thresh_image = _generic.generic_filter(
+            image, dispatch_threshold_local_mean(image), block_size, mode=mode,
+            cval=cval)
     elif method == 'median':
         thresh_image = _order.median_filter(image, block_size, mode=mode,
                                             cval=cval)
