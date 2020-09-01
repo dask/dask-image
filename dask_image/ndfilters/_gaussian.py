@@ -11,8 +11,6 @@ from ..dispatch._dispatch_ndfilters import (
     dispatch_gaussian_filter,
     dispatch_gaussian_gradient_magnitude,
     dispatch_gaussian_laplace)
-from ..dispatch._utils import dispatch_array
-
 
 __all__ = [
     "gaussian_filter",

@@ -2,28 +2,11 @@
 
 import numpy as np
 
-from ._dispatcher import Dispatcher, get_type
+from ._dispatcher import get_type
 
 __all__ = [
-    "dispatch_array",
     "check_arraytypes_compatible",
 ]
-
-dispatch_array = Dispatcher(name="dispatch_array")
-
-
-@dispatch_array.register(np.ndarray)
-def numpy_array(*args, **kwargs):
-    return np.array
-
-
-@dispatch_array.register_lazy("cupy")
-def register_cupy_array():
-    import cupy
-
-    @dispatch_array.register(cupy.ndarray)
-    def cupy_array(*args, **kwargs):
-        return cupy.array
 
 
 def check_arraytypes_compatible(*args):
