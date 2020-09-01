@@ -2,6 +2,45 @@
 History
 =======
 
+0.4.0 (2020-09-02)
+------------------
+
+We're pleased to announce the release of dask-image 0.4.0!
+
+Highlights
+
+The major highlight of this release is support for cupy GPU arrays for dask-image subpackages imread and ndfilters.
+Cupy version 7.7.0 or higher is required to use this functionality.
+GPU support for the remaining dask-image subpackages (ndmorph, ndfourier, and ndmeasure) will be rolled out at a later date, beginning with ndmorph.
+
+We also have a new function, threshold_local, similar to the scikit-image local threshold function.
+
+Lastly, we've made more improvements to the user documentation, which includes work by new contributor @abhisht51.
+
+New Features
+
+* GPU support for ndfilters & imread modules (#151)
+* threshold_local function for dask-image ndfilters (#112)
+
+Improvements
+
+* Add function coverage table to the dask-image docs (#155)
+* Developer documentation: release guide (#142)
+* Use tifffile for testing instead of scikit-image (#145)
+
+
+3 authors added to this release (alphabetical)
+
+* `Abhisht Singh <https://github.com/dask/dask-image/commits?author=abhisht51>`_ - @abhisht51
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+
+
+2 reviewers added to this release (alphabetical)
+
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `Juan Nunez-Iglesias <https://github.com/dask/dask-image/commits?author=jni>`_ - @jni
+
 0.3.0 (2020-06-06)
 ------------------
 
