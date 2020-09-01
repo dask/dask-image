@@ -295,5 +295,14 @@ def register_cupy_threshold_local_mean():
 
     @dispatch_threshold_local_mean.register(cupy.ndarray)
     def cupy_threshold_local_mean(*args, **kwargs):
-        # https://github.com/cupy/cupy/issues/3909
-        raise NotImplementedError
+        # Code snippet taken from https://github.com/cupy/cupy/issues/3909
+        my_mean = cupy.ReductionKernel(
+            'T x',  # input params
+            'T y',  # output params
+            'x',  # map
+            'a + b',  # reduce
+            'y = a / _in_ind.size()',  # An undocumented variable and a hack
+            '0',  # identity value
+            'mean'  # kernel name
+        )
+        return my_mean
