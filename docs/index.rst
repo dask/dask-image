@@ -19,6 +19,7 @@ Contents
 
    installation
    quickstart
+   coverage
    api
    contributing
    authors
