@@ -61,8 +61,19 @@ def test_cupy_gaussian(array, func):
     result.compute()
 
 
-def test_cupy_generic(array):
-    result = ndfilters.generic_filter(array, sum)
+@pytest.mark.parametrize(
+    "size, footprint",
+    [
+        (1, None),
+        ((1, 1), None),
+        (None, np.ones((1, 1))),
+    ]
+)
+def test_cupy_generic(array, size, footprint):
+    my_sum = cupy.ReductionKernel(
+        'T x', 'T out', 'x', 'a + b', 'out = a', '0', 'my_sum')
+    result = ndfilters.generic_filter(array, my_sum, size=size,
+                                      footprint=footprint)
     result.compute()
 
 

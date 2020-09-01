@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
+import numpy as np
 import scipy.ndimage.filters
 
 from . import _utils
@@ -26,6 +26,13 @@ def generic_filter(image,
     depth = _utils._get_depth(footprint.shape, origin)
     depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
+    if type(image._meta) == np.ndarray:
+        kwargs = {"extra_arguments": extra_arguments,
+                  "extra_keywords": extra_keywords}
+    else:  # pragma: no cover
+        # cupy generic_filter doesn't support extra_arguments or extra_keywords
+        kwargs = {}
+
     result = image.map_overlap(
         dispatch_generic_filter(image),
         depth=depth,
@@ -37,8 +44,7 @@ def generic_filter(image,
         mode=mode,
         cval=cval,
         origin=origin,
-        extra_arguments=extra_arguments,
-        extra_keywords=extra_keywords
+        **kwargs
     )
 
     return result

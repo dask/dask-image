@@ -95,7 +95,7 @@ def numpy_prewitt(*args, **kwargs):
     return scipy.ndimage.filters.prewitt
 
 
-@dispatch_correlate.register_lazy("cupy")
+@dispatch_prewitt.register_lazy("cupy")
 def register_cupy_prewitt():
     import cupy
     import cupyx.scipy.ndimage
