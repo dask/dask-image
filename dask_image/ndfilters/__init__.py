@@ -40,6 +40,10 @@ from ._smooth import (
     uniform_filter,
 )
 
+from ._thresholding import (
+    threshold_local,
+)
+
 
 convolve.__module__ = __name__
 correlate.__module__ = __name__
@@ -62,3 +66,5 @@ rank_filter.__module__ = __name__
 percentile_filter.__module__ = __name__
 
 uniform_filter.__module__ = __name__
+
+threshold_local.__module__ = __name__
