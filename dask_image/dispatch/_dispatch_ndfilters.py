@@ -21,6 +21,7 @@ __all__ = [
     "dispatch_rank_filter",
     "dispatch_percentile_filter",
     "dispatch_uniform_filter",
+    "dispatch_threshold_local_mean",
 ]
 
 
@@ -39,6 +40,7 @@ dispatch_maximum_filter = Dispatcher(name="dispatch_maximum_filter")
 dispatch_rank_filter = Dispatcher(name="dispatch_rank_filter")
 dispatch_percentile_filter = Dispatcher(name="dispatch_percentile_filter")
 dispatch_uniform_filter = Dispatcher(name="dispatch_uniform_filter")
+dispatch_threshold_local_mean = Dispatcher(name="dispatch_threshold_local_mean")  # noqa: E501
 
 
 # ================== convolve ==================
@@ -279,3 +281,19 @@ def register_cupy_uniform_filter():
     @dispatch_uniform_filter.register(cupy.ndarray)
     def cupy_uniform_filter(*args, **kwargs):
         return cupyx.scipy.ndimage.filters.uniform_filter
+
+
+# ================== threshold_local_mean ==================
+@dispatch_threshold_local_mean.register(np.ndarray)
+def numpy_threshold_local_mean(*args, **kwargs):
+    return np.mean
+
+
+@dispatch_threshold_local_mean.register_lazy("cupy")
+def register_cupy_threshold_local_mean():
+    import cupy
+
+    @dispatch_threshold_local_mean.register(cupy.ndarray)
+    def cupy_threshold_local_mean(*args, **kwargs):
+        # https://github.com/cupy/cupy/issues/3909
+        raise NotImplementedError

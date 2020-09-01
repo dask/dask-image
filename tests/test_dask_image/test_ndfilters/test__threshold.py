@@ -101,9 +101,7 @@ class TestInvalidArguments:
 
     @pytest.mark.parametrize("method, block_size, error_type", [
         ('gaussian', np.nan, ValueError),
-        ('gaussian', 'invalid', ValueError),
         ('median', np.nan, TypeError),
-        ('median', 'invalid', RuntimeError),
     ])
     def test_nan_blocksize(self, method, block_size, error_type):
         with pytest.raises(error_type):
