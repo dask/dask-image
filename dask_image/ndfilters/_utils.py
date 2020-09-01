@@ -17,7 +17,7 @@ def _get_docstring(func):
     drop_doc_param = lambda s: not s.startswith("    output : ")  # noqa: E731
     func_doc = "" if func.__doc__ is None else func.__doc__
     cleaned_docstring = "".join([
-        l for l in split_doc_params(func_doc) if drop_doc_param(l)
+        l for l in split_doc_params(func_doc) if drop_doc_param(l)  # noqa: E741, E501
     ])
     cleaned_docstring = cleaned_docstring.replace('input', 'image')
     cleaned_docstring = cleaned_docstring.replace('labels', 'label_image')

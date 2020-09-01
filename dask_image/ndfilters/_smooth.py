@@ -5,7 +5,11 @@ import scipy.ndimage.filters
 
 from . import _utils
 from ._gaussian import gaussian_filter
+from ..dispatch._dispatch_ndfilters import dispatch_uniform_filter
 
+__all__ = [
+    "uniform_filter",
+]
 
 gaussian_filter = gaussian_filter
 
@@ -22,10 +26,11 @@ def uniform_filter(image,
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
     result = image.map_overlap(
-        scipy.ndimage.filters.uniform_filter,
+        dispatch_uniform_filter(image),
         depth=depth,
         boundary=boundary,
         dtype=image.dtype,
+        meta=image._meta,
         size=size,
         mode=mode,
         cval=cval,

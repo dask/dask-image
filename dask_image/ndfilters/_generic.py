@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 
-
+import numpy as np
 import scipy.ndimage.filters
 
 from . import _utils
+from ..dispatch._dispatch_ndfilters import dispatch_generic_filter
+
+__all__ = [
+    "generic_filter",
+]
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.generic_filter)
@@ -21,18 +26,25 @@ def generic_filter(image,
     depth = _utils._get_depth(footprint.shape, origin)
     depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
+    if type(image._meta) == np.ndarray:
+        kwargs = {"extra_arguments": extra_arguments,
+                  "extra_keywords": extra_keywords}
+    else:  # pragma: no cover
+        # cupy generic_filter doesn't support extra_arguments or extra_keywords
+        kwargs = {}
+
     result = image.map_overlap(
-        scipy.ndimage.filters.generic_filter,
+        dispatch_generic_filter(image),
         depth=depth,
         boundary=boundary,
         dtype=image.dtype,
+        meta=image._meta,
         function=function,
         footprint=footprint,
         mode=mode,
         cval=cval,
         origin=origin,
-        extra_arguments=extra_arguments,
-        extra_keywords=extra_keywords
+        **kwargs
     )
 
     return result

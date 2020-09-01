@@ -3,6 +3,24 @@
 __author__ = """John Kirkham"""
 __email__ = "kirkhamj@janelia.hhmi.org"
 
+__all__ = [
+    "convolve",
+    "correlate",
+    "laplace",
+    "prewitt",
+    "sobel",
+    "gaussian_filter",
+    "gaussian_gradient_magnitude",
+    "gaussian_laplace",
+    "generic_filter",
+    "minimum_filter",
+    "median_filter",
+    "maximum_filter",
+    "rank_filter",
+    "percentile_filter",
+    "uniform_filter",
+    "threshold_local",
+]
 
 from ._conv import (
     convolve,
@@ -40,7 +58,7 @@ from ._smooth import (
     uniform_filter,
 )
 
-from ._thresholding import (
+from ._threshold import (
     threshold_local,
 )
 
