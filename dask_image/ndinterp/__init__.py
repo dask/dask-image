@@ -4,6 +4,7 @@
 import numpy as np
 import dask.array as da
 from scipy import ndimage
+import warnings
 
 
 __all__ = [
@@ -12,17 +13,18 @@ __all__ = [
 
 
 def affine_transform(
-        input,
+        image,
         matrix,
         offset=0.0,
         output_shape=None,
+        order=1,
         output_chunks=None,
         **kwargs
 ):
     """Apply an affine transform using Dask.
     `ndimage.affine_transformation` for Dask Arrays. For every
     output chunk, only the slice containing the relevant part
-    of the input is passed on to `ndimage.affine_transformation`.
+    of the image is passed on to `ndimage.affine_transformation`.
 
     Notes
     -----
@@ -42,14 +44,18 @@ def affine_transform(
 
     Parameters
     ----------
-    input : array_like (Numpy Array, Dask Array, ...)
-        The input array.
+    image : array_like (Numpy Array, Dask Array, ...)
+        The image array.
     matrix : array (ndim,) or (ndim, ndim)
         Transformation matrix.
     offset : array (ndim,)
         Transformation offset.
     output_shape : array (ndim,), optional
         The size of the array to be returned.
+    order : int, optional
+        The order of the spline interpolation. Note that for order>1
+        scipy's affine_transform applies prefiltering, which is not
+        yet supported and skipped in this implementation.
     output_chunks : array (ndim,), optional
         The chunks of the output Dask Array.
 
@@ -61,35 +67,30 @@ def affine_transform(
     """
 
     if output_shape is None:
-        output_shape = input.shape
+        output_shape = image.shape
+
+    if output_chunks is None:
+        output_chunks = image.shape
 
     # process kwargs
-
-    # set default order to 1, warn if different
-    if 'order' in kwargs:
-        order = kwargs['order']
-        del kwargs['order']
-        if order > 1:
-            UserWarning('Currently, for order > 1 the output of'
-                        '`dask_image.ndinterp.affine_transform` can differ'
-                        'from that of `ndimage.affine_transform`')
-    else:
-        order = 1
 
     # prefilter is not yet supported
     if 'prefilter' in kwargs:
         if kwargs['prefilter'] and order > 1:
-            UserWarning('Currently, `dask_image.ndinterp.affine_transform`'
-                        'does not support `prefilter=True`')
+            warnings.warn('Currently, `dask_image.ndinterp.affine_transform`'
+                          'does not support `prefilter=True`. Proceeding with'
+                          '`prefilter=False`, which in case of order > 1 can'
+                          'lead to the output containing more blur than with'
+                          'prefiltering.', UserWarning)
         del kwargs['prefilter']
 
     transformed = da.zeros(output_shape,
-                           dtype=input.dtype,
+                           dtype=image.dtype,
                            chunks=output_chunks)
 
     transformed = transformed.map_blocks(resample_chunk,
-                                         dtype=input.dtype,
-                                         input=input,
+                                         dtype=image.dtype,
+                                         image=image,
                                          matrix=matrix,
                                          offset=offset,
                                          order=order,
@@ -99,11 +100,11 @@ def affine_transform(
     return transformed
 
 
-def resample_chunk(chunk, input, matrix, offset, order, func_kwargs, block_info=None):
+def resample_chunk(chunk, image, matrix, offset, order, func_kwargs, block_info=None):
     """Resample a given chunk, used by `affine_transform`."""
 
     n = chunk.ndim
-    input_shape = input.shape
+    image_shape = image.shape
     chunk_shape = chunk.shape
 
     chunk_offset = [i[0] for i in block_info[0]['array-location']]
@@ -111,56 +112,49 @@ def resample_chunk(chunk, input, matrix, offset, order, func_kwargs, block_info=
     chunk_edges = np.array([i for i in np.ndindex(tuple([2] * n))])\
         * np.array(chunk_shape) + np.array(chunk_offset)
 
-    rel_input_edges = np.dot(matrix, chunk_edges.T).T + offset
-    rel_input_i = np.min(rel_input_edges, 0)
-    rel_input_f = np.max(rel_input_edges, 0)
+    rel_image_edges = np.dot(matrix, chunk_edges.T).T + offset
+    rel_image_i = np.min(rel_image_edges, 0)
+    rel_image_f = np.max(rel_image_edges, 0)
 
-    # expand relevant input to contain footprint of the spline kernel
-    # according to
-    #
-    # https://github.com/scipy/scipy/blob/
-    # 9c0d08d7d11fc33311a96d2ac3ad73c8f6e3df00/
-    # scipy/ndimage/src/ni_interpolation.c#L412-L419
-    #
-    # Also see https://github.com/dask/dask-image/
-    # issues/24#issuecomment-706165593
+    # Calculate edge coordinates required for the footprint of the
+    # spline kernel according to
+    # https://github.com/scipy/scipy/blob/9c0d08d7d11fc33311a96d2ac3ad73c8f6e3df00/scipy/ndimage/src/ni_interpolation.c#L412-L419 # noqa: E501
+    # Also see this discussion:
+    # https://github.com/dask/dask-image/issues/24#issuecomment-706165593 # noqa: E501
     for dim in range(n):
-        if order % 1:
-            start_lower = np.floor(rel_input_i[dim]) - order // 2
-            start_upper = np.floor(rel_input_f[dim]) - order // 2
-        else:
-            start_lower = np.floor(rel_input_i[dim] + 0.5) - order // 2
-            start_upper = np.floor(rel_input_f[dim] + 0.5) - order // 2
 
-        stop_upper = start_upper + order
-        # for some reason the behaviour is different to ndimage's
-        # if leaving out the -1 in the next two lines
-        rel_input_i[dim] = start_lower - 1
-        rel_input_f[dim] = stop_upper + 1
+        if order % 2 == 0:
+            rel_image_i[dim] += 0.5
+            rel_image_f[dim] += 0.5
 
-    # clip input coordinates to input image extent
-    for dim, upper in zip(range(n), input_shape):
-        rel_input_i[dim] = np.clip(rel_input_i[dim], 0, upper)
-        rel_input_f[dim] = np.clip(rel_input_f[dim], 0, upper)
+        # for some reason the behaviour becomes inconsistent with ndimage
+        # if leaving out the -1 in the next line
+        rel_image_i[dim] = np.floor(rel_image_i[dim]) - order // 2 - 1
+        rel_image_f[dim] = np.floor(rel_image_f[dim]) - order // 2 + order
 
-    rel_input_slice = tuple([slice(int(rel_input_i[dim]),
-                                   int(rel_input_f[dim]))
+    # clip image coordinates to image extent
+    for dim, s in zip(range(n), image_shape):
+        rel_image_i[dim] = np.clip(rel_image_i[dim], 0, s - 1)
+        rel_image_f[dim] = np.clip(rel_image_f[dim], 0, s - 1)
+
+    rel_image_slice = tuple([slice(int(rel_image_i[dim]),
+                                   int(rel_image_f[dim]) + 1)
                              for dim in range(n)])
 
-    rel_input = input[rel_input_slice]
+    rel_image = image[rel_image_slice]
 
-    # modify offset to point into cropped input
+    # Modify offset to point into cropped image.
     # y = Mx + o
-    # coordinate substitution:
+    # Coordinate substitution:
     # y' = y - y0(min_coord_px)
     # x' = x - x0(chunk_offset)
-    # then:
+    # Then:
     # y' = Mx' + o + Mx0 - y0
     # M' = M
     # o' = o + Mx0 - y0
-    offset_prime = offset + np.dot(matrix, chunk_offset) - rel_input_i
+    offset_prime = offset + np.dot(matrix, chunk_offset) - rel_image_i
 
-    chunk = ndimage.affine_transform(rel_input,
+    chunk = ndimage.affine_transform(rel_image,
                                      matrix,
                                      offset_prime,
                                      output_shape=chunk_shape,
