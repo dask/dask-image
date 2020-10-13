@@ -3,7 +3,7 @@
 
 import numpy as np
 import dask.array as da
-from scipy import ndimage
+from scipy.ndimage import affine_transform as ndimage_affine_transform
 import warnings
 
 
@@ -72,8 +72,35 @@ def affine_transform(
     if output_chunks is None:
         output_chunks = image.shape
 
-    # process kwargs
+    # Perform test run to ensure parameter validity.
+    ndimage_affine_transform(np.zeros([0] * image.ndim),
+                             matrix,
+                             offset)
 
+    # Make sure parameters contained in matrix and offset
+    # are not overlapping, i.e. that the offset is valid as
+    # it needs to be modified for each chunk.
+    # Further parameter checks are performed directly by
+    # `ndimage.affine_transform`.
+
+    matrix = np.asarray(matrix)
+    offset = np.asarray(offset).squeeze()
+
+    # these lines were copied and adapted from `ndimage.affine_transform`
+    if (matrix.ndim == 2 and matrix.shape[1] == image.ndim + 1 and
+            (matrix.shape[0] in [image.ndim, image.ndim + 1])):
+        # if matrix.shape[0] == image.ndim + 1:
+        #     exptd = [0] * image.ndim + [1]
+        #     if not np.all(matrix[image.ndim] == exptd):
+        #         msg = ('Expected homogeneous transformation matrix with '
+        #                'shape %s for image shape %s, but bottom row was '
+        #                'not equal to %s' % (matrix.shape, image.shape, exptd))
+        #         raise ValueError(msg)
+        # assume input is homogeneous coordinate transformation matrix
+        offset = matrix[:image.ndim, image.ndim]
+        matrix = matrix[:image.ndim, :image.ndim]
+
+    # process kwargs
     # prefilter is not yet supported
     if 'prefilter' in kwargs:
         if kwargs['prefilter'] and order > 1:
@@ -107,12 +134,18 @@ def resample_chunk(chunk, image, matrix, offset, order, func_kwargs, block_info=
     image_shape = image.shape
     chunk_shape = chunk.shape
 
+    # extract coordinates of chunk edges
     chunk_offset = [i[0] for i in block_info[0]['array-location']]
-
     chunk_edges = np.array([i for i in np.ndindex(tuple([2] * n))])\
         * np.array(chunk_shape) + np.array(chunk_offset)
 
-    rel_image_edges = np.dot(matrix, chunk_edges.T).T + offset
+    # map output chunk edges onto input image coordinates
+    # to define the input region relevant for the current chunk
+    if matrix.ndim == 1 and len(matrix) == image.ndim:
+        rel_image_edges = matrix * chunk_edges + offset
+    else:
+        rel_image_edges = np.dot(matrix, chunk_edges.T).T + offset
+
     rel_image_i = np.min(rel_image_edges, 0)
     rel_image_f = np.max(rel_image_edges, 0)
 
@@ -157,7 +190,7 @@ def resample_chunk(chunk, image, matrix, offset, order, func_kwargs, block_info=
     # o' = o + Mx0 - y0
     offset_prime = offset + np.dot(matrix, chunk_offset) - rel_image_i
 
-    chunk = ndimage.affine_transform(rel_image,
+    chunk = ndimage_affine_transform(rel_image,
                                      matrix,
                                      offset_prime,
                                      output_shape=chunk_shape,

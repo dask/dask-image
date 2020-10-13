@@ -21,10 +21,10 @@ from scipy import ndimage
 @pytest.mark.parametrize("random_seed",
                          [0, 1, 2])
 def test_affine_transform(n,
-                               input_output_shape_per_dim,
-                               interp_order,
-                               input_output_chunksize_per_dim,
-                               random_seed):
+                          input_output_shape_per_dim,
+                          interp_order,
+                          input_output_chunksize_per_dim,
+                          random_seed):
     """
     Compare the outputs of `ndimage.affine_transformation`
     and `dask_image.ndinterp.affine_transformation`.
@@ -71,14 +71,66 @@ def test_affine_transform(n,
 
 def test_affine_transform_no_output_shape_or_chunks_specified():
 
-    image = np.ones(3)
-    transformed = da_ndinterp.affine_transform(image, [1], [0])
+    image = np.ones((3, 3))
+    image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
 
-    assert transformed.shape == image.shape
-    assert transformed.chunks[0] == image.shape
+    assert image_t.shape == image.shape
+    assert image_t.chunks == tuple([(s,) for s in image.shape])
 
 
 def test_affine_transform_prefilter_warning():
 
     with pytest.warns(UserWarning):
-        da_ndinterp.affine_transform(np.ones(3), [1], [0], order=3, prefilter=True)
+        da_ndinterp.affine_transform(np.ones(3), [1], [0],
+                                     order=3, prefilter=True)
+
+
+@pytest.mark.filterwarnings("ignore:The behavior of affine_transform "
+                            "with a 1-D array supplied for the matrix "
+                            "parameter has changed")
+@pytest.mark.parametrize("n",
+                         [1, 2, 3, 4])
+def test_affine_transform_parameter_formats(n):
+
+    # define reference parameters
+    scale_factors = np.ones(n, dtype=np.float) * 2.
+    matrix_n = np.diag(scale_factors)
+    offset = -np.ones(n)
+
+    # convert into different formats
+    matrix_only_scaling = scale_factors
+    matrix_pre_homogeneous = np.hstack((matrix_n, offset[:, None]))
+    matrix_homogeneous = np.vstack((matrix_pre_homogeneous,
+                                   [0] * n + [1]))
+
+    np.random.seed(0)
+    image = np.random.random([5] * n)
+
+    # reference run
+    image_t_0 = da_ndinterp.affine_transform(image,
+                                             matrix_n,
+                                             offset).compute()
+
+    # assert that the different parameter formats
+    # lead to the same output
+    image_t_scale = da_ndinterp.affine_transform(image,
+                                                 matrix_only_scaling,
+                                                 offset).compute()
+    assert (np.allclose(image_t_0, image_t_scale))
+
+    for matrix in [matrix_pre_homogeneous, matrix_homogeneous]:
+
+        image_t = da_ndinterp.affine_transform(image,
+                                               matrix,
+                                               offset + 10.,  # ignored
+                                               ).compute()
+
+        assert(np.allclose(image_t_0, image_t))
+
+    # catch matrices that are not homogeneous transformation matrices
+    with pytest.raises(ValueError):
+        matrix_not_homogeneous = np.vstack((matrix_pre_homogeneous,
+                                           [-1] * n + [1]))
+        da_ndinterp.affine_transform(image,
+                                     matrix_not_homogeneous,
+                                     offset)
