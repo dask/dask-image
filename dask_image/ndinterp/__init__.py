@@ -129,8 +129,11 @@ def resample_chunk(chunk, image, matrix, offset, order, func_kwargs, block_info=
 
         # for some reason the behaviour becomes inconsistent with ndimage
         # if leaving out the -1 in the next line
-        rel_image_i[dim] = np.floor(rel_image_i[dim]) - order // 2 - 1
+        rel_image_i[dim] = np.floor(rel_image_i[dim]) - order // 2
         rel_image_f[dim] = np.floor(rel_image_f[dim]) - order // 2 + order
+
+        if order == 0:
+            rel_image_i[dim] -= 1
 
     # clip image coordinates to image extent
     for dim, s in zip(range(n), image_shape):
