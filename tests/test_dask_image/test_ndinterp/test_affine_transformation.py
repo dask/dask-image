@@ -10,6 +10,71 @@ import dask.array as da
 from scipy import ndimage
 
 
+class Helpers:
+    @staticmethod
+    def test_affine_transform(n=2,
+                              matrix=None,
+                              offset=None,
+                              input_output_shape_per_dim=(16, 16),
+                              interp_order=1,
+                              interp_mode='constant',
+                              input_output_chunksize_per_dim=(6, 6),
+                              random_seed=0):
+        """
+        Compare the outputs of `ndimage.affine_transformation`
+        and `dask_image.ndinterp.affine_transformation`.
+
+        Notes
+        -----
+            Currently, prefilter is disabled and therefore the output
+            of `dask_image.ndinterp.affine_transformation` is compared
+            to `prefilter=False`.
+        """
+
+        # define test image
+        a = input_output_shape_per_dim[0]
+        np.random.seed(random_seed)
+        image = np.random.random([a] * n)
+
+        # transform into dask array
+        chunksize = [input_output_chunksize_per_dim[0]] * n
+        image_da = da.from_array(image, chunks=chunksize)
+
+        # define (random) transformation
+        if matrix is None:
+            matrix = np.eye(n) + (np.random.random((n, n)) - 0.5) / 5.
+        if offset is None:
+            offset = (np.random.random(n) - 0.5) / 5. * np.array(image.shape)
+
+        # define resampling options
+        output_shape = [input_output_shape_per_dim[1]] * n
+        output_chunks = [input_output_chunksize_per_dim[1]] * n
+
+        # transform with scipy
+        image_t_scipy = ndimage.affine_transform(
+            image, matrix, offset,
+            output_shape=output_shape,
+            order=interp_order,
+            mode=interp_mode,
+            prefilter=False)
+
+        # transform with dask-image
+        image_t_dask = da_ndinterp.affine_transform(
+            image_da, matrix, offset,
+            output_shape=output_shape,
+            output_chunks=output_chunks,
+            order=interp_order,
+            mode=interp_mode)
+        image_t_dask_computed = image_t_dask.compute()
+
+        assert np.allclose(image_t_scipy, image_t_dask_computed)
+
+
+@pytest.fixture
+def helpers():
+    return Helpers
+
+
 @pytest.mark.parametrize("n",
                          [1, 2, 3])
 @pytest.mark.parametrize("input_output_shape_per_dim",
@@ -20,53 +85,54 @@ from scipy import ndimage
                          [(16, 16), (16, 7), (7, 16)])
 @pytest.mark.parametrize("random_seed",
                          [0, 1, 2])
-def test_affine_transform(n,
-                          input_output_shape_per_dim,
-                          interp_order,
-                          input_output_chunksize_per_dim,
-                          random_seed):
-    """
-    Compare the outputs of `ndimage.affine_transformation`
-    and `dask_image.ndinterp.affine_transformation`.
+def test_affine_transform_general(n,
+                                  input_output_shape_per_dim,
+                                  interp_order,
+                                  input_output_chunksize_per_dim,
+                                  random_seed, helpers):
 
-    Notes
-    -----
-        Currently, prefilter is disabled and therefore the output
-        of `dask_image.ndinterp.affine_transformation` is compared
-        to `prefilter=False`.
-    """
+    kwargs = dict()
+    kwargs['n'] = n
+    kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
+    kwargs['interp_order'] = interp_order
+    kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
+    kwargs['random_seed'] = random_seed
 
-    # define test image
-    a = input_output_shape_per_dim[0]
-    np.random.seed(random_seed)
-    image = np.random.random([a] * n)
+    helpers.test_affine_transform(**kwargs)
 
-    # transform into dask array
-    chunksize = [input_output_chunksize_per_dim[0]] * n
-    image_da = da.from_array(image, chunks=chunksize)
 
-    # define (random) transformation
-    matrix = np.eye(n) + (np.random.random((n, n)) - 0.5) / 5.
-    offset = (np.random.random(n) - 0.5) / 5. * np.array(image.shape)
+@pytest.mark.parametrize("n",
+                         [1, 2, 3])
+@pytest.mark.parametrize("interp_mode",
+                         ['constant', 'nearest'])
+@pytest.mark.parametrize("input_output_shape_per_dim",
+                         [(20, 30)])
+@pytest.mark.parametrize("input_output_chunksize_per_dim",
+                         [(15, 10)])
+def test_affine_transform_modes(n,
+                                interp_mode,
+                                input_output_shape_per_dim,
+                                input_output_chunksize_per_dim,
+                                helpers):
 
-    # define resampling options
-    output_shape = [input_output_shape_per_dim[1]] * n
-    output_chunks = [input_output_chunksize_per_dim[1]] * n
+    kwargs = dict()
+    kwargs['n'] = n
+    kwargs['interp_mode'] = interp_mode
+    kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
+    kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
 
-    # transform with scipy
-    image_t_scipy = ndimage.affine_transform(image, matrix, offset,
-                                             output_shape=output_shape,
-                                             order=interp_order,
-                                             prefilter=False)
+    helpers.test_affine_transform(**kwargs)
 
-    # transform with dask-image
-    image_t_dask = da_ndinterp.affine_transform(image_da, matrix, offset,
-                                                output_shape=output_shape,
-                                                output_chunks=output_chunks,
-                                                order=interp_order)
-    image_t_dask_computed = image_t_dask.compute()
 
-    assert np.allclose(image_t_scipy, image_t_dask_computed)
+@pytest.mark.parametrize("interp_mode",
+                         ['wrap', 'reflect', 'mirror'])
+def test_affine_transform_unsupported_modes(interp_mode, helpers):
+
+    kwargs = dict()
+    kwargs['interp_mode'] = interp_mode
+
+    with pytest.raises(NotImplementedError):
+        helpers.test_affine_transform(**kwargs)
 
 
 def test_affine_transform_no_output_shape_or_chunks_specified():
@@ -134,3 +200,4 @@ def test_affine_transform_parameter_formats(n):
         da_ndinterp.affine_transform(image,
                                      matrix_not_homogeneous,
                                      offset)
+

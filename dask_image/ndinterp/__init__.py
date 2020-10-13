@@ -32,9 +32,7 @@ def affine_transform(
         - currently, prefiltering is not supported
           (affecting the output in case of interpolation `order > 1`)
         - default order is 1
-        - currently, matrix is expected to have shape (ndim,) or (ndim, ndim)
-          (because offset needs to be set for each chunk)
-        - modes 'reflect', 'mirror' and 'wrap' may yield different results
+        - modes 'reflect', 'mirror' and 'wrap' are not supported
 
         To do:
         - optionally use cupyx.scipy.ndimage.affine_transform
@@ -46,7 +44,7 @@ def affine_transform(
     ----------
     image : array_like (Numpy Array, Dask Array, ...)
         The image array.
-    matrix : array (ndim,) or (ndim, ndim)
+    matrix : array (ndim,), (ndim, ndim), (ndim, ndim+1) or (ndim+1, ndim+1)
         Transformation matrix.
     offset : array (ndim,)
         Transformation offset.
@@ -110,6 +108,11 @@ def affine_transform(
                           'lead to the output containing more blur than with'
                           'prefiltering.', UserWarning)
         del kwargs['prefilter']
+
+    if 'mode' in kwargs:
+        if kwargs['mode'] in ['wrap', 'reflect', 'mirror']:
+            raise(NotImplementedError("Mode %s is not currently supported."
+                                      % kwargs['mode']))
 
     transformed = da.zeros(output_shape,
                            dtype=image.dtype,
