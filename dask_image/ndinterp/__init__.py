@@ -6,6 +6,11 @@ import dask.array as da
 from scipy.ndimage import affine_transform as ndimage_affine_transform
 import warnings
 
+from ..dispatch._dispatch_ndinterp import (
+    dispatch_affine_transform,
+    dispatch_asarray,
+)
+
 
 __all__ = [
     "affine_transform",
@@ -102,10 +107,10 @@ def affine_transform(
     # prefilter is not yet supported
     if 'prefilter' in kwargs:
         if kwargs['prefilter'] and order > 1:
-            warnings.warn('Currently, `dask_image.ndinterp.affine_transform`'
-                          'does not support `prefilter=True`. Proceeding with'
-                          '`prefilter=False`, which in case of order > 1 can'
-                          'lead to the output containing more blur than with'
+            warnings.warn('Currently, `dask_image.ndinterp.affine_transform` '
+                          'doesn\'t support `prefilter=True`. Proceeding with'
+                          ' `prefilter=False`, which if order > 1 can lead '
+                          'to the output containing more blur than with '
                           'prefiltering.', UserWarning)
         del kwargs['prefilter']
 
@@ -193,12 +198,15 @@ def resample_chunk(chunk, image, matrix, offset, order, func_kwargs, block_info=
     # o' = o + Mx0 - y0
     offset_prime = offset + np.dot(matrix, chunk_offset) - rel_image_i
 
-    chunk = ndimage_affine_transform(rel_image,
-                                     matrix,
-                                     offset_prime,
-                                     output_shape=chunk_shape,
-                                     order=order,
-                                     prefilter=False,
-                                     **func_kwargs)
+    affine_transform_method = dispatch_affine_transform(image)
+    asarray_method = dispatch_asarray(image)
+
+    chunk = affine_transform_method(rel_image,
+                                    asarray_method(matrix),
+                                    asarray_method(offset_prime),
+                                    output_shape=chunk_shape,
+                                    order=order,
+                                    prefilter=False,
+                                    **func_kwargs)
 
     return chunk
