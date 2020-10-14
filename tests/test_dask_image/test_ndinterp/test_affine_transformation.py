@@ -19,7 +19,9 @@ class Helpers:
                               interp_order=1,
                               interp_mode='constant',
                               input_output_chunksize_per_dim=(6, 6),
-                              random_seed=0):
+                              random_seed=0,
+                              use_cupy=False,
+                              ):
         """
         Compare the outputs of `ndimage.affine_transformation`
         and `dask_image.ndinterp.affine_transformation`.
@@ -39,6 +41,9 @@ class Helpers:
         # transform into dask array
         chunksize = [input_output_chunksize_per_dim[0]] * n
         image_da = da.from_array(image, chunks=chunksize)
+        if use_cupy:
+            import cupy as cp
+            image_da = image_da.map_blocks(cp.asarray)
 
         # define (random) transformation
         if matrix is None:
@@ -97,6 +102,43 @@ def test_affine_transform_general(n,
     kwargs['interp_order'] = interp_order
     kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
     kwargs['random_seed'] = random_seed
+
+    helpers.test_affine_transform(**kwargs)
+
+
+@pytest.mark.cupy
+@pytest.mark.parametrize("n",
+                         [1, 2, 3])
+@pytest.mark.parametrize("input_output_shape_per_dim",
+                         [(25, 25), (25, 10)])
+@pytest.mark.parametrize("interp_order",
+                         [0, 1])
+@pytest.mark.parametrize("input_output_chunksize_per_dim",
+                         [(16, 16), (16, 7)])
+@pytest.mark.parametrize("random_seed",
+                         [0])
+def test_affine_transform_cupy(n,
+                               input_output_shape_per_dim,
+                               interp_order,
+                               input_output_chunksize_per_dim,
+                               random_seed, helpers):
+
+    pytest.importorskip("cupy", minversion="6.0.0")
+
+    # somehow, these lines are required for the first parametrized
+    # test to succeed
+    import cupy as cp
+    from dask_image.dispatch._dispatch_ndinterp import (
+        dispatch_affine_transform)
+    dispatch_affine_transform(cp.asarray([]))
+
+    kwargs = dict()
+    kwargs['n'] = n
+    kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
+    kwargs['interp_order'] = interp_order
+    kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
+    kwargs['random_seed'] = random_seed
+    kwargs['use_cupy'] = True
 
     helpers.test_affine_transform(**kwargs)
 
@@ -200,4 +242,3 @@ def test_affine_transform_parameter_formats(n):
         da_ndinterp.affine_transform(image,
                                      matrix_not_homogeneous,
                                      offset)
-

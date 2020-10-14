@@ -123,6 +123,10 @@ def affine_transform(
                            dtype=image.dtype,
                            chunks=output_chunks)
 
+    # define output array type
+    meta = dispatch_asarray(image)([]).astype(image.dtype)
+
+    # map affine_transform onto array
     transformed = transformed.map_blocks(resample_chunk,
                                          dtype=image.dtype,
                                          image=image,
@@ -130,6 +134,7 @@ def affine_transform(
                                          offset=offset,
                                          order=order,
                                          func_kwargs=kwargs,
+                                         meta=meta
                                          )
 
     return transformed
@@ -203,7 +208,7 @@ def resample_chunk(chunk, image, matrix, offset, order, func_kwargs, block_info=
 
     chunk = affine_transform_method(rel_image,
                                     asarray_method(matrix),
-                                    asarray_method(offset_prime),
+                                    offset_prime,
                                     output_shape=chunk_shape,
                                     order=order,
                                     prefilter=False,
