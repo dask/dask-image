@@ -26,10 +26,11 @@ def affine_transform(
         output_chunks=None,
         **kwargs
 ):
-    """Apply an affine transform using Dask.
-    `ndimage.affine_transformation` for Dask Arrays. For every
+    """Apply an affine transform using Dask. For every
     output chunk, only the slice containing the relevant part
-    of the image is passed on to `ndimage.affine_transformation`.
+    of the image is processed. Chunkwise processing is performed
+    either using `ndimage.affine_transform` or
+    `cupyx.scipy.ndimage.affine_transform`, depending on the input type.
 
     Notes
     -----
@@ -39,15 +40,12 @@ def affine_transform(
         - default order is 1
         - modes 'reflect', 'mirror' and 'wrap' are not supported
 
-        To do:
-        - optionally use cupyx.scipy.ndimage.affine_transform
-
         Arguments equal to `ndimage.affine_transformation`,
         except for `output_chunks`.
 
     Parameters
     ----------
-    image : array_like (Numpy Array, Dask Array, ...)
+    image : array_like (Numpy Array, Cupy Array, Dask Array...)
         The image array.
     matrix : array (ndim,), (ndim, ndim), (ndim, ndim+1) or (ndim+1, ndim+1)
         Transformation matrix.
@@ -123,7 +121,7 @@ def affine_transform(
                            dtype=image.dtype,
                            chunks=output_chunks)
 
-    # define output array type
+    # define meta array to inform dask of the output chunk type
     meta = dispatch_asarray(image)([]).astype(image.dtype)
 
     # map affine_transform onto array
