@@ -20,11 +20,11 @@ def numpy_affine_transform(*args, **kwargs):
 
 
 @dispatch_affine_transform.register_lazy("cupy")
-def register_cupy_convolve():
+def register_cupy_affine_transform():
     import cupy
     import cupyx.scipy.ndimage
 
-    @dispatch_convolve.register(cupy.ndarray)
+    @dispatch_affine_transform.register(cupy.ndarray)
     def cupy_affine_transform(*args, **kwargs):
 
         return cupyx.scipy.ndimage.affine_transform
