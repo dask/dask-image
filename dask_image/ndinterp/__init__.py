@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
-
+from itertools import product
 import numpy as np
+
 import dask.array as da
+from dask.base import tokenize
+
 from scipy.ndimage import affine_transform as ndimage_affine_transform
 import warnings
+
 
 from ..dispatch._dispatch_ndinterp import (
     dispatch_affine_transform,
@@ -20,7 +24,7 @@ __all__ = [
 def affine_transform(
         image,
         matrix,
-        offset=0.0,
+        offset=None,
         output_shape=None,
         order=1,
         output_chunks=None,
@@ -66,6 +70,9 @@ def affine_transform(
         A dask array representing the transformed output
 
     """
+
+    if not type(image) == da.core.Array:
+        image = da.from_array(image)
 
     if output_shape is None:
         output_shape = image.shape
@@ -117,99 +124,113 @@ def affine_transform(
             raise(NotImplementedError("Mode %s is not currently supported."
                                       % kwargs['mode']))
 
-    transformed = da.zeros(output_shape,
-                           dtype=image.dtype,
-                           chunks=output_chunks)
-
-    # define meta array to inform dask of the output chunk type
-    meta = dispatch_asarray(image)([]).astype(image.dtype)
-
-    # map affine_transform onto array
-    transformed = transformed.map_blocks(resample_chunk,
-                                         dtype=image.dtype,
-                                         image=image,
-                                         matrix=matrix,
-                                         offset=offset,
-                                         order=order,
-                                         func_kwargs=kwargs,
-                                         meta=meta
-                                         )
-
-    return transformed
-
-
-def resample_chunk(chunk, image, matrix, offset, order, func_kwargs, block_info=None):
-    """Resample a given chunk, used by `affine_transform`."""
-
-    n = chunk.ndim
+    n = image.ndim
     image_shape = image.shape
-    chunk_shape = chunk.shape
 
-    # extract coordinates of chunk edges
-    chunk_offset = [i[0] for i in block_info[0]['array-location']]
-    chunk_edges = np.array([i for i in np.ndindex(tuple([2] * n))])\
-        * np.array(chunk_shape) + np.array(chunk_offset)
+    # calculate output array properties
+    normalized_chunks = da.core.normalize_chunks(output_chunks, output_shape)
+    block_indices = product(*(range(len(bds)) for bds in normalized_chunks))
+    block_offsets = [np.cumsum((0,) + bds[:-1]) for bds in normalized_chunks]
 
-    # map output chunk edges onto input image coordinates
-    # to define the input region relevant for the current chunk
-    if matrix.ndim == 1 and len(matrix) == image.ndim:
-        rel_image_edges = matrix * chunk_edges + offset
-    else:
-        rel_image_edges = np.dot(matrix, chunk_edges.T).T + offset
-
-    rel_image_i = np.min(rel_image_edges, 0)
-    rel_image_f = np.max(rel_image_edges, 0)
-
-    # Calculate edge coordinates required for the footprint of the
-    # spline kernel according to
-    # https://github.com/scipy/scipy/blob/9c0d08d7d11fc33311a96d2ac3ad73c8f6e3df00/scipy/ndimage/src/ni_interpolation.c#L412-L419 # noqa: E501
-    # Also see this discussion:
-    # https://github.com/dask/dask-image/issues/24#issuecomment-706165593 # noqa: E501
-    for dim in range(n):
-
-        if order % 2 == 0:
-            rel_image_i[dim] += 0.5
-            rel_image_f[dim] += 0.5
-
-        # for some reason the behaviour becomes inconsistent with ndimage
-        # if leaving out the -1 in the next line
-        rel_image_i[dim] = np.floor(rel_image_i[dim]) - order // 2
-        rel_image_f[dim] = np.floor(rel_image_f[dim]) - order // 2 + order
-
-        if order == 0:
-            rel_image_i[dim] -= 1
-
-    # clip image coordinates to image extent
-    for dim, s in zip(range(n), image_shape):
-        rel_image_i[dim] = np.clip(rel_image_i[dim], 0, s - 1)
-        rel_image_f[dim] = np.clip(rel_image_f[dim], 0, s - 1)
-
-    rel_image_slice = tuple([slice(int(rel_image_i[dim]),
-                                   int(rel_image_f[dim]) + 1)
-                             for dim in range(n)])
-
-    rel_image = image[rel_image_slice]
-
-    # Modify offset to point into cropped image.
-    # y = Mx + o
-    # Coordinate substitution:
-    # y' = y - y0(min_coord_px)
-    # x' = x - x0(chunk_offset)
-    # Then:
-    # y' = Mx' + o + Mx0 - y0
-    # M' = M
-    # o' = o + Mx0 - y0
-    offset_prime = offset + np.dot(matrix, chunk_offset) - rel_image_i
-
+    # use dispatching mechanism to determine backend
     affine_transform_method = dispatch_affine_transform(image)
     asarray_method = dispatch_asarray(image)
 
-    chunk = affine_transform_method(rel_image,
-                                    asarray_method(matrix),
-                                    offset_prime,
-                                    output_shape=chunk_shape,
-                                    order=order,
-                                    prefilter=False,
-                                    **func_kwargs)
+    # construct dask graph for output array
+    # using unique and deterministic identifier
+    output_name = 'affine_transform-' + tokenize(image, matrix, offset,
+                                                 output_shape, output_chunks,
+                                                 kwargs)
+    output_layer = {}
+    rel_images = []
+    for ib, block_ind in enumerate(block_indices):
 
-    return chunk
+        out_chunk_shape = [normalized_chunks[dim][block_ind[dim]]
+                           for dim in range(n)]
+        out_chunk_offset = [block_offsets[dim][block_ind[dim]]
+                            for dim in range(n)]
+
+        out_chunk_edges = np.array([i for i in np.ndindex(tuple([2] * n))])\
+            * np.array(out_chunk_shape) + np.array(out_chunk_offset)
+
+        # map output chunk edges onto input image coordinates
+        # to define the input region relevant for the current chunk
+        if matrix.ndim == 1 and len(matrix) == image.ndim:
+            rel_image_edges = matrix * out_chunk_edges + offset
+        else:
+            rel_image_edges = np.dot(matrix, out_chunk_edges.T).T + offset
+
+        rel_image_i = np.min(rel_image_edges, 0)
+        rel_image_f = np.max(rel_image_edges, 0)
+
+        # Calculate edge coordinates required for the footprint of the
+        # spline kernel according to
+        # https://github.com/scipy/scipy/blob/9c0d08d7d11fc33311a96d2ac3ad73c8f6e3df00/scipy/ndimage/src/ni_interpolation.c#L412-L419 # noqa: E501
+        # Also see this discussion:
+        # https://github.com/dask/dask-image/issues/24#issuecomment-706165593 # noqa: E501
+        for dim in range(n):
+
+            if order % 2 == 0:
+                rel_image_i[dim] += 0.5
+                rel_image_f[dim] += 0.5
+
+            # for some reason the behaviour becomes inconsistent with ndimage
+            # if leaving out the -1 in the next line
+            rel_image_i[dim] = np.floor(rel_image_i[dim]) - order // 2
+            rel_image_f[dim] = np.floor(rel_image_f[dim]) - order // 2 + order
+
+            if order == 0:
+                rel_image_i[dim] -= 1
+
+        # clip image coordinates to image extent
+        for dim, s in zip(range(n), image_shape):
+            rel_image_i[dim] = np.clip(rel_image_i[dim], 0, s - 1)
+            rel_image_f[dim] = np.clip(rel_image_f[dim], 0, s - 1)
+
+        rel_image_slice = tuple([slice(int(rel_image_i[dim]),
+                                       int(rel_image_f[dim]) + 1)
+                                 for dim in range(n)])
+
+        rel_image = image[rel_image_slice]
+
+        # Modify offset to point into cropped image.
+        # y = Mx + o
+        # Coordinate substitution:
+        # y' = y - y0(min_coord_px)
+        # x' = x - x0(chunk_offset)
+        # Then:
+        # y' = Mx' + o + Mx0 - y0
+        # M' = M
+        # o' = o + Mx0 - y0
+
+        offset_prime = offset + np.dot(matrix, out_chunk_offset) - rel_image_i
+
+        output_layer[(output_name,) + block_ind] = (
+                        affine_transform_method,
+                        (da.core.concatenate3, rel_image.__dask_keys__()),
+                        asarray_method(matrix),
+                        offset_prime,
+                        tuple(out_chunk_shape),  # output_shape
+                        None,  # out
+                        order,
+                        'constant' if 'mode' not in kwargs else kwargs['mode'],
+                        0. if 'cval' not in kwargs else kwargs['cval'],
+                        False  # prefilter
+        )
+
+        rel_images.append(rel_image)
+
+    from dask.highlevelgraph import HighLevelGraph
+    graph = HighLevelGraph.from_collections(output_name, output_layer,
+                                            dependencies=[image] + rel_images)
+
+    meta = dispatch_asarray(image)([0]).astype(image.dtype)
+
+    transformed = da.Array(graph,
+                           output_name,
+                           shape=output_shape,
+                           # chunks=output_chunks,
+                           chunks=normalized_chunks,
+                           meta=meta)
+
+    return transformed

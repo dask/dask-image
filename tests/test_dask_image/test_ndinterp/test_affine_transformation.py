@@ -162,6 +162,7 @@ def test_affine_transform_modes(n,
     kwargs['interp_mode'] = interp_mode
     kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
     kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
+    kwargs['interp_order'] = 0
 
     helpers.test_affine_transform(**kwargs)
 
@@ -177,9 +178,41 @@ def test_affine_transform_unsupported_modes(interp_mode, helpers):
         helpers.test_affine_transform(**kwargs)
 
 
-def test_affine_transform_no_output_shape_or_chunks_specified():
+def test_affine_transform_numpy_input():
 
     image = np.ones((3, 3))
+    image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
+
+    assert image_t.shape == image.shape
+    assert (image == image_t).min()
+
+
+def test_affine_transform_type_consistency():
+
+    image = da.ones((3, 3))
+    image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
+
+    assert isinstance(image, type(image_t))
+    assert isinstance(image[0, 0].compute(), type(image_t[0, 0].compute()))
+
+
+def test_affine_transform_type_consistency_gpu():
+
+    pytest.importorskip("cupy", minversion="6.0.0")
+
+    image = da.ones((3, 3))
+    image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
+
+    import cupy as cp
+    image.map_blocks(cp.asarray)
+
+    assert isinstance(image, type(image_t))
+    assert isinstance(image[0, 0].compute(), type(image_t[0, 0].compute()))
+
+
+def test_affine_transform_no_output_shape_or_chunks_specified():
+
+    image = da.ones((3, 3))
     image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
 
     assert image_t.shape == image.shape
@@ -189,8 +222,45 @@ def test_affine_transform_no_output_shape_or_chunks_specified():
 def test_affine_transform_prefilter_warning():
 
     with pytest.warns(UserWarning):
-        da_ndinterp.affine_transform(np.ones(3), [1], [0],
+        da_ndinterp.affine_transform(da.ones(3), [1], [0],
                                      order=3, prefilter=True)
+
+
+def test_affine_transform_large_input_small_output_cpu():
+    """
+    Make sure input array does not need to be computed entirely
+    """
+
+    # fully computed, this array would occupy 8TB
+    image = da.random.random([10000] * 3, chunks=(200, 200, 200))
+    image_t = da_ndinterp.affine_transform(image, np.eye(3), [0, 0, 0],
+                                           output_chunks=[1, 1, 1],
+                                           output_shape=[1, 1, 1])
+
+    # if more than the needed chunks should be computed,
+    # this would take long and eventually raise a MemoryError
+    # use pytest-timeout?
+    image_t[0, 0, 0].compute()
+
+
+def test_affine_transform_large_input_small_output_gpu():
+    """
+    Make sure input array does not need to be computed entirely
+    """
+    pytest.importorskip("cupy", minversion="6.0.0")
+
+    # this array would occupy more than 24GB on a GPU
+    image = da.random.random([2000] * 3, chunks=(50, 50, 50))
+    import cupy as cp
+    image.map_blocks(cp.asarray)
+
+    image_t = da_ndinterp.affine_transform(image, np.eye(3), [0, 0, 0],
+                                           output_chunks=[1, 1, 1],
+                                           output_shape=[1, 1, 1])
+    # if more than the needed chunks should be computed,
+    # this would take long and eventually raise a MemoryError
+    # use pytest-timeout?
+    image_t[0, 0, 0].compute()
 
 
 @pytest.mark.filterwarnings("ignore:The behavior of affine_transform "
@@ -212,7 +282,7 @@ def test_affine_transform_parameter_formats(n):
                                    [0] * n + [1]))
 
     np.random.seed(0)
-    image = np.random.random([5] * n)
+    image = da.random.random([5] * n)
 
     # reference run
     image_t_0 = da_ndinterp.affine_transform(image,
