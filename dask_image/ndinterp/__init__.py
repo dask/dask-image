@@ -97,13 +97,7 @@ def affine_transform(
     # these lines were copied and adapted from `ndimage.affine_transform`
     if (matrix.ndim == 2 and matrix.shape[1] == image.ndim + 1 and
             (matrix.shape[0] in [image.ndim, image.ndim + 1])):
-        # if matrix.shape[0] == image.ndim + 1:
-        #     exptd = [0] * image.ndim + [1]
-        #     if not np.all(matrix[image.ndim] == exptd):
-        #         msg = ('Expected homogeneous transformation matrix with '
-        #                'shape %s for image shape %s, but bottom row was '
-        #                'not equal to %s' % (matrix.shape, image.shape, exptd))
-        #         raise ValueError(msg)
+
         # assume input is homogeneous coordinate transformation matrix
         offset = matrix[:image.ndim, image.ndim]
         matrix = matrix[:image.ndim, :image.ndim]

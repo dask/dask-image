@@ -32,7 +32,7 @@ def register_cupy_affine_transform():
 
 dispatch_asarray = Dispatcher(name="dispatch_asarray")
 
-# ================== affine_transform ==================
+# ===================== asarray ========================
 @dispatch_asarray.register(np.ndarray)
 def numpy_asarray(*args, **kwargs):
     return np.asarray
