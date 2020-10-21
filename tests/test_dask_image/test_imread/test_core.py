@@ -69,17 +69,14 @@ def test_tiff_imread(tmpdir, seed, nframes, dtype, shape, runtime_warning):
 
     a = np.random.uniform(low=low, high=high, size=shape).astype(dtype)
 
+    fn_pattern = str(dirpth.join("test_%s.tiff"))
+    for i in range(shape[0]):
+        with tifffile.TiffWriter(fn_pattern % i) as fh:
+            fh.save(a[i])
+
     if shape[0] == 1:
-        fn = str(dirpth.join("test.tiff"))
-        with tifffile.TiffWriter(fn) as fh:
-            for i in range(len(a)):
-                fh.save(a[i])
+        fn = fn_pattern % 0
     else:
-        fn_pattern = str(dirpth.join("test_%s.tiff"))
-        for i in range(shape[0]):
-            fn_i = fn_pattern % i
-            with tifffile.TiffWriter(fn_i) as fh:
-                fh.save(a[i])
         fn = fn_pattern % '*'
 
     with pytest.warns(None if runtime_warning is None
