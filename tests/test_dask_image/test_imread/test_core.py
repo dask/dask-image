@@ -36,17 +36,17 @@ def test_errs_imread(err_type, nframes):
     ]
 )
 @pytest.mark.parametrize(
-    "nframes, shape",
+    "nframes, shape, runtime_warning",
     [
-        (1, (1, 4, 3)),
-        (-1, (1, 4, 3)),
-        (3, (1, 4, 3)),
-        (1, (5, 4, 3)),
-        (2, (5, 4, 3)),
-        (1, (10, 5, 4, 3)),
-        (5, (10, 5, 4, 3)),
-        (10, (10, 5, 4, 3)),
-        (-1, (10, 5, 4, 3)),
+        (1, (1, 4, 3), None),
+        (-1, (1, 4, 3), None),
+        (3, (1, 4, 3), "`nframes` larger than"),
+        (1, (5, 4, 3), None),
+        (2, (5, 4, 3), "`nframes` does not nicely divide"),
+        (1, (10, 5, 4, 3), None),
+        (5, (10, 5, 4, 3), None),
+        (10, (10, 5, 4, 3), None),
+        (-1, (10, 5, 4, 3), None),
     ]
 )
 @pytest.mark.parametrize(
@@ -57,7 +57,7 @@ def test_errs_imread(err_type, nframes):
         np.float32,
     ]
 )
-def test_tiff_imread(tmpdir, seed, nframes, shape, dtype):
+def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype):
     np.random.seed(seed)
 
     dirpth = tmpdir.mkdir("test_imread")
@@ -74,7 +74,9 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, dtype):
         for i in range(len(a)):
             fh.save(a[i], contiguous=True)
 
-    d = dask_image.imread.imread(fn, nframes=nframes)
+    with pytest.warns(None if runtime_warning is None
+                      else RuntimeWarning, match=runtime_warning):
+        d = dask_image.imread.imread(fn, nframes=nframes)
 
     if nframes == -1:
         nframes = shape[0]
