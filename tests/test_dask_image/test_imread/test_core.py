@@ -72,7 +72,7 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, dtype):
     fn = str(dirpth.join("test.tiff"))
     with tifffile.TiffWriter(fn) as fh:
         for i in range(len(a)):
-            fh.save(a[i])
+            fh.save(a[i], contiguous=True)
 
     d = dask_image.imread.imread(fn, nframes=nframes)
 
