@@ -71,21 +71,20 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
             RuntimeWarning
         )
 
-    lower_iter, upper_iter = itertools.tee(itertools.chain(
-        range(0, shape[0], nframes),
-        [shape[0]]
-    ))
-    next(upper_iter)
-
-    a = []
-    for i, j in zip(lower_iter, upper_iter):
-        a.append(dask.array.from_delayed(
-            dask.delayed(_utils._read_frame)(fname, slice(i, j),
-                                             arrayfunc=arrayfunc),
-            (j - i,) + shape[1:],
-            dtype,
-            meta=arrayfunc([])
-        ))
-    a = dask.array.concatenate(a)
+    a = dask.array.map_blocks(
+        _map_read_frame,
+        chunks=dask.array.core.normalize_chunks(
+            (nframes,) + shape[1:], shape),
+        fn=fname,
+        arrayfunc=arrayfunc,
+        meta=arrayfunc([]).astype(dtype),  # meta overwrites `dtype` argument
+    )
 
     return a
+
+
+def _map_read_frame(block_info=None, **kwargs):
+
+    i, j = block_info[None]['array-location'][0]
+
+    return _utils._read_frame(i=slice(i, j), **kwargs)
