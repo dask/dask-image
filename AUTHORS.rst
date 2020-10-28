@@ -10,4 +10,4 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+See the full list of contributors here <https://github.com/dask/dask-image/graphs/contributors>
