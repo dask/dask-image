@@ -4,12 +4,12 @@ channels:
   - conda-forge
 
 dependencies:
-  - pip==18.0
-  - wheel==0.31.1
-  - sphinx==1.7.5
-  - dask-sphinx-theme==1.1.0
-  - dask==0.16.1
-  - numpy==1.11.3
+  - pip==19.0.1
+  - wheel==0.32.3
+  - sphinx==3.2.1
+  - dask-sphinx-theme==1.3.5
+  - dask==2.8.1
+  - numpy==1.15.4
   - pims==0.4.1
   - slicerator==0.9.8
   - pip:
