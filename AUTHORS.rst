@@ -5,9 +5,9 @@ Credits
 Development Lead
 ----------------
 
-* John Kirkham <kirkhamj@janelia.hhmi.org>
+* John Kirkham `@jakirkham <https://github.com/jakirkham>`_
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+See the full list of contributors `here <https://github.com/dask/dask-image/graphs/contributors>`_
