@@ -1,0 +1,10 @@
+coverage
+flake8
+pytest
+pytest-flake8
+dask
+numpy
+scipy
+scikit-image
+pims
+slicerator
