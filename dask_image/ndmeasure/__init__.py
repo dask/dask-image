@@ -680,7 +680,7 @@ def standard_deviation(image, label_image=None, index=None):
 
 def sum_labels(image, label_image=None, index=None):
     """
-    Find the sum_labels over an image at specified subregions.
+    Find the sum of all pixels over specified subregions of an image.
 
     Parameters
     ----------
