@@ -112,7 +112,7 @@ def test_center_of_mass(datatype):
     ]
 )
 def test_measure_props(funcname, shape, chunks, has_lbls, ind):
-    if funcname == 'sum_labels' and scipy.__version__ > LooseVersion('1.5.0'):
+    if funcname == 'sum_labels' and scipy.__version__ < LooseVersion('1.5.0'):
         scipy_funcname = 'sum'  # early scipy version uses a different name
     else:
         scipy_funcname = funcname
