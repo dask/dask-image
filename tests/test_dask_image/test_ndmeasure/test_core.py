@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-
+from distutils.version import LooseVersion
+import scipy
 import itertools as it
 import warnings as wrn
 
@@ -10,6 +11,7 @@ import pytest
 
 import numpy as np
 
+import scipy
 import scipy.ndimage as spnd
 
 import dask.array as da
@@ -28,7 +30,7 @@ import dask_image.ndmeasure
         "minimum",
         "minimum_position",
         "standard_deviation",
-        "sum",
+        "sum_labels",
         "variance",
     ]
 )
@@ -88,7 +90,7 @@ def test_center_of_mass(datatype):
         "minimum",
         "minimum_position",
         "standard_deviation",
-        "sum",
+        "sum_labels",
         "variance",
     ]
 )
@@ -110,7 +112,13 @@ def test_center_of_mass(datatype):
     ]
 )
 def test_measure_props(funcname, shape, chunks, has_lbls, ind):
-    sp_func = getattr(spnd, funcname)
+    # early scipy version uses a different name sum insted of sum_labels.
+    if funcname == 'sum_labels' and scipy.__version__ < LooseVersion('1.5.0'):
+        scipy_funcname = 'sum'
+    else:
+        scipy_funcname = funcname
+
+    sp_func = getattr(spnd, scipy_funcname)
     da_func = getattr(dask_image.ndmeasure, funcname)
 
     a = np.random.random(shape)

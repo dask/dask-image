@@ -30,6 +30,7 @@ __all__ = [
     "minimum_position",
     "standard_deviation",
     "sum",
+    "sum_labels",
     "variance",
 ]
 
@@ -678,9 +679,9 @@ def standard_deviation(image, label_image=None, index=None):
     return std_lbl
 
 
-def sum(image, label_image=None, index=None):
+def sum_labels(image, label_image=None, index=None):
     """
-    Find the sum over an image at specified subregions.
+    Find the sum of all pixels over specified subregions of an image.
 
     Parameters
     ----------
@@ -696,7 +697,7 @@ def sum(image, label_image=None, index=None):
 
     Returns
     -------
-    sum : ndarray
+    sum_lbl : ndarray
         Sum of ``image`` over the ``index`` selected regions from
         ``label_image``.
     """
@@ -710,6 +711,12 @@ def sum(image, label_image=None, index=None):
     )
 
     return sum_lbl
+
+
+def sum(image, label_image=None, index=None):
+    """DEPRECATED FUNCTION. Use `sum_labels` instead."""
+    warnings.warn("DEPRECATED FUNCTION. Use `sum_labels` instead.", DeprecationWarning)
+    return sum_labels(image, label_image=label_image, index=index)
 
 
 def variance(image, label_image=None, index=None):
