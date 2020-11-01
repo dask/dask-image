@@ -29,7 +29,7 @@ __all__ = [
     "minimum",
     "minimum_position",
     "standard_deviation",
-    "sum",
+    "sum_labels",
     "variance",
 ]
 
@@ -678,9 +678,9 @@ def standard_deviation(image, label_image=None, index=None):
     return std_lbl
 
 
-def sum(image, label_image=None, index=None):
+def sum_labels(image, label_image=None, index=None):
     """
-    Find the sum over an image at specified subregions.
+    Find the sum_labels over an image at specified subregions.
 
     Parameters
     ----------
@@ -696,7 +696,7 @@ def sum(image, label_image=None, index=None):
 
     Returns
     -------
-    sum : ndarray
+    sum_lbl : ndarray
         Sum of ``image`` over the ``index`` selected regions from
         ``label_image``.
     """

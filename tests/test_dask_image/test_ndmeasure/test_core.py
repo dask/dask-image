@@ -28,7 +28,7 @@ import dask_image.ndmeasure
         "minimum",
         "minimum_position",
         "standard_deviation",
-        "sum",
+        "sum_labels",
         "variance",
     ]
 )
@@ -88,7 +88,7 @@ def test_center_of_mass(datatype):
         "minimum",
         "minimum_position",
         "standard_deviation",
-        "sum",
+        "sum_labels",
         "variance",
     ]
 )
