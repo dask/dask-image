@@ -74,3 +74,12 @@ Good places to start include:
 
 * The dask-image API documentation: http://image.dask.org/en/latest/api.html
 * The documentation on working with dask arrays: http://docs.dask.org/en/latest/array.html
+
+
+Talks and Slides
+----------------
+
+Here are some talks and slides that you can watch to learn dask-image:
+
+- https://github.com/GenevieveBuckley/dask-image-talk-2020
+- https://github.com/jakirkham/scipy2019
