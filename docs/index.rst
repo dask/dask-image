@@ -19,7 +19,6 @@ Contents
 
    installation
    quickstart
-   development
    coverage
    api
    contributing

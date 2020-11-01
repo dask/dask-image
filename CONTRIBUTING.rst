@@ -125,6 +125,52 @@ Before you submit a pull request, check that it meets these guidelines:
    and make sure that the tests pass for all supported Python versions
    and platforms.
 
+Running tests locally
+---------------------
+
+To setup development environment, run the following command in your terminal.
+
+.. list-table:: Conda command for each operating system
+    :widths: 20 50
+    :header-rows: 1
+
+    * - OS
+      - path
+    * - Linux
+      - conda env create -f .circleci/environments/tst_py38.yml
+    * - OSX
+      - conda env create -f .travis_support/environment/tst_py38.yml
+    * - Windows
+      - conda env create -f .appveyor_support/environments/tst_py38.yml
+
+.. note::
+    If you do not have Anaconda/miniconda installed, please follow `the instruction <https://docs.conda.io/projects/conda/en/latest/user-guide/install/>`_.
+
+
+This command will create a new conda environment called ``dask_image_py38_env``
+with all the dependency requirements.
+
+Now you can activate your testing environment with:
+
+.. code-block:: console
+
+    $ conda activate dask_image_py38_env
+
+Finally, installing the development version of the dask-image to start the
+development.
+
+.. code-block:: console
+
+    $ pip install -e .
+
+For local testing, please run ``pytest`` in the development environment.
+
+.. code-block:: console
+
+    $ pytest
+
+
+
 Tips
 ----
 
