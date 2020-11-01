@@ -10,6 +10,7 @@ import pytest
 
 import numpy as np
 
+import scipy
 import scipy.ndimage as spnd
 
 import dask.array as da
