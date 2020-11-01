@@ -29,6 +29,7 @@ __all__ = [
     "minimum",
     "minimum_position",
     "standard_deviation",
+    "sum",
     "sum_labels",
     "variance",
 ]
