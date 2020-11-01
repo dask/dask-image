@@ -714,8 +714,8 @@ def sum_labels(image, label_image=None, index=None):
 
 
 def sum(image, label_image=None, index=None):
-    """DEPRECATED FUNCTION. Use ‘sum_labels’ instead."""
-    warnings.warn("DEPRECATED FUNCTION. Use ‘sum_labels’ instead.", DeprecationWarning)
+    """DEPRECATED FUNCTION. Use `sum_labels` instead."""
+    warnings.warn("DEPRECATED FUNCTION. Use `sum_labels` instead.", DeprecationWarning)
     return sum_labels(image, label_image=label_image, index=index)
 
 
