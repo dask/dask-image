@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-
+from distutils.version import LooseVersion
 import itertools as it
 import warnings as wrn
 
@@ -110,8 +110,8 @@ def test_center_of_mass(datatype):
     ]
 )
 def test_measure_props(funcname, shape, chunks, has_lbls, ind):
-    if funcname == 'sum_labels':  # dask-image function name differs from scipy
-        scipy_funcname = 'sum'
+    if scipy.__version__ < LooseVersion('1.5.0'):
+        scipy_funcname = 'sum'  # early scipy version uses a different name
     else:
         scipy_funcname = funcname
 
