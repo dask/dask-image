@@ -74,3 +74,19 @@ Good places to start include:
 
 * The dask-image API documentation: http://image.dask.org/en/latest/api.html
 * The documentation on working with dask arrays: http://docs.dask.org/en/latest/array.html
+
+
+Talks and Slides
+----------------
+
+Here are some talks and slides that you can watch to learn dask-image:
+
+- 2020, Genevieve Buckley's talk at PyConAU and SciPy Japan
+
+  - `Watch the talk <https://www.youtube.com/watch?v=MpjgzNeISeI&list=PLs4CJRBY5F1IEFq-wumrBDRCu2EqkpY-R&index=2>`_
+  - `See the slides <https://genevievebuckley.github.io/dask-image-talk-2020>`_
+
+- 2019, John Kirkham's SciPy talk
+
+  - `Watch the talk <https://www.youtube.com/watch?v=XGUS174vvLs>`_
+  - `See the slides <https://nbviewer.ipython.org/format/slides/github/jakirkham/scipy2019/blob/master/slides.ipynb#/>`_
