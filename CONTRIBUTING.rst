@@ -125,9 +125,71 @@ Before you submit a pull request, check that it meets these guidelines:
    and make sure that the tests pass for all supported Python versions
    and platforms.
 
-Tips
-----
+Running tests locally
+---------------------
 
-To run a subset of tests::
+To setup a local testing environment that matches the test environments we use
+for our continuous integration services, you can use the ``.yml``
+conda environment files included in the dask-image repository.
 
-    $ py.test tests/test_dask_image.py
+The test environment ``.yml`` files are included in hidden folders:
+
+- Linux test environment files are found in ``.circleci/environments``
+- MacOS test environment files are found in ``.travis_support/environments``
+- Windows test environment files are found in ``.appveyor_support\environments``
+
+There is a separate environment file for each supported Python version.
+
+.. note::
+    If you do not have Anaconda/miniconda installed, please follow
+    `these instructions <https://docs.conda.io/projects/conda/en/latest/user-guide/install/>`_.
+
+
+We will use conda to
+`create an environment from a file
+<https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file>`_
+(``conda env create -f name-of-environment-file.yml``).
+
+
+For example, to make a Python 3.8 test environment on Linux, MacOS, or Windows,
+we would use the command shown in the table below:
+
+.. list-table:: Creating a test environment for dask-image with Python 3.8
+    :widths: 20 50
+    :header-rows: 1
+
+    * - OS
+      - conda command
+    * - Linux
+      - ``conda env create -f .circleci/environments/tst_py38.yml``
+    * - MacOS
+      - ``conda env create -f .travis_support/environment/tst_py38.yml``
+    * - Windows
+      - ``conda env create -f .appveyor_support\environments\tst_py38.yml``
+
+
+This command will create a new conda test environment for Python 3.8,
+called ``dask_image_py38_env`` with all the dependencies.
+
+Now you can activate your new testing environment with::
+
+.. code-block:: console
+
+    $ conda activate dask_image_py38_env
+
+Finally, install the development version of dask-image::
+
+.. code-block:: console
+
+    $ pip install -e .
+
+For local testing, please run ``pytest`` in the test environment::
+
+.. code-block:: console
+
+    $ pytest
+
+
+To run a subset of tests, for example all the tests for ndfourier::
+
+    $ pytest tests/test_dask_image/test_ndfourier
