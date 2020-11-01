@@ -110,7 +110,12 @@ def test_center_of_mass(datatype):
     ]
 )
 def test_measure_props(funcname, shape, chunks, has_lbls, ind):
-    sp_func = getattr(spnd, funcname)
+    if funcname == 'sum_labels':  # dask-image function name differs from scipy
+        scipy_funcname = 'sum'
+    else:
+        scipy_funcname = funcname
+
+    sp_func = getattr(spnd, scipy_funcname)
     da_func = getattr(dask_image.ndmeasure, funcname)
 
     a = np.random.random(shape)
