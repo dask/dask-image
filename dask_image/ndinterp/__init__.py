@@ -5,6 +5,7 @@ import numpy as np
 
 import dask.array as da
 from dask.base import tokenize
+from dask.highlevelgraph import HighLevelGraph
 
 from scipy.ndimage import affine_transform as ndimage_affine_transform
 import warnings
@@ -168,12 +169,10 @@ def affine_transform(
                 rel_image_i[dim] += 0.5
                 rel_image_f[dim] += 0.5
 
-            # for some reason the behaviour becomes inconsistent with ndimage
-            # if leaving out the -1 in the next line
             rel_image_i[dim] = np.floor(rel_image_i[dim]) - order // 2
             rel_image_f[dim] = np.floor(rel_image_f[dim]) - order // 2 + order
 
-            if order == 0:
+            if order == 0:  # required for consistency with scipy.ndimage
                 rel_image_i[dim] -= 1
 
         # clip image coordinates to image extent
@@ -187,15 +186,18 @@ def affine_transform(
 
         rel_image = image[rel_image_slice]
 
-        # Modify offset to point into cropped image.
-        # y = Mx + o
-        # Coordinate substitution:
-        # y' = y - y0(min_coord_px)
-        # x' = x - x0(chunk_offset)
-        # Then:
-        # y' = Mx' + o + Mx0 - y0
-        # M' = M
-        # o' = o + Mx0 - y0
+        """Block comment for future developers explaining how `offset` is
+        transformed into `offset_prime` for each output chunk.
+        Modify offset to point into cropped image.
+        y = Mx + o
+        Coordinate substitution:
+        y' = y - y0(min_coord_px)
+        x' = x - x0(chunk_offset)
+        Then:
+        y' = Mx' + o + Mx0 - y0
+        M' = M
+        o' = o + Mx0 - y0
+        """
 
         offset_prime = offset + np.dot(matrix, out_chunk_offset) - rel_image_i
 
@@ -214,7 +216,6 @@ def affine_transform(
 
         rel_images.append(rel_image)
 
-    from dask.highlevelgraph import HighLevelGraph
     graph = HighLevelGraph.from_collections(output_name, output_layer,
                                             dependencies=[image] + rel_images)
 
