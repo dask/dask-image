@@ -12,7 +12,7 @@ import warnings
 import dask
 import dask.array
 import dask.delayed
-import numpy
+import numpy as np
 import pims
 
 from . import _utils
@@ -47,14 +47,14 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         raise ValueError("`nframes` must be greater than zero.")
 
     if arraytype == "numpy":
-        arrayfunc = numpy.asanyarray
+        arrayfunc = np.asanyarray
     elif arraytype == "cupy":   # pragma: no cover
         import cupy
         arrayfunc = cupy.asanyarray
 
     with pims.open(sfname) as imgs:
         shape = (len(imgs),) + imgs.frame_shape
-        dtype = numpy.dtype(imgs.pixel_type)
+        dtype = np.dtype(imgs.pixel_type)
 
     if nframes == -1:
         nframes = shape[0]

@@ -51,14 +51,14 @@ def fourier_gaussian(image, sigma, n=-1, axis=-1):
     Examples
     --------
     >>> from scipy import ndimage, misc
-    >>> import numpy.fft
+    >>> import numpy as np
     >>> import matplotlib.pyplot as plt
     >>> fig, (ax1, ax2) = plt.subplots(1, 2)
     >>> plt.gray()  # show the filtered result in grayscale
     >>> ascent = misc.ascent()
-    >>> image = numpy.fft.fft2(ascent)
+    >>> image = np.fft.fft2(ascent)
     >>> result = ndimage.fourier_gaussian(image, sigma=4)
-    >>> result = numpy.fft.ifft2(result)
+    >>> result = np.fft.ifft2(result)
     >>> ax1.imshow(ascent)
     """
 
@@ -114,13 +114,13 @@ def fourier_shift(image, shift, n=-1, axis=-1):
     --------
     >>> from scipy import ndimage, misc
     >>> import matplotlib.pyplot as plt
-    >>> import numpy.fft
+    >>> import numpy as np
     >>> fig, (ax1, ax2) = plt.subplots(1, 2)
     >>> plt.gray()  # show the filtered result in grayscale
     >>> ascent = misc.ascent()
-    >>> image = numpy.fft.fft2(ascent)
+    >>> image = np.fft.fft2(ascent)
     >>> result = ndimage.fourier_shift(image, shift=200)
-    >>> result = numpy.fft.ifft2(result)
+    >>> result = np.fft.ifft2(result)
     >>> ax1.imshow(ascent)
     >>> ax2.imshow(result.real)  # the imaginary part is an artifact
     >>> plt.show()
@@ -184,14 +184,14 @@ def fourier_uniform(image, size, n=-1, axis=-1):
     Examples
     --------
     >>> from scipy import ndimage, misc
-    >>> import numpy.fft
+    >>> import numpy as np
     >>> import matplotlib.pyplot as plt
     >>> fig, (ax1, ax2) = plt.subplots(1, 2)
     >>> plt.gray()  # show the filtered result in grayscale
     >>> ascent = misc.ascent()
-    >>> image = numpy.fft.fft2(ascent)
+    >>> image = np.fft.fft2(ascent)
     >>> result = ndimage.fourier_uniform(image, size=20)
-    >>> result = numpy.fft.ifft2(result)
+    >>> result = np.fft.ifft2(result)
     >>> ax1.imshow(ascent)
     >>> ax2.imshow(result.real)  # the imaginary part is an artifact
     >>> plt.show()
