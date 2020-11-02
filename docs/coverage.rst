@@ -16,7 +16,7 @@ This table shows which SciPy ndimage functions are supported by dask-image.
      - dask-image
    * - ``affine_transform``
      - ✓
-     - 
+     - ✓
    * - ``binary_closing``
      - ✓
      - ✓
