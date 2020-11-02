@@ -6,7 +6,7 @@ from __future__ import absolute_import
 import pytest
 
 import numpy as np
-import dask.array
+import dask.array as da
 
 from dask_image.ndmorph import _utils
 
@@ -16,12 +16,12 @@ from dask_image.ndmorph import _utils
     [
         (
             RuntimeError,
-            dask.array.ones([1, 2], dtype=bool, chunks=(1, 2,)),
-            dask.array.arange(2, dtype=bool, chunks=(2,))
+            da.ones([1, 2], dtype=bool, chunks=(1, 2,)),
+            da.arange(2, dtype=bool, chunks=(2,))
         ),
         (
             TypeError,
-            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            da.arange(2, dtype=bool, chunks=(2,)),
             2.0
         ),
     ]
@@ -48,12 +48,12 @@ def test_errs__get_iterations(err_type, iterations):
     [
         (
             RuntimeError,
-            dask.array.arange(2, dtype=bool, chunks=(2,)),
-            dask.array.arange(1, dtype=bool, chunks=(2,))
+            da.arange(2, dtype=bool, chunks=(2,)),
+            da.arange(1, dtype=bool, chunks=(2,))
         ),
         (
             TypeError,
-            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            da.arange(2, dtype=bool, chunks=(2,)),
             2.0
         ),
     ]
@@ -92,22 +92,22 @@ def test_errs__get_brute_force(err_type, brute_force):
     [
         (
             np.array([1, 1, 1], dtype=bool),
-            (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
+            (da.arange(10, chunks=(10,)) % 2).astype(bool),
             None
         ),
         (
             np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], dtype=bool),
-            (dask.array.arange(100, chunks=10).reshape(10, 10) % 2).astype(bool),  # noqa: E501
+            (da.arange(100, chunks=10).reshape(10, 10) % 2).astype(bool),  # noqa: E501
             None
         ),
         (
             np.array([1, 1, 1], dtype=bool),
-            (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
+            (da.arange(10, chunks=(10,)) % 2).astype(bool),
             np.array([1, 1, 1], dtype=int)
         ),
         (
             np.array([1, 1, 1], dtype=bool),
-            (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
+            (da.arange(10, chunks=(10,)) % 2).astype(bool),
             np.array([1, 1, 1], dtype=bool)
         ),
     ]
@@ -148,28 +148,28 @@ def test__get_dtype(expected, a):
 @pytest.mark.parametrize(
     "expected, input, mask",
     [
-        (True, dask.array.arange(2, dtype=bool, chunks=(2,)), None),
-        (True, dask.array.arange(2, dtype=bool, chunks=(2,)), True),
-        (False, dask.array.arange(2, dtype=bool, chunks=(2,)), False),
+        (True, da.arange(2, dtype=bool, chunks=(2,)), None),
+        (True, da.arange(2, dtype=bool, chunks=(2,)), True),
+        (False, da.arange(2, dtype=bool, chunks=(2,)), False),
         (
             True,
-            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            da.arange(2, dtype=bool, chunks=(2,)),
             np.bool8(True)
         ),
         (
             False,
-            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            da.arange(2, dtype=bool, chunks=(2,)),
             np.bool8(False)
         ),
         (
             np.arange(2, dtype=bool),
-            dask.array.arange(2, dtype=bool, chunks=(2,)),
+            da.arange(2, dtype=bool, chunks=(2,)),
             np.arange(2, dtype=bool)
         ),
         (
-            dask.array.arange(2, dtype=bool, chunks=(2,)),
-            dask.array.arange(2, dtype=bool, chunks=(2,)),
-            dask.array.arange(2, dtype=int, chunks=(2,))
+            da.arange(2, dtype=bool, chunks=(2,)),
+            da.arange(2, dtype=bool, chunks=(2,)),
+            da.arange(2, dtype=int, chunks=(2,))
         ),
     ]
 )
@@ -178,7 +178,7 @@ def test__get_mask(expected, input, mask):
 
     assert type(expected) == type(result)
 
-    if isinstance(expected, (np.ndarray, dask.array.Array)):
+    if isinstance(expected, (np.ndarray, da.Array)):
         assert np.array((expected == result).all())[()]
     else:
         assert expected == result

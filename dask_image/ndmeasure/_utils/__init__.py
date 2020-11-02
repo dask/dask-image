@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 
 import dask
-import dask.array
+import dask.array as da
 
 
 try:

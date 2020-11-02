@@ -10,7 +10,7 @@ import numbers
 import warnings
 
 import dask
-import dask.array
+import dask.array as da
 import dask.delayed
 import numpy as np
 import pims
@@ -36,7 +36,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
 
     Returns
     -------
-    array : dask.array.Array
+    array : da.Array
         A Dask Array representing the contents of all image files.
     """
 
@@ -72,9 +72,9 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
             RuntimeWarning
         )
 
-    a = dask.array.map_blocks(
+    a = da.map_blocks(
         _map_read_frame,
-        chunks=dask.array.core.normalize_chunks(
+        chunks=da.core.normalize_chunks(
             (nframes,) + shape[1:], shape),
         fn=sfname,
         arrayfunc=arrayfunc,

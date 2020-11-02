@@ -6,7 +6,7 @@ import numbers
 import numpy as np
 import scipy.ndimage
 
-import dask.array
+import dask.array as da
 
 from ..ndfilters._utils import (
     _update_wrapper,
@@ -25,7 +25,7 @@ def _get_structure(image, structure):
     # Create square connectivity as default
     if structure is None:
         structure = scipy.ndimage.generate_binary_structure(image.ndim, 1)
-    elif isinstance(structure, (np.ndarray, dask.array.Array)):
+    elif isinstance(structure, (np.ndarray, da.Array)):
         if structure.ndim != image.ndim:
             raise RuntimeError(
                 "`structure` must have the same rank as `image`."
@@ -60,7 +60,7 @@ def _get_mask(image, mask):
         mask = True
 
     mask_type = _get_dtype(mask).type
-    if isinstance(mask, (np.ndarray, dask.array.Array)):
+    if isinstance(mask, (np.ndarray, da.Array)):
         if mask.shape != image.shape:
             raise RuntimeError("`mask` must have the same shape as `image`.")
         if not issubclass(mask_type, np.bool8):

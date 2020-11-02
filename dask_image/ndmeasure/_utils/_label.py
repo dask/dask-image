@@ -8,7 +8,7 @@ import scipy.sparse
 import scipy.sparse.csgraph
 
 import dask
-import dask.array
+import dask.array as da
 
 
 def _get_ndimage_label_dtype():
@@ -44,7 +44,7 @@ def relabel_blocks(block_labeled, new_labeling):
         The relabeled input array.
     """
     new_labeling = new_labeling.astype(LABEL_DTYPE)
-    relabeled = dask.array.map_blocks(operator.getitem,
+    relabeled = da.map_blocks(operator.getitem,
                                       new_labeling,
                                       block_labeled,
                                       dtype=LABEL_DTYPE,
@@ -113,7 +113,7 @@ def _across_block_label_grouping_delayed(face, structure):
     """Delayed version of :func:`_across_block_label_grouping`."""
     _across_block_label_grouping_ = dask.delayed(_across_block_label_grouping)
     grouped = _across_block_label_grouping_(face, structure)
-    return dask.array.from_delayed(grouped,
+    return da.from_delayed(grouped,
                                    shape=(2, np.nan),
                                    dtype=LABEL_DTYPE)
 
@@ -155,12 +155,12 @@ def label_adjacency_graph(labels, structure, nlabels):
         label j in the global volume, 0 everywhere else.
     """
     faces = _chunk_faces(labels.chunks, labels.shape)
-    all_mappings = [dask.array.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
+    all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
     for face_slice in faces:
         face = labels[face_slice]
         mapped = _across_block_label_grouping_delayed(face, structure)
         all_mappings.append(mapped)
-    all_mappings = dask.array.concatenate(all_mappings, axis=1)
+    all_mappings = da.concatenate(all_mappings, axis=1)
     i, j = all_mappings
     mat = _to_csr_matrix(i, j, nlabels + 1)
     return mat
@@ -184,7 +184,7 @@ def _chunk_faces(chunks, shape):
 
     Examples
     --------
-    >>> a = dask.array.arange(110, chunks=110).reshape((10, 11)).rechunk(5)
+    >>> a = da.arange(110, chunks=110).reshape((10, 11)).rechunk(5)
     >>> chunk_faces(a.chunks, a.shape)
     [(slice(4, 6, None), slice(0, 5, None)),
      (slice(4, 6, None), slice(5, 10, None)),
@@ -194,7 +194,7 @@ def _chunk_faces(chunks, shape):
      (slice(5, 10, None), slice(4, 6, None)),
      (slice(5, 10, None), slice(9, 11, None))]
     """
-    slices = dask.array.core.slices_from_chunks(chunks)
+    slices = da.core.slices_from_chunks(chunks)
     ndim = len(shape)
     faces = []
     for ax in range(ndim):
@@ -228,9 +228,9 @@ def block_ndi_label_delayed(block, structure):
     label = dask.delayed(scipy.ndimage.label, nout=2)
     labeled_block, n = label(block, structure=structure)
     n = dask.delayed(LABEL_DTYPE.type)(n)
-    labeled = dask.array.from_delayed(labeled_block, shape=block.shape,
+    labeled = da.from_delayed(labeled_block, shape=block.shape,
                                       dtype=LABEL_DTYPE)
-    n = dask.array.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
+    n = da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
     return labeled, n
 
 
@@ -242,5 +242,5 @@ def connected_components_delayed(csr_matrix):
     the number of components.
     """
     conn_comp = dask.delayed(scipy.sparse.csgraph.connected_components, nout=2)
-    return dask.array.from_delayed(conn_comp(csr_matrix, directed=False)[1],
+    return da.from_delayed(conn_comp(csr_matrix, directed=False)[1],
                                    shape=(np.nan,), dtype=CONN_COMP_DTYPE)
