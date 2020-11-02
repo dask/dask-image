@@ -27,7 +27,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
 
     Parameters
     ----------
-    fname : str
+    fname : str or pathlib.Path
         A glob like string that may match one or multiple filenames.
     nframes : int, optional
         Number of the frames to include in each chunk (default: 1).
@@ -40,6 +40,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         A Dask Array representing the contents of all image files.
     """
 
+    sfname = str(fname)
     if not isinstance(nframes, numbers.Integral):
         raise ValueError("`nframes` must be an integer.")
     if (nframes != -1) and not (nframes > 0):
@@ -51,7 +52,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         import cupy
         arrayfunc = cupy.asanyarray
 
-    with pims.open(fname) as imgs:
+    with pims.open(sfname) as imgs:
         shape = (len(imgs),) + imgs.frame_shape
         dtype = numpy.dtype(imgs.pixel_type)
 
@@ -75,7 +76,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         _map_read_frame,
         chunks=dask.array.core.normalize_chunks(
             (nframes,) + shape[1:], shape),
-        fn=fname,
+        fn=sfname,
         arrayfunc=arrayfunc,
         meta=arrayfunc([]).astype(dtype),  # meta overwrites `dtype` argument
     )

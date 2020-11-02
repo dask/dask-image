@@ -5,6 +5,7 @@
 from __future__ import absolute_import
 
 import numbers
+import pathlib
 
 import pytest
 
@@ -57,7 +58,14 @@ def test_errs_imread(err_type, nframes):
         np.float32,
     ]
 )
-def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype):
+@pytest.mark.parametrize(
+    "is_pathlib_Path",
+    [
+        True,
+        False,
+    ]
+)
+def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pathlib_Path):
     np.random.seed(seed)
 
     dirpth = tmpdir.mkdir("test_imread")
@@ -76,6 +84,8 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype):
 
     with pytest.warns(None if runtime_warning is None
                       else RuntimeWarning, match=runtime_warning):
+        if is_pathlib_Path:
+            fn = pathlib.Path(fn)
         d = dask_image.imread.imread(fn, nframes=nframes)
 
     if nframes == -1:
