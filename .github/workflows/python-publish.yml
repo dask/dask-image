@@ -24,7 +24,7 @@ jobs:
         pip install setuptools wheel twine
     - name: Test
       run: |
-        make test
+        python setup.py test
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
