@@ -14,27 +14,33 @@ The SciPy Japan sprint in November 2020 led to many improvements, and I'd like t
 Special thanks go to everyone who joined us at the conference!
 
 New Features
+
 * Affine transformation feature added: from dask_image.ndinterp import affine_transform (#159)
 * GPU support added for local_threshold with method='mean' (#158)
 * Pathlib input now accepted for imread functions (#174)
 
 Improvements
+
 * Performance improvement for 'imread', we now use `da.map_blocks` instead of `da.concatenate` (#165)
 
 Bug Fixes
+
 * Fixed imread tests (add `contiguous=True` when saving test data with tifffile) (#164)
 * FIXed scipy LooseVersion for sum_labels check (#176)
 
 API Changes
+
 * 'sum' is renamed to 'sum_labels' and a add deprecation warning added (#172)
 
 Documentation improvements
-* DOC: Add section Talks and Slides #163 (#169)
-* DOC: Add link to SciPy Japan 2020 talk (#171)
-* DOC: Add development guide to setup environment and run tests (#170)
-* DOC: Update information in AUTHORS.rst (#167)
+
+* Add section Talks and Slides #163 (#169)
+* Add link to SciPy Japan 2020 talk (#171)
+* Add development guide to setup environment and run tests (#170)
+* Update information in AUTHORS.rst (#167)
 
 Maintenance
+
 * Update dependencies in Read The Docs environment (#168)
 
 6 authors added to this release (alphabetical)
