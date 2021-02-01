@@ -75,6 +75,8 @@ The release notes contain a list of merges, contributors, and reviewers.
 2. Run the python script to generate the release notes,
 including all changes since the last tagged release.
 
+    Note: The PyGithub package must be installed to run this script (https://github.com/PyGithub/PyGithub)
+
     Call the script like this:
 
     .. code-block:: bash
