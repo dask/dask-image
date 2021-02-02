@@ -168,6 +168,7 @@ Note: the conda-forge bot will not open a PR for any of the release candidates,
 only for the final release. Only one PR is opened for
 
 Before merging the pull request, first you should check:
+
 * That all the tests have passed on CI for this pull request
 * If any dependencies were changed, and should be updated in the pull request
 
