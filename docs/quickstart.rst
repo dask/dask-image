@@ -26,7 +26,7 @@ https://github.com/dask/dask-examples
 
 The direct link to the notebook file is here:
 
-https://github.com/dask/dask-examples/blob/master/applications/image-processing.ipynb
+https://github.com/dask/dask-examples/blob/main/applications/image-processing.ipynb
 
 All the example notebooks are available to launch with
 mybinder and test out interactively.

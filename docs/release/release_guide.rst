@@ -75,18 +75,20 @@ The release notes contain a list of merges, contributors, and reviewers.
 2. Run the python script to generate the release notes,
 including all changes since the last tagged release.
 
+    Note: The PyGithub package must be installed to run this script (https://github.com/PyGithub/PyGithub)
+
     Call the script like this:
 
     .. code-block:: bash
 
-       python docs/release/generate_release_notes.py  <last-version-tag> master --version <new-version-number>
+       python docs/release/generate_release_notes.py  <last-version-tag> main --version <new-version-number>
 
 
     An example:
 
     .. code-block:: bash
 
-       python docs/release/generate_release_notes.py  v0.14.0 master --version 0.15.0
+       python docs/release/generate_release_notes.py  v0.14.0 main --version 0.15.0
 
 
     See help for this script with:
@@ -157,15 +159,16 @@ automatically begin the process to release the new version on conda-forge.
 Releasing on conda-forge
 ------------------------
 
-It usually takes about an hour or so for the conda-forge bot 
+It usually takes about an hour or so for the conda-forge bot
 ``regro-cf-autotick-bot`` to see that there is a new release
 available on PyPI, and open a pull request in the ``dask-image``
 conda-forge feedstock here: https://github.com/conda-forge/dask-image-feedstock
 
 Note: the conda-forge bot will not open a PR for any of the release candidates,
-only for the final release. Only one PR is opened for 
+only for the final release. Only one PR is opened for
 
 Before merging the pull request, first you should check:
+
 * That all the tests have passed on CI for this pull request
 * If any dependencies were changed, and should be updated in the pull request
 
