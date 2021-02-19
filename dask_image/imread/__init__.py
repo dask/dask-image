@@ -5,7 +5,7 @@ __author__ = """John Kirkham"""
 __email__ = "kirkhamj@janelia.hhmi.org"
 
 
-import itertools
+import glob
 import numbers
 import warnings
 
@@ -72,11 +72,22 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
             RuntimeWarning
         )
 
-    a = dask.array.map_blocks(
+    # place source filenames into dask array
+    filenames = sorted(glob.glob(sfname))  # pims also does this
+    if len(filenames) > 1:
+        ar = dask.array.from_array(filenames, chunks=(nframes,))
+        multiple_files = True
+    else:
+        ar = dask.array.from_array(filenames * shape[0], chunks=(nframes,))
+        multiple_files = False
+
+    # read in data using encoded filenames
+    a = ar.map_blocks(
         _map_read_frame,
         chunks=dask.array.core.normalize_chunks(
             (nframes,) + shape[1:], shape),
-        fn=sfname,
+        multiple_files=multiple_files,
+        new_axis=list(range(1, len(shape))),
         arrayfunc=arrayfunc,
         meta=arrayfunc([]).astype(dtype),  # meta overwrites `dtype` argument
     )
@@ -84,8 +95,13 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
     return a
 
 
-def _map_read_frame(block_info=None, **kwargs):
+def _map_read_frame(x, multiple_files, block_info=None, **kwargs):
 
-    i, j = block_info[None]['array-location'][0]
+    fn = x[0]  # get filename from input chunk
 
-    return _utils._read_frame(i=slice(i, j), **kwargs)
+    if multiple_files:
+        i, j = 0, 1
+    else:
+        i, j = block_info[None]['array-location'][0]
+
+    return _utils._read_frame(fn=fn, i=slice(i, j), **kwargs)
