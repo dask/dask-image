@@ -90,13 +90,13 @@ def gaussian(image,
              mode='reflect',
              cval=0.0,
              truncate=4.0):
-    """Alias of 'gaussian_filter'."""
+    """Alias of `dask_image.ndfilters.gaussian_filter`."""
     return gaussian_filter(image,
                            sigma,
-                           order=0,
-                           mode='reflect',
-                           cval=0.0,
-                           truncate=4.0)
+                           order=order,
+                           mode=mode,
+                           cval=cval,
+                           truncate=truncate)
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.gaussian_gradient_magnitude)
