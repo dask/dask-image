@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import functools
 from itertools import product
 import numpy as np
 
@@ -14,7 +15,10 @@ import warnings
 from ..dispatch._dispatch_ndinterp import (
     dispatch_affine_transform,
     dispatch_asarray,
+    dispatch_spline_filter,
+    dispatch_spline_filter1d,
 )
+from ..ndfilters._utils import _get_depth_boundary
 
 
 __all__ = [
@@ -232,3 +236,93 @@ def affine_transform(
                            meta=meta)
 
     return transformed
+
+
+def spline_filter(
+        image,
+        order=3,
+        output=np.float64,
+        mode='mirror',
+        output_chunks=None,
+        *,
+        depth=12,
+        **kwargs
+):
+    # use dispatching mechanism to determine backend
+    spline_filter_method = dispatch_spline_filter(image)
+
+    try:
+        dtype = np.dtype(output)
+    except TypeError:
+        raise TypeError(
+            "Could not coerce the provided output to a dtype. "
+            "Passing array to output is not currently supported."
+        )
+
+    # Note:
+    #     depths of 12 and 24 give results matching SciPy to approximately
+    #     single and double precision accuracy, respectively.
+    depth, boundary = _get_depth_boundary(image.ndim, depth, "none")
+
+    # cannot pass a func kwarg named "output" to map_overlap
+    spline_filter_method = functools.partial(spline_filter_method, output=dtype)
+
+    result = image.map_overlap(
+        spline_filter_method,
+        depth=depth,
+        boundary=boundary,
+        dtype=dtype,
+        meta=image._meta,
+        # spline_filter kwargs
+        order=order,
+        mode=mode,
+    )
+
+    return result
+
+
+def spline_filter1d(
+        image,
+        order=3,
+        axis=-1,
+        output=np.float64,
+        mode='mirror',
+        output_chunks=None,
+        *,
+        depth=12,
+        **kwargs
+):
+    # use dispatching mechanism to determine backend
+    spline_filter1d_method = dispatch_spline_filter1d(image)
+
+    try:
+        dtype = np.dtype(output)
+    except TypeError:
+        raise TypeError(
+            "Could not coerce the provided output to a dtype. "
+            "Passing array to output is not currently supported."
+        )
+
+    # use depth 0 on all except the filtered axis
+    if not np.isscalar(depth):
+        raise ValueError("depth must be a scalar value")
+    depths = [0,] * image.ndim
+    depths[axis] = depth
+
+    # cannot pass a func kwarg named "output" to map_overlap
+    spline_filter1d_method = functools.partial(spline_filter1d_method,
+                                               output=dtype)
+
+    result = image.map_overlap(
+        spline_filter1d_method,
+        depth=tuple(depths),
+        boundary="none",
+        dtype=dtype,
+        meta=image._meta,
+        # spline_filter1d kwargs
+        order=order,
+        axis=axis,
+        mode=mode,
+    )
+
+    return result
