@@ -8,6 +8,7 @@ import scipy.ndimage
 
 import dask.array
 
+from ..dispatch._dispatch_ndmorph import dispatch_binary_structure
 from ..ndfilters._utils import (
     _update_wrapper,
     _get_depth_boundary,
@@ -24,8 +25,9 @@ _get_depth = _get_depth
 def _get_structure(image, structure):
     # Create square connectivity as default
     if structure is None:
-        structure = scipy.ndimage.generate_binary_structure(image.ndim, 1)
-    elif isinstance(structure, (numpy.ndarray, dask.array.Array)):
+        generate_binary_structure = dispatch_binary_structure(image)
+        structure = generate_binary_structure(image.ndim, 1)
+    elif hasattr(structure, 'ndim'):
         if structure.ndim != image.ndim:
             raise RuntimeError(
                 "`structure` must have the same rank as `image`."
