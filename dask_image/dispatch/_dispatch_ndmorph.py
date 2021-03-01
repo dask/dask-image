@@ -8,10 +8,12 @@ from ._dispatcher import Dispatcher
 __all__ = [
     "dispatch_binary_dilation",
     "dispatch_binary_erosion",
+    "dispatch_binary_structure",
 ]
 
 dispatch_binary_dilation = Dispatcher(name="dispatch_binary_dilation")
 dispatch_binary_erosion = Dispatcher(name="dispatch_binary_erosion")
+dispatch_binary_structure = Dispatcher(name='dispatch_binary_structure')
 
 
 # ================== binary_dilation ==================
@@ -44,3 +46,19 @@ def register_cupy_binary_erosion():
     @dispatch_binary_erosion.register(cupy.ndarray)
     def cupy_binary_erosion(*args, **kwargs):
         return cupyx.scipy.ndimage.binary_erosion
+
+
+# ================== generate_binary_structure ==================
+@dispatch_binary_structure.register(np.ndarray)
+def numpy_binary_structure(*args, **kwargs):
+    return scipy.ndimage.generate_binary_structure
+
+
+@dispatch_binary_structure.register_lazy("cupy")
+def register_cupy_binary_structure():
+    import cupy
+    import cupyx.scipy.ndimage
+
+    @dispatch_binary_structure.register(cupy.ndarray)
+    def cupy_binary_structure(*args, **kwargs):
+        return cupyx.scipy.ndimage.generate_binary_structure
