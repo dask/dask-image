@@ -2,6 +2,67 @@
 History
 =======
 
+0.5.0 (2021-02-01)
+------------------
+
+We're pleased to announce the release of dask-image 0.5.0!
+
+Highlights
+
+The biggest highlight of this release is our new affine transformation feature, contributed by Marvin Albert.
+The SciPy Japan sprint in November 2020 led to many improvements, and I'd like to recognise the hard work by Tetsuo Koyama and Kuya Takami.
+Special thanks go to everyone who joined us at the conference!
+
+New Features
+
+* Affine transformation feature added: from dask_image.ndinterp import affine_transform (#159)
+* GPU support added for local_threshold with method='mean' (#158)
+* Pathlib input now accepted for imread functions (#174)
+
+Improvements
+
+* Performance improvement for 'imread', we now use `da.map_blocks` instead of `da.concatenate` (#165)
+
+Bug Fixes
+
+* Fixed imread tests (add `contiguous=True` when saving test data with tifffile) (#164)
+* FIXed scipy LooseVersion for sum_labels check (#176)
+
+API Changes
+
+* 'sum' is renamed to 'sum_labels' and a add deprecation warning added (#172)
+
+Documentation improvements
+
+* Add section Talks and Slides #163 (#169)
+* Add link to SciPy Japan 2020 talk (#171)
+* Add development guide to setup environment and run tests (#170)
+* Update information in AUTHORS.rst (#167)
+
+Maintenance
+
+* Update dependencies in Read The Docs environment (#168)
+
+6 authors added to this release (alphabetical)
+
+* `Fabian Chong <https://github.com/dask/dask-image/commits?author=feiming>`_ - @feiming
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Kuya Takami <https://github.com/dask/dask-image/commits?author=ku-ya>`_ - @ku-ya
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+* `Tetsuo Koyama <https://github.com/dask/dask-image/commits?author=tkoyama010>`_ - @tkoyama010
+
+
+7 reviewers added to this release (alphabetical)
+
+* `Fabian Chong <https://github.com/dask/dask-image/commits?author=feiming>`_ - @feiming
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `Gregory R. Lee <https://github.com/dask/dask-image/commits?author=grlee77>`_ - @grlee77
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Juan Nunez-Iglesias <https://github.com/dask/dask-image/commits?author=jni>`_ - @jni
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+* `Tetsuo Koyama <https://github.com/dask/dask-image/commits?author=tkoyama010>`_ - @tkoyama010
+
 0.4.0 (2020-09-02)
 ------------------
 

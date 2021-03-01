@@ -41,7 +41,6 @@ class TestSimpleImage:
                               param=1./3.)
         cupy.testing.assert_array_equal(ref, (self.image > out).compute())
 
-    @pytest.mark.skip(reason="Awaiting resolution of https://github.com/cupy/cupy/issues/3909")  # noqa: E501
     def test_threshold_local_mean(self, block_size):
         ref = cupy.array(
             [[False, False, False, False,  True],

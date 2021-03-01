@@ -51,7 +51,7 @@ Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/dask/dask-image/tarball/master
+    $ curl  -OL https://github.com/dask/dask-image/tarball/main
 
 Once you have a copy of the source, you can install it with:
 
@@ -61,4 +61,4 @@ Once you have a copy of the source, you can install it with:
 
 
 .. _Github repo: https://github.com/dask/dask-image
-.. _tarball: https://github.com/dask/dask-image/tarball/master
+.. _tarball: https://github.com/dask/dask-image/tarball/main

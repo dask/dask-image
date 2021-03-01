@@ -11,7 +11,7 @@ dask-image
         :target: https://anaconda.org/conda-forge/dask-image
         :alt: conda-forge
 
-.. image:: https://img.shields.io/travis/dask/dask-image/master.svg
+.. image:: https://img.shields.io/travis/dask/dask-image/main.svg
         :target: https://travis-ci.org/dask/dask-image
         :alt: Travis CI
 
