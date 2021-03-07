@@ -16,6 +16,7 @@ __all__ = [
     "gaussian_filter",
     "gaussian_gradient_magnitude",
     "gaussian_laplace",
+    "gaussian"
 ]
 
 
@@ -81,6 +82,21 @@ def gaussian_filter(image,
     )
 
     return result
+
+
+def gaussian(image,
+             sigma,
+             order=0,
+             mode='reflect',
+             cval=0.0,
+             truncate=4.0):
+    """Alias of `dask_image.ndfilters.gaussian_filter`."""
+    return gaussian_filter(image,
+                           sigma,
+                           order=order,
+                           mode=mode,
+                           cval=cval,
+                           truncate=truncate)
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.gaussian_gradient_magnitude)
