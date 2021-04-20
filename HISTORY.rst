@@ -12,6 +12,9 @@ Highlights
 The highlights of this release include GPU support for binary morphological
 functions, and improvements to the performance of ``imread``.
 
+Cupy version 9.0.0 or higher is required for GPU support of the ``ndmorph`` subpackage.
+Cupy version 7.7.0 or higher is required for GPU support of the ``ndfilters`` and ``imread`` subpackages.
+
 New Features
 
 * GPU support for ndmorph subpackage: binary morphological functions (#157)
@@ -22,6 +25,7 @@ Improvements
 
 Bug Fixes
 
+* dask-image imread v0.5.0 not working with dask distributed Client & napari (#194)
 * Not able to map actual image name with dask_image.imread (#200, fixed by #182)
 
 API Changes
