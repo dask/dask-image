@@ -25,7 +25,7 @@ __all__ = [
 def affine_transform(
         image,
         matrix,
-        offset=None,
+        offset=0.0,
         output_shape=None,
         order=1,
         output_chunks=None,
@@ -54,16 +54,18 @@ def affine_transform(
         The image array.
     matrix : array (ndim,), (ndim, ndim), (ndim, ndim+1) or (ndim+1, ndim+1)
         Transformation matrix.
-    offset : array (ndim,)
-        Transformation offset.
-    output_shape : array (ndim,), optional
-        The size of the array to be returned.
+    offset : float or sequence, optional
+        The offset into the array where the transform is applied. If a float,
+        `offset` is the same for each axis. If a sequence, `offset` should
+        contain one value for each axis.
+    output_shape : tuple of ints, optional
+        The shape of the array to be returned.
     order : int, optional
         The order of the spline interpolation. Note that for order>1
         scipy's affine_transform applies prefiltering, which is not
         yet supported and skipped in this implementation.
-    output_chunks : array (ndim,), optional
-        The chunks of the output Dask Array.
+    output_chunks : tuple of ints, optional
+        The shape of the chunks of the output Dask Array.
 
     Returns
     -------
@@ -123,7 +125,8 @@ def affine_transform(
     image_shape = image.shape
 
     # calculate output array properties
-    normalized_chunks = da.core.normalize_chunks(output_chunks, output_shape)
+    normalized_chunks = da.core.normalize_chunks(output_chunks,
+                                                 tuple(output_shape))
     block_indices = product(*(range(len(bds)) for bds in normalized_chunks))
     block_offsets = [np.cumsum((0,) + bds[:-1]) for bds in normalized_chunks]
 
@@ -223,7 +226,7 @@ def affine_transform(
 
     transformed = da.Array(graph,
                            output_name,
-                           shape=output_shape,
+                           shape=tuple(output_shape),
                            # chunks=output_chunks,
                            chunks=normalized_chunks,
                            meta=meta)

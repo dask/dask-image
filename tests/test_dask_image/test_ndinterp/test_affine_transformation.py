@@ -180,6 +180,14 @@ def test_affine_transform_numpy_input():
     assert (image == image_t).min()
 
 
+def test_affine_transform_minimal_input():
+
+    image = np.ones((3, 3))
+    image_t = da_ndinterp.affine_transform(np.ones((3, 3)), np.eye(2))
+
+    assert image_t.shape == image.shape
+
+
 def test_affine_transform_type_consistency():
 
     image = da.ones((3, 3))
