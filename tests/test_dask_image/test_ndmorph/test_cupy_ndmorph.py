@@ -28,4 +28,9 @@ def array():
 def test_cupy_ndmorph(array, func):
     """Test convolve & correlate filters with cupy input arrays."""
     result = func(array)
-    result.compute()
+    assert result.dtype == bool
+    assert result._meta.dtype == bool
+    assert isinstance(result._meta, cupy.ndarray)
+    computed = result.compute()
+    assert computed.dtype == bool
+    assert isinstance(computed, cupy.ndarray)
