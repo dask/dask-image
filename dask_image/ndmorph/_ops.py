@@ -37,5 +37,6 @@ def _binary_op(func,
             **kwargs
         )
         result = dask.array.where(mask, iter_result, result)
+        result._meta = image._meta.astype(bool)
 
     return result

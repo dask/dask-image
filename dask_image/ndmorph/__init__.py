@@ -38,7 +38,6 @@ def binary_closing(image,
     result = binary_erosion(
         result, structure=structure, iterations=iterations, origin=origin
     )
-    result._meta = image._meta.astype(bool)
 
     return result
 
@@ -63,7 +62,6 @@ def binary_dilation(image,
         brute_force=brute_force,
         border_value=border_value
     )
-    result._meta = image._meta.astype(bool)
 
     return result
 
@@ -88,7 +86,6 @@ def binary_erosion(image,
         brute_force=brute_force,
         border_value=border_value
     )
-    result._meta = image._meta.astype(bool)
 
     return result
 
@@ -111,6 +108,5 @@ def binary_opening(image,
     result = binary_dilation(
         result, structure=structure, iterations=iterations, origin=origin
     )
-    result._meta = image._meta.astype(bool)
 
     return result
