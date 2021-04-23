@@ -117,12 +117,6 @@ def test_affine_transform_cupy(n,
                                random_seed):
     cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
-    # somehow, these lines are required for the first parametrized
-    # test to succeed
-    from dask_image.dispatch._dispatch_ndinterp import (
-        dispatch_affine_transform)
-    dispatch_affine_transform(cupy.asarray([]))
-
     kwargs = dict()
     kwargs['n'] = n
     kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
