@@ -315,6 +315,7 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
     """
   #  input_arr = input#np.asarray(input)
+
     ndim = input_arr.ndim
 
 
@@ -364,11 +365,11 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     output_shape[axes] = out_plane_shape
     output_shape = tuple(output_shape)
 
-    # complex_output = np.iscomplexobj(input_arr)
-    # output = _ni_support._get_output(output, input_arr, shape=output_shape,
-    #                                   complex_output=complex_output)
+
     if output_chunks == None:
             output_chunks = input_arr.chunksize
+
+
 
     if ndim <= 2:        
             
@@ -378,28 +379,23 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
                                   prefilter=False,output_chunks=output_chunks)
         
         
-    elif ndim == 3:
-        rm3d = np.zeros((3,3))
-        o3d = np.zeros(3)
+    elif ndim >= 3:
+        rotmat_nd = np.eye(ndim)
+        offset_nd = np.zeros(ndim)
         
         for o_x,idx in enumerate(axes):
-            rm3d[idx,axes[0]] = rot_matrix[o_x,0]
-            rm3d[idx,axes[1]] = rot_matrix[o_x,1]
+            
+            rotmat_nd[idx,axes[0]] = rot_matrix[o_x,0]
+            rotmat_nd[idx,axes[1]] = rot_matrix[o_x,1]
     
-            o3d[idx] = offset[o_x]
+            offset_nd[idx] = offset[o_x]
 
         
-        output = affine_transform(input_arr, rm3d,
-                                  offset=o3d, output_shape=tuple(output_shape),
+        output = affine_transform(input_arr, rotmat_nd,
+                                  offset=offset_nd, output_shape=tuple(output_shape),
                                   order=order, mode=mode, cval=cval,
                                   prefilter=False,output_chunks=output_chunks)
 
-        
-    else:
-        # DOES NOT WORK YET!!!
-        
-        # axis definitions, output chunks etc. not straight forward
-        
-        raise ValueError('more than 3 dimensions not yet supported')
+
 
     return output
