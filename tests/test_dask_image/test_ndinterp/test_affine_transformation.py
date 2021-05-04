@@ -115,15 +115,7 @@ def test_affine_transform_cupy(n,
                                interp_order,
                                input_output_chunksize_per_dim,
                                random_seed):
-
-    pytest.importorskip("cupy", minversion="6.0.0")
-
-    # somehow, these lines are required for the first parametrized
-    # test to succeed
-    import cupy as cp
-    from dask_image.dispatch._dispatch_ndinterp import (
-        dispatch_affine_transform)
-    dispatch_affine_transform(cp.asarray([]))
+    cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
     kwargs = dict()
     kwargs['n'] = n
@@ -180,6 +172,14 @@ def test_affine_transform_numpy_input():
     assert (image == image_t).min()
 
 
+def test_affine_transform_minimal_input():
+
+    image = np.ones((3, 3))
+    image_t = da_ndinterp.affine_transform(np.ones((3, 3)), np.eye(2))
+
+    assert image_t.shape == image.shape
+
+
 def test_affine_transform_type_consistency():
 
     image = da.ones((3, 3))
@@ -189,15 +189,15 @@ def test_affine_transform_type_consistency():
     assert isinstance(image[0, 0].compute(), type(image_t[0, 0].compute()))
 
 
+@pytest.mark.cupy
 def test_affine_transform_type_consistency_gpu():
 
-    pytest.importorskip("cupy", minversion="6.0.0")
+    cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
     image = da.ones((3, 3))
     image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
 
-    import cupy as cp
-    image.map_blocks(cp.asarray)
+    image.map_blocks(cupy.asarray)
 
     assert isinstance(image, type(image_t))
     assert isinstance(image[0, 0].compute(), type(image_t[0, 0].compute()))
@@ -236,17 +236,17 @@ def test_affine_transform_large_input_small_output_cpu():
     image_t[0, 0, 0].compute()
 
 
+@pytest.mark.cupy
 @pytest.mark.timeout(15)
 def test_affine_transform_large_input_small_output_gpu():
     """
     Make sure input array does not need to be computed entirely
     """
-    pytest.importorskip("cupy", minversion="6.0.0")
+    cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
     # this array would occupy more than 24GB on a GPU
     image = da.random.random([2000] * 3, chunks=(50, 50, 50))
-    import cupy as cp
-    image.map_blocks(cp.asarray)
+    image.map_blocks(cupy.asarray)
 
     image_t = da_ndinterp.affine_transform(image, np.eye(3), [0, 0, 0],
                                            output_chunks=[1, 1, 1],
