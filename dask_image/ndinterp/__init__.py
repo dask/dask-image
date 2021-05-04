@@ -240,10 +240,12 @@ def affine_transform(
 
 
 
-def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=3,
+def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
            mode='constant', cval=0.0, prefilter=True,output_chunks=None):
     """
-    Rotate an array.
+    
+    Rotate an array using Dask. Chunkwise processing is performed
+    using dask_image.ndinterp.affine_transform
 
     The array is rotated in the plane defined by the two axes given by the
     `axes` parameter using spline interpolation of the requested order.
@@ -274,21 +276,28 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=3,
 
     Notes
     -----
-    For complex-valued `input`, this function rotates the real and imaginary
-    components independently.
+        Differences to `ndimage.affine_transformation`:
+        - currently, prefiltering is not supported
+          (affecting the output in case of interpolation `order > 1`)
+        - default order is 1
+        - modes 'reflect', 'mirror' and 'wrap' are not supported
+        
+        Arguments equal to `ndimage.affine_rotate`,
+        except for `output_chunks`.
 
     .. versionadded:: 1.6.0
-        Complex-valued support added.
+
 
     Examples
     --------
     >>> from scipy import ndimage, misc
     >>> import matplotlib.pyplot as plt
+    >>> import dask.array as da
     >>> fig = plt.figure(figsize=(10, 3))
     >>> ax1, ax2, ax3 = fig.subplots(1, 3)
-    >>> img = misc.ascent()
-    >>> img_45 = rotate(img, 45, reshape=False)
-    >>> full_img_45 = rotate(img, 45, reshape=True)
+    >>> img = da.from_array(misc.ascent(),chunks=(64,64))
+    >>> img_45 = dask_image.ndinterp.rotate(img, 45, reshape=False)
+    >>> full_img_45 = dask_image.ndinterp.rotate(img, 45, reshape=True)
     >>> ax1.imshow(img, cmap='gray')
     >>> ax1.set_axis_off()
     >>> ax2.imshow(img_45, cmap='gray')
@@ -333,7 +342,7 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=3,
     c, s = special.cosdg(angle), special.sindg(angle)
 
     rot_matrix = np.array([[c, s],
-                              [-s, c]])
+                           [-s, c]])
 
     img_shape = np.asarray(input_arr.shape)
     in_plane_shape = img_shape[axes]
@@ -358,11 +367,10 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=3,
     # complex_output = np.iscomplexobj(input_arr)
     # output = _ni_support._get_output(output, input_arr, shape=output_shape,
     #                                   complex_output=complex_output)
+    if output_chunks == None:
+            output_chunks = input_arr.chunksize
 
-
-    if ndim <= 2:
-        if output_chunks == None:
-            output_chunks = [-1,-1]
+    if ndim <= 2:        
             
         output = affine_transform(input_arr, rot_matrix,
                                   offset=offset, output_shape=tuple(output_shape),
@@ -373,17 +381,13 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=3,
     elif ndim == 3:
         rm3d = np.zeros((3,3))
         o3d = np.zeros(3)
-        oc3d = [1,1,1]
         
         for o_x,idx in enumerate(axes):
             rm3d[idx,axes[0]] = rot_matrix[o_x,0]
             rm3d[idx,axes[1]] = rot_matrix[o_x,1]
     
             o3d[idx] = offset[o_x]
-            oc3d[idx] = -1
-            
-        if output_chunks == None:
-            output_chunks = oc3d
+
         
         output = affine_transform(input_arr, rm3d,
                                   offset=o3d, output_shape=tuple(output_shape),
