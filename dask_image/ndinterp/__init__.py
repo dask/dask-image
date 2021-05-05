@@ -113,6 +113,8 @@ def affine_transform(
     # prefilter is not yet supported
     if 'prefilter' in kwargs:
         if kwargs['prefilter'] and order > 1:
+
+
             warnings.warn('Currently, `dask_image.ndinterp.affine_transform` '
                           'doesn\'t support `prefilter=True`. Proceeding with'
                           ' `prefilter=False`, which if order > 1 can lead '
@@ -248,6 +250,10 @@ def spline_filter(
         depth=12,
         **kwargs
 ):
+
+    if not type(image) == da.core.Array:
+        image = da.from_array(image)
+
     # use dispatching mechanism to determine backend
     spline_filter_method = dispatch_spline_filter(image)
 
@@ -259,9 +265,8 @@ def spline_filter(
             "Passing array to output is not currently supported."
         )
 
-    # Note:
-    #     depths of 12 and 24 give results matching SciPy to approximately
-    #     single and double precision accuracy, respectively.
+    # Note: depths of 12 and 24 give results matching SciPy to approximately
+    #       single and double precision accuracy, respectively.
     depth, boundary = _get_depth_boundary(image.ndim, depth, "none")
 
     # cannot pass a func kwarg named "output" to map_overlap
@@ -292,6 +297,10 @@ def spline_filter1d(
         depth=12,
         **kwargs
 ):
+
+    if not type(image) == da.core.Array:
+        image = da.from_array(image)
+
     # use dispatching mechanism to determine backend
     spline_filter1d_method = dispatch_spline_filter1d(image)
 
@@ -303,7 +312,7 @@ def spline_filter1d(
             "Passing array to output is not currently supported."
         )
 
-    # use depth 0 on all except the filtered axis
+    # use depth 0 on all axes except the filtered axis
     if not np.isscalar(depth):
         raise ValueError("depth must be a scalar value")
     depths = [0,] * image.ndim
