@@ -24,6 +24,7 @@ from ..dispatch._dispatch_ndinterp import (
 
 __all__ = [
     "affine_transform",
+    "rotate"
 ]
 
 
@@ -367,7 +368,11 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
 
     if output_chunks == None:
+        
+        if 'chunksize' in dir(input_arr):
             output_chunks = input_arr.chunksize
+        else: 
+            output_chunks = [-1] * ndim
 
 
 

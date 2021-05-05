@@ -13,7 +13,7 @@ from scipy import ndimage
 def validate_rotate(n=2,
                     angle=0,
                     axes=(0,1),
-                    resize=False,
+                    reshape=False,
                     input_output_shape_per_dim=(16,16),
                     interp_order=1,
                     interp_mode='constant',
@@ -55,7 +55,7 @@ def validate_rotate(n=2,
     image_t_scipy = ndimage.rotate(
         image, angle,
         axes=axes,
-        resize=resize,
+        reshape=reshape,
         order=interp_order,
         mode=interp_mode,
         prefilter=False)
@@ -64,7 +64,7 @@ def validate_rotate(n=2,
     image_t_dask = da_ndinterp.rotate(
         image, angle,
         axes=axes,
-        resize=resize,
+        reshape=reshape,
         order=interp_order,
         mode=interp_mode,)
     image_t_dask_computed = image_t_dask.compute()
