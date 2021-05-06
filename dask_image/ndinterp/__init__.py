@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import functools
+import math
 from itertools import product
-import numpy as np
-
-import dask.array as da
-from dask.base import tokenize
-from dask.highlevelgraph import HighLevelGraph
-
-from scipy.ndimage import affine_transform as ndimage_affine_transform
 import warnings
 
+import dask.array as da
+import numpy as np
+from dask.base import tokenize
+from dask.highlevelgraph import HighLevelGraph
+from scipy.ndimage import affine_transform as ndimage_affine_transform
 
 from ..dispatch._dispatch_ndinterp import (
     dispatch_affine_transform,
@@ -238,6 +237,25 @@ def affine_transform(
     return transformed
 
 
+# magnitude of the maximum filter pole for each order
+# (obtained from scipy/ndimage/src/ni_splines.c)
+_maximum_pole = {
+    2: 0.171572875253809902396622551580603843,
+    3: 0.267949192431122706472553658494127633,
+    4: 0.361341225900220177092212841325675255,
+    5: 0.430575347099973791851434783493520110,
+}
+
+
+def _get_default_depth(order, tol=1e-8):
+    """Determine the approximate depth needed for a given tolerance.
+
+    Here depth is chosen as the smallest integer such that ``|p| ** n < tol``
+    where `|p|` is the magnitude of the largest pole in the IIR filter.
+    """
+    return math.ceil(np.log(tol) / np.log(_maximum_pole[order]))
+
+
 def spline_filter(
         image,
         order=3,
@@ -245,7 +263,7 @@ def spline_filter(
         mode='mirror',
         output_chunks=None,
         *,
-        depth=12,
+        depth=None,
         **kwargs
 ):
 
@@ -262,6 +280,12 @@ def spline_filter(
             "Could not coerce the provided output to a dtype. "
             "Passing array to output is not currently supported."
         )
+
+    if depth is None:
+        depth = _get_default_depth(order)
+
+    if mode in ['wrap', 'grid-wrap']:
+        raise NotImplementedError(f"mode={mode} is unsupported.")
 
     # Note: depths of 12 and 24 give results matching SciPy to approximately
     #       single and double precision accuracy, respectively.
@@ -292,7 +316,7 @@ def spline_filter1d(
         mode='mirror',
         output_chunks=None,
         *,
-        depth=12,
+        depth=None,
         **kwargs
 ):
 
@@ -310,11 +334,17 @@ def spline_filter1d(
             "Passing array to output is not currently supported."
         )
 
+    if depth is None:
+        depth = _get_default_depth(order)
+
     # use depth 0 on all axes except the filtered axis
     if not np.isscalar(depth):
         raise ValueError("depth must be a scalar value")
     depths = [0,] * image.ndim
     depths[axis] = depth
+
+    if mode in ['wrap', 'grid-wrap']:
+        raise NotImplementedError(f"mode={mode} is unsupported.")
 
     # cannot pass a func kwarg named "output" to map_overlap
     spline_filter1d_method = functools.partial(spline_filter1d_method,
