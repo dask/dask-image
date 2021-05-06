@@ -67,7 +67,7 @@ def validate_rotate(n=2,
         order=interp_order,
         mode=interp_mode,
         prefilter=False,
-        output_chunks = output_chunks
+        # output_chunks = output_chunks
         )
     image_t_dask_computed = image_t_dask.compute()
 

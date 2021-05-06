@@ -1,13 +1,13 @@
 *****************
-Function Coverage 
+Function Coverage
 *****************
 
 Coverage of dask-image vs scipy ndimage functions
 *************************************************
 
-This table shows which SciPy ndimage functions are supported by dask-image. 
+This table shows which SciPy ndimage functions are supported by dask-image.
 
-.. list-table:: 
+.. list-table::
    :widths: 25 25 50
    :header-rows: 0
 
@@ -196,7 +196,7 @@ This table shows which SciPy ndimage functions are supported by dask-image.
      - ✓
    * - ``rotate``
      - ✓
-     -
+     - ✓
    * - ``shift``
      - ✓
      -
@@ -233,4 +233,3 @@ This table shows which SciPy ndimage functions are supported by dask-image.
    * - ``zoom``
      - ✓
      -
-           
