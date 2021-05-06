@@ -27,6 +27,7 @@ Bug Fixes
 
 * dask-image imread v0.5.0 not working with dask distributed Client & napari (#194)
 * Not able to map actual image name with dask_image.imread (#200, fixed by #182)
+* affine_transform: Remove inconsistencies with ndimage implementation #205
 
 API Changes
 
