@@ -24,9 +24,6 @@ if np.lib.NumpyVersion(scipy.__version__) >= '1.6.0':
     _unsupported_periodic_modes += ['grid-constant', 'grid-mirror',
                                     'grid-wrap']
 
-print(f'np.lib.NumpyVersion(scipy.__version__)={np.lib.NumpyVersion(scipy.__version__)}')
-print(f'_supported_modes={_supported_modes}')
-
 
 def validate_affine_transform(n=2,
                               matrix=None,
