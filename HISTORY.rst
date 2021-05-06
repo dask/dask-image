@@ -2,7 +2,7 @@
 History
 =======
 
-0.6.0 (2021-04-20)
+0.6.0 (2021-05-06)
 ------------------
 
 We're pleased to announce the release of dask-image 0.6.0!
