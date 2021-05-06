@@ -72,7 +72,8 @@ def validate_spline_filter(n=2,
     image_t_dask_computed = image_t_dask.compute()
 
     rtol = atol = 1e-6
-    assert image_t_scipy.dtype == image_t_dask_computed.dtype
+    out_dtype = np.dtype(output)
+    assert image_t_scipy.dtype == image_t_dask_computed.dtype == out_dtype
     assert np.allclose(image_t_scipy, image_t_dask_computed,
                        rtol=rtol, atol=atol)
 
@@ -173,3 +174,20 @@ def test_spline_filter_unsupported_modes(
             interp_mode=interp_mode,
             axis=axis,
         )
+
+
+@pytest.mark.parametrize(
+    "output", [np.float64, np.float32, "float32", np.dtype(np.float32)]
+)
+@pytest.mark.parametrize("axis", [None, -1])
+def test_spline_filter_output_dtype(
+    output,
+    axis,
+):
+
+    validate_spline_filter(
+        axis_size=32,
+        interp_order=3,
+        output=output,
+        axis=axis,
+    )
