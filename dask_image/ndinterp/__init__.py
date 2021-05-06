@@ -109,23 +109,21 @@ def affine_transform(
         offset = matrix[:image.ndim, image.ndim]
         matrix = matrix[:image.ndim, :image.ndim]
 
+    cval = kwargs.pop('cval', 0)
+    mode = kwargs.pop('mode', 'constant')
+    prefilter = kwargs.pop('prefilter', False)
+    if mode in ['wrap', 'reflect', 'mirror', 'grid-mirror', 'grid-wrap']:
+        raise NotImplementedError(f"Mode {mode} is not currently supported.")
+
     # process kwargs
     # prefilter is not yet supported
-    if 'prefilter' in kwargs:
-        if kwargs['prefilter'] and order > 1:
-
-
-            warnings.warn('Currently, `dask_image.ndinterp.affine_transform` '
-                          'doesn\'t support `prefilter=True`. Proceeding with'
-                          ' `prefilter=False`, which if order > 1 can lead '
-                          'to the output containing more blur than with '
-                          'prefiltering.', UserWarning)
-        del kwargs['prefilter']
-
-    if 'mode' in kwargs:
-        if kwargs['mode'] in ['wrap', 'reflect', 'mirror']:
-            raise(NotImplementedError("Mode %s is not currently supported."
-                                      % kwargs['mode']))
+    if prefilter and order > 1:
+        if mode in ['nearest', 'grid-constant']:
+            raise NotImplementedError(
+                f"order > 1 with mode='{mode}' is not supported."
+            )
+        image = spline_filter(image, order, output=np.float64,
+                              mode=mode)
 
     n = image.ndim
     image_shape = image.shape
@@ -218,8 +216,8 @@ def affine_transform(
                         tuple(out_chunk_shape),  # output_shape
                         None,  # out
                         order,
-                        'constant' if 'mode' not in kwargs else kwargs['mode'],
-                        0. if 'cval' not in kwargs else kwargs['cval'],
+                        mode,
+                        cval,
                         False  # prefilter
         )
 
