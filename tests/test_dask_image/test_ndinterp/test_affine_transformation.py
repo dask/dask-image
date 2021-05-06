@@ -1,13 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import dask.array as da
+import numpy as np
 import pytest
+import scipy
+from scipy import ndimage
 
 import dask_image.ndinterp as da_ndinterp
 
-import numpy as np
-import dask.array as da
-from scipy import ndimage
+# mode lists for the case with prefilter = False
+_supported_modes = ['constant', 'nearest']
+_unsupported_modes = ['wrap', 'reflect', 'mirror']
+
+# mode lists for the case with prefilter = True
+_supported_periodic_modes = ['constant']
+_unsupported_periodic_modes = _unsupported_modes + ['nearest']
+
+# additional modes are present in SciPy >= 1.6.0
+if np.lib.NumpyVersion(scipy.__version__) >= '1.6.0':
+    _supported_modes += ['grid-constant']
+    _unsupported_modes += ['grid-mirror', 'grid-wrap']
+    _unsupported_periodic_modes += ['grid-constant', 'grid-mirror',
+                                    'grid-wrap']
+
+print(f'np.lib.NumpyVersion(scipy.__version__)={np.lib.NumpyVersion(scipy.__version__)}')
+print(f'_supported_modes={_supported_modes}')
 
 
 def validate_affine_transform(n=2,
@@ -19,6 +37,7 @@ def validate_affine_transform(n=2,
                               input_output_chunksize_per_dim=(6, 6),
                               random_seed=0,
                               use_cupy=False,
+                              prefilter=False
                               ):
     """
     Compare the outputs of `ndimage.affine_transformation`
@@ -59,7 +78,7 @@ def validate_affine_transform(n=2,
         output_shape=output_shape,
         order=interp_order,
         mode=interp_mode,
-        prefilter=False)
+        prefilter=prefilter)
 
     # transform with dask-image
     image_t_dask = da_ndinterp.affine_transform(
@@ -67,7 +86,8 @@ def validate_affine_transform(n=2,
         output_shape=output_shape,
         output_chunks=output_chunks,
         order=interp_order,
-        mode=interp_mode)
+        mode=interp_mode,
+        prefilter=prefilter)
     image_t_dask_computed = image_t_dask.compute()
 
     assert np.allclose(image_t_scipy, image_t_dask_computed)
@@ -76,13 +96,13 @@ def validate_affine_transform(n=2,
 @pytest.mark.parametrize("n",
                          [1, 2, 3])
 @pytest.mark.parametrize("input_output_shape_per_dim",
-                         [(25, 25), (25, 10)])
+                         [(25, 25)])
 @pytest.mark.parametrize("interp_order",
                          range(6))
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
                          [(16, 16), (16, 7), (7, 16)])
 @pytest.mark.parametrize("random_seed",
-                         [0, 1, 2])
+                         [0, 2])
 def test_affine_transform_general(n,
                                   input_output_shape_per_dim,
                                   interp_order,
@@ -131,13 +151,16 @@ def test_affine_transform_cupy(n,
 @pytest.mark.parametrize("n",
                          [1, 2, 3])
 @pytest.mark.parametrize("interp_mode",
-                         ['constant', 'nearest'])
+                         _supported_modes)
+@pytest.mark.parametrize("interp_order",
+                         [0, 3])
 @pytest.mark.parametrize("input_output_shape_per_dim",
                          [(20, 30)])
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
                          [(15, 10)])
 def test_affine_transform_modes(n,
                                 interp_mode,
+                                interp_order,
                                 input_output_shape_per_dim,
                                 input_output_chunksize_per_dim,
                                 ):
@@ -147,20 +170,47 @@ def test_affine_transform_modes(n,
     kwargs['interp_mode'] = interp_mode
     kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
     kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
-    kwargs['interp_order'] = 0
+    kwargs['interp_order'] = interp_order
+    kwargs['prefilter'] = False
 
     validate_affine_transform(**kwargs)
 
 
 @pytest.mark.parametrize("interp_mode",
-                         ['wrap', 'reflect', 'mirror'])
+                         _unsupported_modes)
 def test_affine_transform_unsupported_modes(interp_mode):
 
-    kwargs = dict()
-    kwargs['interp_mode'] = interp_mode
+    with pytest.raises(NotImplementedError):
+        validate_affine_transform(interp_mode=interp_mode)
+
+
+@pytest.mark.parametrize("n", [1, 2, 3])
+@pytest.mark.parametrize("interp_order", range(6))
+@pytest.mark.parametrize("interp_mode", _supported_periodic_modes)
+def test_affine_transform_prefilter_modes(n, interp_order, interp_mode):
+
+    validate_affine_transform(
+        n=n,
+        interp_order=interp_order,
+        interp_mode=interp_mode,
+        prefilter=True,
+    )
+
+
+@pytest.mark.parametrize("n", [1, 2, 3])
+@pytest.mark.parametrize("interp_order", range(2, 6))
+@pytest.mark.parametrize("interp_mode", _unsupported_periodic_modes)
+def test_affine_transform_prefilter_not_implemented(
+    n, interp_order, interp_mode
+):
 
     with pytest.raises(NotImplementedError):
-        validate_affine_transform(**kwargs)
+        validate_affine_transform(
+            n=n,
+            interp_order=interp_order,
+            interp_mode=interp_mode,
+            prefilter=True,
+        )
 
 
 def test_affine_transform_numpy_input():
@@ -216,7 +266,7 @@ def test_affine_transform_prefilter_warning():
 
     with pytest.warns(UserWarning):
         da_ndinterp.affine_transform(da.ones(3), [1], [0],
-                                     order=3, prefilter=True)
+                                     order=3, prefilter=False)
 
 
 @pytest.mark.timeout(15)
@@ -264,7 +314,7 @@ def test_affine_transform_large_input_small_output_gpu():
 def test_affine_transform_parameter_formats(n):
 
     # define reference parameters
-    scale_factors = np.ones(n, dtype=np.float) * 2.
+    scale_factors = np.ones(n, dtype=float) * 2.
     matrix_n = np.diag(scale_factors)
     offset = -np.ones(n)
 
