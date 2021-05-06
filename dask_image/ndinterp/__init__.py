@@ -242,7 +242,7 @@ def affine_transform(
 
 
 def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
-           mode='constant', cval=0.0, prefilter=True,output_chunks=None):
+           mode='constant', cval=0.0, prefilter=False,output_chunks=None):
     """
     
     Rotate an array using Dask. Chunkwise processing is performed
@@ -316,6 +316,11 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
     """
   #  input_arr = input#np.asarray(input)
+  
+  
+    if not type(input_arr) == da.core.Array:
+        input_arr = da.from_array(input_arr)
+
 
     ndim = input_arr.ndim
 
@@ -367,21 +372,13 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     output_shape = tuple(output_shape)
 
 
-    if output_chunks == None:
-        
-        if 'chunksize' in dir(input_arr):
-            output_chunks = input_arr.chunksize
-        else: 
-            output_chunks = [-1] * ndim
-
-
 
     if ndim <= 2:        
             
         output = affine_transform(input_arr, rot_matrix,
                                   offset=offset, output_shape=tuple(output_shape),
                                   order=order, mode=mode, cval=cval,
-                                  prefilter=False,output_chunks=output_chunks)
+                                  prefilter=prefilter,output_chunks=output_chunks)
         
         
     elif ndim >= 3:
@@ -399,7 +396,7 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
         output = affine_transform(input_arr, rotmat_nd,
                                   offset=offset_nd, output_shape=tuple(output_shape),
                                   order=order, mode=mode, cval=cval,
-                                  prefilter=False,output_chunks=output_chunks)
+                                  prefilter=prefilter,output_chunks=output_chunks)
 
 
 

@@ -10,8 +10,7 @@ import dask.array as da
 from scipy import ndimage
 
 
-def validate_rotate(n=2,
-                    angle=0,
+def validate_rotate(n=2,                    
                     axes=(0,1),
                     reshape=False,
                     input_output_shape_per_dim=(16,16),
@@ -22,13 +21,13 @@ def validate_rotate(n=2,
                     use_cupy=False,
                     ):
     """
-    Compare the outputs of `ndimage.affine_transformation`
-    and `dask_image.ndinterp.affine_transformation`.
+    Compare the outputs of `ndimage.rotate`
+    and `dask_image.ndinterp.rotate`.
 
     Notes
     -----
         Currently, prefilter is disabled and therefore the output
-        of `dask_image.ndinterp.affine_transformation` is compared
+        of `dask_image.ndinterp.rotateation` is compared
         to `prefilter=False`.
     """
 
@@ -66,23 +65,26 @@ def validate_rotate(n=2,
         axes=axes,
         reshape=reshape,
         order=interp_order,
-        mode=interp_mode,)
+        mode=interp_mode,
+        prefilter=False,
+        output_chunks = output_chunks
+        )
     image_t_dask_computed = image_t_dask.compute()
 
     assert np.allclose(image_t_scipy, image_t_dask_computed)
 
 
 @pytest.mark.parametrize("n",
-                         [1, 2, 3])
+                         [2, 3])
 @pytest.mark.parametrize("input_output_shape_per_dim",
                          [(25, 25), (25, 10)])
 @pytest.mark.parametrize("interp_order",
-                         range(6))
+                         [0,1])
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
                          [(16, 16), (16, 7), (7, 16)])
 @pytest.mark.parametrize("random_seed",
                          [0, 1, 2])
-def test_affine_transform_general(n,
+def test_rotate_general(n,
                                   input_output_shape_per_dim,
                                   interp_order,
                                   input_output_chunksize_per_dim,
@@ -100,7 +102,7 @@ def test_affine_transform_general(n,
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("n",
-                         [1, 2, 3])
+                         [2, 3])
 @pytest.mark.parametrize("input_output_shape_per_dim",
                          [(25, 25), (25, 10)])
 @pytest.mark.parametrize("interp_order",
@@ -109,7 +111,7 @@ def test_affine_transform_general(n,
                          [(16, 16), (16, 7)])
 @pytest.mark.parametrize("random_seed",
                          [0])
-def test_affine_transform_cupy(n,
+def test_rotate_cupy(n,
                                input_output_shape_per_dim,
                                interp_order,
                                input_output_chunksize_per_dim,
@@ -128,7 +130,7 @@ def test_affine_transform_cupy(n,
 
 
 @pytest.mark.parametrize("n",
-                         [1, 2, 3])
+                         [2, 3])
 @pytest.mark.parametrize("interp_mode",
                          ['constant', 'nearest'])
 @pytest.mark.parametrize("input_output_shape_per_dim",
@@ -165,16 +167,16 @@ def test_rotate_unsupported_modes(interp_mode):
 def test_rotate_numpy_input():
 
     image = np.ones((3, 3))
-    image_t = da_ndinterp.rotate(image, 15, [0, 0])
+    image_t = da_ndinterp.rotate(image, 0, reshape =False)
 
     assert image_t.shape == image.shape
-    assert (image == image_t).min()
+    assert (da.from_array(image) == image_t).min()
 
 
 def test_rotate_minimal_input():
 
     image = np.ones((3, 3))
-    image_t = da_ndinterp.affine_transform(np.ones((3, 3)), 0)
+    image_t = da_ndinterp.rotate(np.ones((3, 3)), 0)
 
     assert image_t.shape == image.shape
 
@@ -205,7 +207,7 @@ def test_rotate_type_consistency_gpu():
 def test_rotate_no_output_shape_or_chunks_specified():
 
     image = da.ones((3, 3))
-    image_t = da_ndinterp.affine_transform(image, 0)
+    image_t = da_ndinterp.rotate(image, 0)
 
     assert image_t.shape == image.shape
     assert image_t.chunks == tuple([(s,) for s in image.shape])
@@ -214,7 +216,7 @@ def test_rotate_no_output_shape_or_chunks_specified():
 def test_rotate_prefilter_warning():
 
     with pytest.warns(UserWarning):
-        da_ndinterp.rotate(da.ones(3), 0,
+        da_ndinterp.rotate(da.ones((3, 3)), 0,
                            order=3, prefilter=True)
 
 
