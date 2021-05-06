@@ -43,7 +43,7 @@ def register_cupy_spline_filter():
     import cupy
     import cupyx.scipy.ndimage
 
-    @dispatch_affine_transform.register(cupy.ndarray)
+    @dispatch_spline_filter.register(cupy.ndarray)
     def cupy_spline_filter(*args, **kwargs):
 
         return cupyx.scipy.ndimage.spline_filter
@@ -62,7 +62,7 @@ def register_cupy_spline_filter1d():
     import cupy
     import cupyx.scipy.ndimage
 
-    @dispatch_affine_transform.register(cupy.ndarray)
+    @dispatch_spline_filter1d.register(cupy.ndarray)
     def cupy_spline_filter1d(*args, **kwargs):
 
         return cupyx.scipy.ndimage.spline_filter1d
