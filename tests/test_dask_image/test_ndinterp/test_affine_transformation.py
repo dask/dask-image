@@ -188,6 +188,7 @@ def test_affine_transform_prefilter_modes(n, interp_order, interp_mode):
 
     validate_affine_transform(
         n=n,
+        input_output_shape_per_dim=(32, 32),
         interp_order=interp_order,
         interp_mode=interp_mode,
         prefilter=True,
