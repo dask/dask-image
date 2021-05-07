@@ -49,9 +49,9 @@ def validate_spline_filter(n=2,
 
     if version.parse(dask.__version__) < version.parse("2020.1.0"):
         # older dask will fail if any chunks have size smaller than depth
-        depth = da_ndinterp._get_default_depth(interp_order)
+        _depth = da_ndinterp._get_default_depth(interp_order)
         rem = axis_size % chunksize
-        if chunksize < depth or (rem != 0 and rem < depth):
+        if chunksize < _depth or (rem != 0 and rem < _depth):
             pytest.skip("older dask doesn't automatically rechunk")
 
     if input_as_non_dask_array:
