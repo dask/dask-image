@@ -115,8 +115,8 @@ def affine_transform(
         raise NotImplementedError(f"Mode {mode} is not currently supported.")
 
     # process kwargs
-    # prefilter is not yet supported
     if prefilter and order > 1:
+        # prefilter is not yet supported for all modes
         if mode in ['nearest', 'grid-constant']:
             raise NotImplementedError(
                 f"order > 1 with mode='{mode}' is not supported."

@@ -24,13 +24,15 @@ if version.parse(scipy.__version__) >= version.parse('1.6.0'):
 
 def validate_spline_filter(n=2,
                            axis_size=64,
-                           interp_order=1,
+                           interp_order=3,
                            interp_mode='constant',
                            chunksize=32,
                            output=np.float64,
                            random_seed=0,
                            use_cupy=False,
-                           axis=None):
+                           axis=None,
+                           input_as_non_dask_array=False,
+                           depth=None):
     """
     Compare the outputs of `ndimage.spline_transform`
     and `dask_image.ndinterp.spline_transform`. If axis is not None, then
@@ -53,11 +55,18 @@ def validate_spline_filter(n=2,
         if chunksize < depth or (rem != 0 and rem < depth):
             pytest.skip("older dask doesn't automatically rechunk")
 
-    # transform into dask array
-    image_da = da.from_array(image, chunks=[chunksize] * n)
-    if use_cupy:
-        import cupy as cp
-        image_da = image_da.map_blocks(cp.asarray)
+    if input_as_non_dask_array:
+        if use_cupy:
+            import cupy as cp
+            image_da = cp.asarray(image)
+        else:
+            image_da = image
+    else:
+        # transform into dask array
+        image_da = da.from_array(image, chunks=[chunksize] * n)
+        if use_cupy:
+            import cupy as cp
+            image_da = image_da.map_blocks(cp.asarray)
 
     if axis is not None:
         scipy_func = ndimage.spline_filter1d
@@ -82,6 +91,7 @@ def validate_spline_filter(n=2,
         output=output,
         order=interp_order,
         mode=interp_mode,
+        depth=depth,
         **kwargs)
     image_t_dask_computed = image_t_dask.compute()
 
@@ -122,6 +132,7 @@ def test_spline_filter_general(
 @pytest.mark.parametrize("interp_mode", _supported_modes[::2])
 @pytest.mark.parametrize("chunksize", [16])
 @pytest.mark.parametrize("axis", [None, -1])
+@pytest.mark.parametrize("input_as_non_dask_array", [False, True])
 def test_spline_filter_cupy(
     n,
     axis_size,
@@ -129,6 +140,7 @@ def test_spline_filter_cupy(
     interp_mode,
     chunksize,
     axis,
+    input_as_non_dask_array,
 ):
 
     cupy = pytest.importorskip("cupy", minversion="6.0.0")
@@ -140,6 +152,7 @@ def test_spline_filter_cupy(
         interp_mode=interp_mode,
         chunksize=chunksize,
         axis=axis,
+        input_as_non_dask_array=input_as_non_dask_array,
         use_cupy=True,
     )
 
@@ -170,6 +183,40 @@ def test_spline_filter1d_general(
         axis=axis,
     )
 
+
+@pytest.mark.parametrize("axis", [None, -1])
+def test_spline_filter_non_dask_array_input(axis):
+    if axis == 1 and n < 2:
+        pytest.skip(msg="skip axis=1 for 1d signals")
+
+    validate_spline_filter(
+        axis=axis,
+        input_as_non_dask_array=True,
+    )
+
+
+@pytest.mark.parametrize("depth", [None, 24])
+@pytest.mark.parametrize("axis", [None, -1])
+def test_spline_filter_non_default_depth(depth, axis):
+    if axis == 1 and n < 2:
+        pytest.skip(msg="skip axis=1 for 1d signals")
+
+    validate_spline_filter(
+        axis=axis,
+        depth=depth,
+    )
+
+
+@pytest.mark.parametrize("depth", [(16, 32), [18]])
+def test_spline_filter1d_invalid_depth(depth):
+
+    with pytest.raises(ValueError):
+        validate_spline_filter(
+            axis=-1,
+            depth=depth,
+        )
+
+
 @pytest.mark.parametrize("axis_size", [32])
 @pytest.mark.parametrize("interp_order", range(2, 6))
 @pytest.mark.parametrize("interp_mode", _unsupported_modes)
@@ -194,10 +241,7 @@ def test_spline_filter_unsupported_modes(
     "output", [np.float64, np.float32, "float32", np.dtype(np.float32)]
 )
 @pytest.mark.parametrize("axis", [None, -1])
-def test_spline_filter_output_dtype(
-    output,
-    axis,
-):
+def test_spline_filter_output_dtype(output, axis):
 
     validate_spline_filter(
         axis_size=32,
@@ -205,3 +249,20 @@ def test_spline_filter_output_dtype(
         output=output,
         axis=axis,
     )
+
+
+@pytest.mark.parametrize("axis", [None, -1])
+def test_spline_filter_array_output_unsupported(axis):
+
+    n = 2
+    axis_size = 32
+    shape = (n,) * axis_size
+
+    with pytest.raises(TypeError):
+        validate_spline_filter(
+            n=n,
+            axis_size=axis_size,
+            interp_order=3,
+            output=np.empty(shape),
+            axis=axis,
+        )
