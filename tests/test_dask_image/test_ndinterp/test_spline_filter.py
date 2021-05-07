@@ -18,8 +18,7 @@ _unsupported_modes = ['wrap']
 
 # additional modes are present in SciPy >= 1.6.0
 if version.parse(scipy.__version__) >= version.parse('1.6.0'):
-    _supported_modes += ['grid-constant', 'grid-mirror']
-    _unsupported_modes += ['grid-wrap']
+    _supported_modes += ['grid-constant', 'grid-mirror', 'grid-wrap']
 
 
 def validate_spline_filter(n=2,

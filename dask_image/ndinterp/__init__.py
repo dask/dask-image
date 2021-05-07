@@ -3,7 +3,6 @@
 import functools
 import math
 from itertools import product
-import warnings
 
 import dask.array as da
 import numpy as np
@@ -284,15 +283,20 @@ def spline_filter(
     if depth is None:
         depth = _get_default_depth(order)
 
-    if mode in ['wrap', 'grid-wrap']:
-        raise NotImplementedError(f"mode={mode} is unsupported.")
+    if mode in ['wrap']:
+        raise NotImplementedError(
+            f"legacy mode={mode} is unsupported. It is recommended to use "
+            "'grid-wrap' instead"
+        )
 
     # Note: depths of 12 and 24 give results matching SciPy to approximately
     #       single and double precision accuracy, respectively.
-    depth, boundary = _get_depth_boundary(image.ndim, depth, "none")
+    boundary = "periodic" if mode == 'grid-wrap' else "none"
+    depth, boundary = _get_depth_boundary(image.ndim, depth, boundary)
 
     # cannot pass a func kwarg named "output" to map_overlap
-    spline_filter_method = functools.partial(spline_filter_method, output=dtype)
+    spline_filter_method = functools.partial(spline_filter_method,
+                                             output=dtype)
 
     result = image.map_overlap(
         spline_filter_method,
@@ -340,7 +344,7 @@ def spline_filter1d(
     # use depth 0 on all axes except the filtered axis
     if not np.isscalar(depth):
         raise ValueError("depth must be a scalar value")
-    depths = [0,] * image.ndim
+    depths = [0] * image.ndim
     depths[axis] = depth
 
     if mode in ['wrap', 'grid-wrap']:
@@ -353,7 +357,7 @@ def spline_filter1d(
     result = image.map_overlap(
         spline_filter1d_method,
         depth=tuple(depths),
-        boundary="none",
+        boundary="periodic" if mode == 'grid-wrap' else "none",
         dtype=dtype,
         meta=image._meta,
         # spline_filter1d kwargs
