@@ -255,7 +255,7 @@ def test_spline_filter_array_output_unsupported(axis):
 
     n = 2
     axis_size = 32
-    shape = (n,) * axis_size
+    shape = (axis_size,) * n
 
     with pytest.raises(TypeError):
         validate_spline_filter(
