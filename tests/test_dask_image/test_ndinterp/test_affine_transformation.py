@@ -52,8 +52,9 @@ def validate_affine_transform(n=2,
         to `prefilter=False`.
     """
 
-#    if (interp_mode == 'nearest' and not have_scipy16):
-#        pytest.skip("requires SciPy >= 1.6.0")
+    if (interp_order > 1 and interp_mode == 'nearest' and not have_scipy16):
+        # not clear on the underlying cause, but this fails on older SciPy
+        pytest.skip("requires SciPy >= 1.6.0")
 
     # define test image
     a = input_output_shape_per_dim[0]
