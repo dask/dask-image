@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from packaging import version
+
+import dask
 import dask.array as da
 import numpy as np
 import pytest
@@ -14,15 +17,17 @@ _supported_modes = ['constant', 'nearest']
 _unsupported_modes = ['wrap', 'reflect', 'mirror']
 
 # mode lists for the case with prefilter = True
-_supported_periodic_modes = ['constant']
-_unsupported_periodic_modes = _unsupported_modes + ['nearest']
+_supported_prefilter_modes = ['constant']
+_unsupported_prefilter_modes = _unsupported_modes + ['nearest']
+
+have_scipy16 = version.parse(scipy.__version__) >= version.parse('1.6.0')
 
 # additional modes are present in SciPy >= 1.6.0
-if np.lib.NumpyVersion(scipy.__version__) >= '1.6.0':
+if have_scipy16:
     _supported_modes += ['grid-constant']
     _unsupported_modes += ['grid-mirror', 'grid-wrap']
-    _unsupported_periodic_modes += ['grid-constant', 'grid-mirror',
-                                    'grid-wrap']
+    _unsupported_prefilter_modes += ['grid-constant', 'grid-mirror',
+                                     'grid-wrap']
 
 
 def validate_affine_transform(n=2,
@@ -47,6 +52,9 @@ def validate_affine_transform(n=2,
         to `prefilter=False`.
     """
 
+#    if (interp_mode == 'nearest' and not have_scipy16):
+#        pytest.skip("requires SciPy >= 1.6.0")
+
     # define test image
     a = input_output_shape_per_dim[0]
     np.random.seed(random_seed)
@@ -58,6 +66,19 @@ def validate_affine_transform(n=2,
     if use_cupy:
         import cupy as cp
         image_da = image_da.map_blocks(cp.asarray)
+
+    if (prefilter
+        and interp_mode in _supported_prefilter_modes
+        and interp_order > 1
+        and version.parse(dask.__version__) < version.parse("2020.1.0")
+    ):
+        # older dask will fail if any chunks have size smaller than depth
+        depth = da_ndinterp._get_default_depth(interp_order)
+        in_size = input_output_shape_per_dim[0]
+        in_chunksize = input_output_chunksize_per_dim[0]
+        rem = in_size % in_chunksize
+        if in_size < depth or (rem != 0 and rem < depth):
+            pytest.skip("older dask doesn't automatically rechunk")
 
     # define (random) transformation
     if matrix is None:
@@ -183,12 +204,13 @@ def test_affine_transform_unsupported_modes(interp_mode):
 
 @pytest.mark.parametrize("n", [1, 2, 3])
 @pytest.mark.parametrize("interp_order", range(6))
-@pytest.mark.parametrize("interp_mode", _supported_periodic_modes)
+@pytest.mark.parametrize("interp_mode", _supported_prefilter_modes)
 def test_affine_transform_prefilter_modes(n, interp_order, interp_mode):
 
     validate_affine_transform(
         n=n,
         input_output_shape_per_dim=(32, 32),
+        input_output_chunksize_per_dim=(24, 24),
         interp_order=interp_order,
         interp_mode=interp_mode,
         prefilter=True,
@@ -197,7 +219,7 @@ def test_affine_transform_prefilter_modes(n, interp_order, interp_mode):
 
 @pytest.mark.parametrize("n", [1, 2, 3])
 @pytest.mark.parametrize("interp_order", range(2, 6))
-@pytest.mark.parametrize("interp_mode", _unsupported_periodic_modes)
+@pytest.mark.parametrize("interp_mode", _unsupported_prefilter_modes)
 def test_affine_transform_prefilter_not_implemented(
     n, interp_order, interp_mode
 ):

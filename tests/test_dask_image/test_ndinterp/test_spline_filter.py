@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from packaging import version
+
+import dask
 import dask.array as da
 import numpy as np
 import pytest
@@ -14,7 +17,7 @@ _supported_modes = ['constant', 'nearest', 'reflect', 'mirror']
 _unsupported_modes = ['wrap']
 
 # additional modes are present in SciPy >= 1.6.0
-if np.lib.NumpyVersion(scipy.__version__) >= '1.6.0':
+if version.parse(scipy.__version__) >= version.parse('1.6.0'):
     _supported_modes += ['grid-constant', 'grid-mirror']
     _unsupported_modes += ['grid-wrap']
 
@@ -34,10 +37,21 @@ def validate_spline_filter(n=2,
     `spline_transform1d` is tested instead.
 
     """
+    if (np.dtype(output) != np.float64
+        and version.parse(scipy.__version__) < version.parse('1.4.0')
+    ):
+        pytest.skip("bug in output dtype handling in SciPy < 1.4")
 
     # define test image
     np.random.seed(random_seed)
     image = np.random.random([axis_size] * n)
+
+    if version.parse(dask.__version__) < version.parse("2020.1.0"):
+        # older dask will fail if any chunks have size smaller than depth
+        depth = da_ndinterp._get_default_depth(interp_order)
+        rem = axis_size % chunksize
+        if chunksize < depth or (rem != 0 and rem < depth):
+            pytest.skip("older dask doesn't automatically rechunk")
 
     # transform into dask array
     image_da = da.from_array(image, chunks=[chunksize] * n)
