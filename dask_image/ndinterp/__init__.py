@@ -184,7 +184,7 @@ def affine_transform(
             rel_image_f[dim] = np.clip(rel_image_f[dim], 0, s - 1)
 
         rel_image_slice = tuple([slice(int(rel_image_i[dim]),
-                                       int(rel_image_f[dim]) + 1)
+                                       int(rel_image_f[dim]) + 2)
                                  for dim in range(n)])
 
         rel_image = image[rel_image_slice]

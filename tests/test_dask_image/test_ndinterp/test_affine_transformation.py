@@ -45,7 +45,8 @@ def validate_affine_transform(n=2,
 
     # define (random) transformation
     if matrix is None:
-        matrix = np.eye(n) + (np.random.random((n, n)) - 0.5) / 5.
+        # make sure to substantially deviate from unity matrix
+        matrix = np.eye(n) + (np.random.random((n, n)) - 0.5) * 5.
     if offset is None:
         offset = (np.random.random(n) - 0.5) / 5. * np.array(image.shape)
 
