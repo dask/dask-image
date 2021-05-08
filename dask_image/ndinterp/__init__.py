@@ -274,8 +274,8 @@ def spline_filter(
 
     try:
         dtype = np.dtype(output)
-    except TypeError:
-        raise TypeError(
+    except TypeError:     # pragma: no cover
+        raise TypeError(  # pragma: no cover
             "Could not coerce the provided output to a dtype. "
             "Passing array to output is not currently supported."
         )
@@ -332,8 +332,8 @@ def spline_filter1d(
 
     try:
         dtype = np.dtype(output)
-    except TypeError:
-        raise TypeError(
+    except TypeError:     # pragma: no cover
+        raise TypeError(  # pragma: no cover
             "Could not coerce the provided output to a dtype. "
             "Passing array to output is not currently supported."
         )
@@ -347,7 +347,7 @@ def spline_filter1d(
     depths = [0] * image.ndim
     depths[axis] = depth
 
-    if mode in ['wrap', 'grid-wrap']:
+    if mode in ['wrap']:
         raise NotImplementedError(f"mode={mode} is unsupported.")
 
     # cannot pass a func kwarg named "output" to map_overlap
