@@ -190,7 +190,7 @@ def affine_transform(
             rel_image_f[dim] = np.clip(rel_image_f[dim], 0, s - 1)
 
         rel_image_slice = tuple([slice(int(rel_image_i[dim]),
-                                       int(rel_image_f[dim]) + 1)
+                                       int(rel_image_f[dim]) + 2)
                                  for dim in range(n)])
 
         rel_image = image[rel_image_slice]
@@ -242,7 +242,7 @@ def affine_transform(
 
 
 def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
-           mode='constant', cval=0.0, prefilter=False,output_chunks=None):
+           mode='constant', cval=0.0, prefilter=False,output_chunks=None,output_shape=None):
     """
     
     Rotate an array using Dask. Chunkwise processing is performed
@@ -320,7 +320,9 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
   
     if not type(input_arr) == da.core.Array:
         input_arr = da.from_array(input_arr)
-
+    
+    if output_shape is None:
+        output_shape = input_arr.shape
 
     ndim = input_arr.ndim
 
@@ -353,6 +355,7 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
     img_shape = np.asarray(input_arr.shape)
     in_plane_shape = img_shape[axes]
+    
     if reshape:
         # Compute transformed input bounds
         iy, ix = in_plane_shape
@@ -362,13 +365,17 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
         out_plane_shape = (out_bounds.ptp(axis=1) + 0.5).astype(int)
     else:
         out_plane_shape = img_shape[axes]
-
+    
+    if output_shape is None:        
+        output_shape = img_shape
+        output_shape[axes] = out_plane_shape
+    else:
+        out_plane_shape = np.asarray(output_shape)[axes]
+        
+    
     out_center = rot_matrix @ ((out_plane_shape - 1) / 2)
     in_center = (in_plane_shape - 1) / 2
     offset = in_center - out_center
-
-    output_shape = img_shape
-    output_shape[axes] = out_plane_shape
     output_shape = tuple(output_shape)
 
 

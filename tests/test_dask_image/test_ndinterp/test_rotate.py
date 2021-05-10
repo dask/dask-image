@@ -229,6 +229,7 @@ def test_rotate_large_input_small_output_cpu():
     # fully computed, this array would occupy 8TB
     image = da.random.random([10000] * 3, chunks=(200, 200, 200))
     image_t = da_ndinterp.rotate(image, 0,
+                                 output_shape=[1, 1, 1],
                                  output_chunks=[1, 1, 1])
 
     # if more than the needed chunks should be computed,
@@ -249,6 +250,7 @@ def test_rotate_large_input_small_output_gpu():
     image.map_blocks(cupy.asarray)
 
     image_t = da_ndinterp.rotate(image, 0,
+                                 output_shape=[1, 1, 1],
                                  output_chunks=[1, 1, 1])
     
     # if more than the needed chunks should be computed,
