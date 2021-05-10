@@ -325,7 +325,10 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
         output_shape = input_arr.shape
 
     ndim = input_arr.ndim
-
+    
+    if reshape & (output_shape != None):
+        warnings.warn('Both reshaping desired and output_shape provided.'
+                      'Will use the explicit output_shape.', UserWarning)
 
     
     if ndim < 2:
