@@ -24,20 +24,28 @@ __all__ = [
 def binary_closing(image,
                    structure=None,
                    iterations=1,
-                   origin=0):
+                   origin=0,
+                   mask=None,
+                   border_value=0,
+                   brute_force=False):
     image = (image != 0)
 
     structure = _utils._get_structure(image, structure)
     iterations = _utils._get_iterations(iterations)
     origin = _utils._get_origin(structure.shape, origin)
 
+    kwargs =  dict(
+        structure=structure,
+        iterations=iterations,
+        origin=origin,
+        mask=mask,
+        border_value=border_value,
+        brute_force=brute_force
+    )
+
     result = image
-    result = binary_dilation(
-        result, structure=structure, iterations=iterations, origin=origin
-    )
-    result = binary_erosion(
-        result, structure=structure, iterations=iterations, origin=origin
-    )
+    result = binary_dilation(result, **kwargs)
+    result = binary_erosion(result, **kwargs)
 
     return result
 
@@ -94,19 +102,27 @@ def binary_erosion(image,
 def binary_opening(image,
                    structure=None,
                    iterations=1,
-                   origin=0):
+                   origin=0,
+                   mask=None,
+                   border_value=0,
+                   brute_force=False):
     image = (image != 0)
 
     structure = _utils._get_structure(image, structure)
     iterations = _utils._get_iterations(iterations)
     origin = _utils._get_origin(structure.shape, origin)
 
+    kwargs =  dict(
+        structure=structure,
+        iterations=iterations,
+        origin=origin,
+        mask=mask,
+        border_value=border_value,
+        brute_force=brute_force
+    )
+
     result = image
-    result = binary_erosion(
-        result, structure=structure, iterations=iterations, origin=origin
-    )
-    result = binary_dilation(
-        result, structure=structure, iterations=iterations, origin=origin
-    )
+    result = binary_erosion(result, **kwargs)
+    result = binary_dilation(result, **kwargs)
 
     return result
