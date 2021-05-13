@@ -69,6 +69,8 @@ def fourier_gaussian(image, sigma, n=-1, axis=-1):
     ang_freq_grid = _utils._get_ang_freq_grid(
         image.shape,
         chunks=image.chunks,
+        n=n,
+        axis=axis,
         dtype=sigma.dtype
     )
 
@@ -139,6 +141,8 @@ def fourier_shift(image, shift, n=-1, axis=-1):
     ang_freq_grid = _utils._get_ang_freq_grid(
         image.shape,
         chunks=image.chunks,
+        n=n,
+        axis=axis,
         dtype=shift.dtype
     )
 
@@ -204,6 +208,8 @@ def fourier_uniform(image, size, n=-1, axis=-1):
     freq_grid = _utils._get_freq_grid(
         image.shape,
         chunks=image.chunks,
+        n=n,
+        axis=axis,
         dtype=size.dtype
     )
 
