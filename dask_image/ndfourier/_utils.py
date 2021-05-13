@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
+import functools
+import operator
 import numbers
 
 import numpy
@@ -27,8 +28,7 @@ def _get_freq_grid(shape, chunks, axis, n, dtype=float):
             f = dask.array.fft.fftfreq(s, chunks=c).astype(dtype)
         freq_grid.append(f)
 
-    freq_grid = dask.array.meshgrid(*freq_grid, indexing="ij")
-    freq_grid = dask.array.stack(freq_grid)
+    freq_grid = dask.array.meshgrid(*freq_grid, indexing="ij", sparse=True)
 
     return freq_grid
 
@@ -42,7 +42,7 @@ def _get_ang_freq_grid(shape, chunks, axis, n, dtype=float):
     pi = dtype(numpy.pi)
 
     freq_grid = _get_freq_grid(shape, chunks, axis, n, dtype=dtype)
-    ang_freq_grid = (2 * pi) * freq_grid
+    ang_freq_grid = tuple((2 * pi) * f for f in freq_grid)
 
     return ang_freq_grid
 
@@ -72,3 +72,9 @@ def _norm_args(a, s, n=-1, axis=-1):
         )
 
     return (a, s, n, axis)
+
+
+def _reshape_nd(arr, ndim, axis):
+    """Promote a 1d array to ndim with non-singleton size along axis."""
+    nd_shape = (1,) * axis + (arr.size,) + (1,) * (ndim - axis - 1)
+    return arr.reshape(nd_shape)
