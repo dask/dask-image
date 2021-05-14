@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
-__author__ = """John Kirkham"""
-__email__ = "kirkhamj@janelia.hhmi.org"
-
-
 import collections
 import functools
 import operator
 
 import numpy
-
 import dask.array
 
 from . import _utils
