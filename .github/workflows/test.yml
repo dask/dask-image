@@ -38,11 +38,3 @@ jobs:
       - name: Run tests
         shell: bash -l {0}
         run: pytest -v
-
-      - name: Coverage
-        shell: bash -l {0}
-        if: ${{ matrix.os == 'ubuntu-latest' &&  matrix.python-version == '3.8' }}
-        run: |
-          coverage report --show-missing
-          python -m pip install coveralls
-          coveralls
