@@ -37,7 +37,7 @@ jobs:
 
       - name: Run tests
         shell: bash -l {0}
-        run: pytest
+        run: pytest -v
 
       - name: Coverage
         shell: bash -l {0}
