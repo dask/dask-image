@@ -219,21 +219,20 @@ def test_fourier_filter_non_positive(funcname, s):
     ]
 )
 @pytest.mark.parametrize(
-    "n, axis",
+    "real_fft, axis",
     [
-        ('real', -1),
-        ('real', 0),
-        (-1, -1),
+        (True, -1),
+        (True, 0),
+        (False, -1),
     ]
 )
-def test_fourier_filter(funcname, s, n, axis):
+def test_fourier_filter(funcname, s, real_fft, axis):
     da_func = getattr(da_ndf, funcname)
     sp_func = getattr(sp_ndf, funcname)
 
     shape = (10, 14)
-    if n == 'real':
-        n = 2 * shape[axis] - 1
-    dtype = np.float64 if n != -1 else np.complex128
+    n = 2 * shape[axis] - 1 if real_fft else -1
+    dtype = np.float64 if real_fft else np.complex128
 
     a = np.arange(140.0).reshape(shape).astype(dtype)
     d = da.from_array(a, chunks=(5, 7))
