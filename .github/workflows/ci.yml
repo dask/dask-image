@@ -36,6 +36,7 @@ jobs:
           conda list
 
       - name: Lint with flake8
+        shell: bash -l {0}
         run: |
           conda list
           flake8
