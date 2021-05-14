@@ -33,6 +33,7 @@ jobs:
         run: |
           conda activate dask-image-testenv
           python -m pip install -e .
+          conda list
 
       - name: Lint with flake8
         run: |
