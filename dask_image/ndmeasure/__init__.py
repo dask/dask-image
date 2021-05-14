@@ -7,6 +7,7 @@ __email__ = "kirkhamj@janelia.hhmi.org"
 import collections
 import functools
 import operator
+import warnings
 
 import numpy
 
