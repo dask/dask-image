@@ -30,7 +30,9 @@ jobs:
 
       - name: Install dask-image
         shell: bash -l {0}
-        run: python -m pip install -e .
+        run: |
+          conda activate dask-image-testenv
+          python -m pip install -e .
 
       - name: Lint with flake8
         run: |
