@@ -108,8 +108,10 @@ def test_errs_binary_ops_iter(funcname,
 @pytest.mark.parametrize(
     "funcname",
     [
+        "binary_closing",
         "binary_dilation",
         "binary_erosion",
+        "binary_opening",
     ]
 )
 @pytest.mark.parametrize(
@@ -371,8 +373,10 @@ def test_binary_ops_iter(funcname,
 @pytest.mark.parametrize(
     "funcname",
     [
+        "binary_closing",
         "binary_dilation",
         "binary_erosion",
+        "binary_opening",
     ]
 )
 @pytest.mark.parametrize(
