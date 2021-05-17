@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 import numpy as np
-import scipy.ndimage as spnd
+import scipy.ndimage
 
 import dask.array as da
 import dask_image.ndmorph as da_ndm
@@ -267,7 +267,7 @@ def test_binary_ops(funcname,
                     structure,
                     origin):
     da_func = getattr(da_ndm, funcname)
-    sp_func = getattr(spnd, funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
 
     da_result = da_func(
         input,
@@ -346,7 +346,7 @@ def test_binary_ops_iter(funcname,
                          iterations,
                          origin):
     da_func = getattr(da_ndm, funcname)
-    sp_func = getattr(spnd, funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
 
     da_result = da_func(
         input,
@@ -490,7 +490,7 @@ def test_binary_ops_expanded(funcname,
                              origin,
                              brute_force):
     da_func = getattr(da_ndm, funcname)
-    sp_func = getattr(spnd, funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
 
     da_result = da_func(
         input,

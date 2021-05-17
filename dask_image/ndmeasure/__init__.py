@@ -304,8 +304,8 @@ def label(image, structure=None):
         labeled_block, n = _label.block_ndi_label_delayed(input_block,
                                                           structure)
         block_label_offset = da.where(labeled_block > 0,
-                                              total,
-                                              _label.LABEL_DTYPE.type(0))
+                                      total,
+                                      _label.LABEL_DTYPE.type(0))
         labeled_block += block_label_offset
         labeled_blocks[index] = labeled_block
         total += n
@@ -711,7 +711,8 @@ def sum_labels(image, label_image=None, index=None):
 
 def sum(image, label_image=None, index=None):
     """DEPRECATED FUNCTION. Use `sum_labels` instead."""
-    warnings.warn("DEPRECATED FUNCTION. Use `sum_labels` instead.", DeprecationWarning)
+    warnings.warn("DEPRECATED FUNCTION. Use `sum_labels` instead.",
+                  DeprecationWarning)
     return sum_labels(image, label_image=label_image, index=index)
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import scipy.ndimage.filters
+import scipy.ndimage
 
 from ..dispatch._dispatch_ndfilters import (dispatch_convolve,
                                             dispatch_correlate)

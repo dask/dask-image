@@ -27,7 +27,7 @@ def binary_closing(image,
     iterations = _utils._get_iterations(iterations)
     origin = _utils._get_origin(structure.shape, origin)
 
-    kwargs =  dict(
+    kwargs = dict(
         structure=structure,
         iterations=iterations,
         origin=origin,
@@ -105,7 +105,7 @@ def binary_opening(image,
     iterations = _utils._get_iterations(iterations)
     origin = _utils._get_origin(structure.shape, origin)
 
-    kwargs =  dict(
+    kwargs = dict(
         structure=structure,
         iterations=iterations,
         origin=origin,

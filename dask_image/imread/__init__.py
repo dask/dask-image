@@ -4,7 +4,6 @@ import numbers
 import warnings
 
 import dask.array as da
-import dask.delayed
 import numpy as np
 import pims
 

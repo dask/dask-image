@@ -5,7 +5,6 @@ import numbers
 
 import dask.array as da
 import numpy as np
-import scipy.ndimage
 
 from ..dispatch._dispatch_ndmorph import dispatch_binary_structure
 from ..ndfilters._utils import (_get_depth, _get_depth_boundary, _get_origin,

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 import numpy as np
-import scipy.ndimage.filters as sp_ndf
+import scipy.ndimage
 
 import dask.array as da
 
@@ -72,7 +72,7 @@ def test_uniform_identity(size, origin):
     )
 
     da.utils.assert_eq(
-        sp_ndf.uniform_filter(a, size, origin=origin),
+        scipy.ndimage.filters.uniform_filter(a, size, origin=origin),
         da_ndf.uniform_filter(d, size, origin=origin)
     )
 
@@ -94,6 +94,6 @@ def test_uniform_compare(size, origin):
     d = da.from_array(a, chunks=(50, 55))
 
     da.utils.assert_eq(
-        sp_ndf.uniform_filter(a, size, origin=origin),
+        scipy.ndimage.filters.uniform_filter(a, size, origin=origin),
         da_ndf.uniform_filter(d, size, origin=origin)
     )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-import scipy.ndimage.filters
+import scipy.ndimage
 
 from ..dispatch._dispatch_ndfilters import dispatch_uniform_filter
 from . import _utils

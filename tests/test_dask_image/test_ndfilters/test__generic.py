@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 import numpy as np
-import scipy.ndimage.filters as sp_ndf
+import scipy.ndimage
 
 import dask.array as da
 
@@ -74,7 +74,7 @@ def test_generic_filter_shape_type(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (sp_ndf.generic_filter, da_ndf.generic_filter),
+        (scipy.ndimage.filters.generic_filter, da_ndf.generic_filter),
     ]
 )
 @pytest.mark.parametrize(
@@ -127,7 +127,7 @@ def test_generic_filter_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (sp_ndf.generic_filter, da_ndf.generic_filter),
+        (scipy.ndimage.filters.generic_filter, da_ndf.generic_filter),
     ]
 )
 @pytest.mark.parametrize(

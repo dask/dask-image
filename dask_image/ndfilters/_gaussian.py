@@ -4,7 +4,7 @@
 import numbers
 
 import numpy as np
-import scipy.ndimage.filters
+import scipy.ndimage
 
 from ..dispatch._dispatch_ndfilters import (
     dispatch_gaussian_filter, dispatch_gaussian_gradient_magnitude,

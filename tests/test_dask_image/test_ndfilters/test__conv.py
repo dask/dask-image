@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 import numpy as np
-import scipy.ndimage.filters as sp_ndf
+import scipy.ndimage
 
 import dask.array as da
 
@@ -88,8 +88,8 @@ def test_convolutions_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (sp_ndf.convolve, da_ndf.convolve),
-        (sp_ndf.correlate, da_ndf.correlate),
+        (scipy.ndimage.filters.convolve, da_ndf.convolve),
+        (scipy.ndimage.filters.correlate, da_ndf.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -117,8 +117,8 @@ def test_convolutions_identity(sp_func,
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (sp_ndf.convolve, da_ndf.convolve),
-        (sp_ndf.correlate, da_ndf.correlate),
+        (scipy.ndimage.filters.convolve, da_ndf.convolve),
+        (scipy.ndimage.filters.correlate, da_ndf.correlate),
     ]
 )
 @pytest.mark.parametrize(

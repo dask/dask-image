@@ -3,7 +3,7 @@
 
 import numbers
 
-import scipy.ndimage.filters
+import scipy.ndimage
 
 from ..dispatch._dispatch_ndfilters import dispatch_prewitt, dispatch_sobel
 from . import _utils

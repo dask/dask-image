@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
-import scipy.ndimage.filters as sp_ndf
+import scipy.ndimage
 
 import dask.array as da
 
@@ -27,6 +27,6 @@ def test_laplace_compare():
     d = da.from_array(a, chunks=(5, 5, 6))
 
     da.utils.assert_eq(
-        sp_ndf.laplace(a),
+        scipy.ndimage.filters.laplace(a),
         da_ndf.laplace(d)
     )
