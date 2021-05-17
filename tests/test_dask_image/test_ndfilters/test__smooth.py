@@ -43,7 +43,7 @@ def test_uniform_shape_type():
 
 
 def test_uniform_comprehensions():
-    da_func = lambda arr: dask_image.ndfilters.uniform_filter(arr, 1, origin=0)  # noqa: E731
+    da_func = lambda arr: dask_image.ndfilters.uniform_filter(arr, 1, origin=0)  # noqa: E731, E501
 
     np.random.seed(0)
 

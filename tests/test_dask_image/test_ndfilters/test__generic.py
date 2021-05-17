@@ -34,7 +34,8 @@ import dask_image.ndfilters
         (TypeError, lambda x: x, 1, None, (0 + 0j, 1 + 0j)),
     ],
 )
-def test_generic_filters_params(da_func, err_type, function, size, footprint, origin):
+def test_generic_filters_params(da_func, err_type, function, size, footprint,
+                                origin):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
@@ -65,7 +66,7 @@ def test_generic_filter_shape_type(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.generic_filter, dask_image.ndfilters.generic_filter),
+        (scipy.ndimage.filters.generic_filter, dask_image.ndfilters.generic_filter),  # noqa: E501
     ],
 )
 @pytest.mark.parametrize(
@@ -112,7 +113,7 @@ def test_generic_filter_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.generic_filter, dask_image.ndfilters.generic_filter),
+        (scipy.ndimage.filters.generic_filter, dask_image.ndfilters.generic_filter),  # noqa: E501
     ],
 )
 @pytest.mark.parametrize(
@@ -125,19 +126,19 @@ def test_generic_filter_comprehensions(da_func):
         (
             lambda x: (np.array(x) ** 2).sum(),
             None,
-            (np.mgrid[-2 : 2 + 1, -2 : 2 + 1] ** 2).sum(axis=0) < 2.5 ** 2,
+            (np.mgrid[-2: 2 + 1, -2: 2 + 1] ** 2).sum(axis=0) < 2.5 ** 2,
             0,
         ),
         (
             lambda x: (np.array(x) ** 2).sum(),
             None,
-            (np.mgrid[-2 : 2 + 1, -2 : 2 + 1] ** 2).sum(axis=0) < 2.5 ** 2,
+            (np.mgrid[-2: 2 + 1, -2: 2 + 1] ** 2).sum(axis=0) < 2.5 ** 2,
             (1, 2),
         ),
         (
             lambda x: (np.array(x) ** 2).sum(),
             None,
-            (np.mgrid[-2 : 2 + 1, -2 : 2 + 1] ** 2).sum(axis=0) < 2.5 ** 2,
+            (np.mgrid[-2: 2 + 1, -2: 2 + 1] ** 2).sum(axis=0) < 2.5 ** 2,
             (-1, -2),
         ),
         (lambda x: (np.array(x) ** 2).sum(), 5, None, 0),
@@ -148,7 +149,8 @@ def test_generic_filter_comprehensions(da_func):
         (lambda x: (np.array(x) ** 2).sum(), 5, None, -2),
     ],
 )
-def test_generic_filter_compare(sp_func, da_func, function, size, footprint, origin):
+def test_generic_filter_compare(sp_func, da_func, function, size, footprint,
+                                origin):
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 

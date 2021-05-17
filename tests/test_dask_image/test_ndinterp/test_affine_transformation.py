@@ -216,7 +216,7 @@ def test_affine_transform_prefilter_warning():
 
     with pytest.warns(UserWarning):
         dask_image.ndinterp.affine_transform(da.ones(3), [1], [0],
-                                     order=3, prefilter=True)
+                                             order=3, prefilter=True)
 
 
 @pytest.mark.timeout(15)

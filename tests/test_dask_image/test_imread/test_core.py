@@ -61,7 +61,7 @@ def test_errs_imread(err_type, nframes):
         False,
     ]
 )
-def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pathlib_Path):
+def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pathlib_Path):  # noqa: E501
     np.random.seed(seed)
 
     dirpth = tmpdir.mkdir("test_imread")
