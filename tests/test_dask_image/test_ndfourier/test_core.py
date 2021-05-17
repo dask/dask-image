@@ -213,11 +213,8 @@ def test_fourier_filter_non_positive(funcname, s):
         "fourier_uniform",
     ]
 )
-<<<<<<< HEAD
-def test_fourier_filter(funcname, s):
-    da_func = getattr(dask_image.ndfourier, funcname)
-    sp_func = getattr(scipy.ndimage.fourier, funcname)
-=======
+
+
 @pytest.mark.parametrize(
     "real_fft, axis",
     [
@@ -227,9 +224,8 @@ def test_fourier_filter(funcname, s):
     ]
 )
 def test_fourier_filter(funcname, s, real_fft, axis):
-    da_func = getattr(da_ndf, funcname)
-    sp_func = getattr(sp_ndf, funcname)
->>>>>>> main
+    da_func = getattr(dask_image.ndfourier, funcname)
+    sp_func = getattr(scipy.ndimage.fourier, funcname)
 
     shape = (10, 14)
     n = 2 * shape[axis] - 1 if real_fft else -1
