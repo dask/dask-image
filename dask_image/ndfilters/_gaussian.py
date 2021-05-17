@@ -6,11 +6,10 @@ import numbers
 import numpy
 import scipy.ndimage.filters
 
-from . import _utils
 from ..dispatch._dispatch_ndfilters import (
-    dispatch_gaussian_filter,
-    dispatch_gaussian_gradient_magnitude,
+    dispatch_gaussian_filter, dispatch_gaussian_gradient_magnitude,
     dispatch_gaussian_laplace)
+from . import _utils
 
 __all__ = [
     "gaussian_filter",

@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
 import pytest
-
 import numpy as np
 import scipy.ndimage.filters as sp_ndf
 
@@ -13,7 +9,6 @@ import dask.array as da
 import dask.array.utils as dau
 
 import dask_image.ndfilters as da_ndf
-
 
 assert dask
 

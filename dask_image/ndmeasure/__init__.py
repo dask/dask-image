@@ -5,8 +5,8 @@ import functools
 import operator
 import warnings
 
-import numpy
 import dask.array
+import numpy
 
 from . import _utils
 from ._utils import _label

@@ -3,9 +3,8 @@
 
 import numbers
 
-import numpy
-
 import dask.array
+import numpy
 
 
 def _get_freq_grid(shape, chunks, dtype=float):

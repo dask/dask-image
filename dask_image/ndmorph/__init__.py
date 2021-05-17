@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import scipy.ndimage
 
-from . import _utils
-from . import _ops
-from ..dispatch._dispatch_ndmorph import (
-    dispatch_binary_dilation,
-    dispatch_binary_erosion)
+from ..dispatch._dispatch_ndmorph import (dispatch_binary_dilation,
+                                          dispatch_binary_erosion)
+from . import _ops, _utils
 
 __all__ = [
     "binary_closing",

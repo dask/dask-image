@@ -13,15 +13,6 @@ it is the most recent build number or if it is not a PR (e.g. a build on a
 normal branch), then the build proceeds without issues.
 """
 
-
-try:
-    from future_builtins import (
-        map,
-        filter,
-    )
-except ImportError:
-    pass
-
 import argparse
 import codecs
 import contextlib

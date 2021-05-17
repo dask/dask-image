@@ -19,46 +19,16 @@ __all__ = [
     "threshold_local",
 ]
 
-from ._conv import (
-    convolve,
-    correlate,
-)
-
-from ._diff import (
-    laplace,
-)
-
-from ._edge import (
-    prewitt,
-    sobel,
-)
-
-from ._gaussian import (
-    gaussian_filter,
-    gaussian_gradient_magnitude,
-    gaussian_laplace,
-)
-
-from ._generic import (
-    generic_filter,
-)
-
-from ._order import (
-    minimum_filter,
-    median_filter,
-    maximum_filter,
-    rank_filter,
-    percentile_filter,
-)
-
-from ._smooth import (
-    uniform_filter,
-)
-
-from ._threshold import (
-    threshold_local,
-)
-
+from ._conv import convolve, correlate
+from ._diff import laplace
+from ._edge import prewitt, sobel
+from ._gaussian import (gaussian_filter, gaussian_gradient_magnitude,
+                        gaussian_laplace)
+from ._generic import generic_filter
+from ._order import (maximum_filter, median_filter, minimum_filter,
+                     percentile_filter, rank_filter)
+from ._smooth import uniform_filter
+from ._threshold import threshold_local
 
 convolve.__module__ = __name__
 correlate.__module__ = __name__

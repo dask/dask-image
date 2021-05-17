@@ -2,13 +2,12 @@
 
 import scipy.ndimage.filters
 
+from ..dispatch._dispatch_ndfilters import (dispatch_maximum_filter,
+                                            dispatch_median_filter,
+                                            dispatch_minimum_filter,
+                                            dispatch_percentile_filter,
+                                            dispatch_rank_filter)
 from . import _utils
-from ..dispatch._dispatch_ndfilters import (
-    dispatch_minimum_filter,
-    dispatch_median_filter,
-    dispatch_maximum_filter,
-    dispatch_rank_filter,
-    dispatch_percentile_filter)
 
 __all__ = [
     "minimum_filter",

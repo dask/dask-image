@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
 from distutils.version import LooseVersion
 import scipy
 import itertools as it
 import warnings as wrn
 
 import pytest
-
 import numpy as np
-
 import scipy
 import scipy.ndimage as spnd
 

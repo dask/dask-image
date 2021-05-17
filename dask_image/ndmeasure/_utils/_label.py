@@ -2,13 +2,12 @@
 
 import operator
 
+import dask
+import dask.array
 import numpy
 import scipy.ndimage
 import scipy.sparse
 import scipy.sparse.csgraph
-
-import dask
-import dask.array
 
 
 def _get_ndimage_label_dtype():

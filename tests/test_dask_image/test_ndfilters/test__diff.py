@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
 import numpy as np
 import scipy.ndimage.filters as sp_ndf
 

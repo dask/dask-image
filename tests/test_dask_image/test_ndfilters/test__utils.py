@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
 import inspect
 
 import pytest
-
 import numpy
 
 from dask_image.ndfilters import _utils

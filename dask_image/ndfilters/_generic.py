@@ -3,8 +3,8 @@
 import numpy as np
 import scipy.ndimage.filters
 
-from . import _utils
 from ..dispatch._dispatch_ndfilters import dispatch_generic_filter
+from . import _utils
 
 __all__ = [
     "generic_filter",

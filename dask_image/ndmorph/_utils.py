@@ -3,18 +3,13 @@
 
 import numbers
 
+import dask.array
 import numpy
 import scipy.ndimage
 
-import dask.array
-
 from ..dispatch._dispatch_ndmorph import dispatch_binary_structure
-from ..ndfilters._utils import (
-    _update_wrapper,
-    _get_depth_boundary,
-    _get_origin,
-    _get_depth
-)
+from ..ndfilters._utils import (_get_depth, _get_depth_boundary, _get_origin,
+                                _update_wrapper)
 
 _update_wrapper = _update_wrapper
 _get_depth_boundary = _get_depth_boundary

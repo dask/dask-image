@@ -3,9 +3,9 @@
 
 import scipy.ndimage.filters
 
+from ..dispatch._dispatch_ndfilters import dispatch_uniform_filter
 from . import _utils
 from ._gaussian import gaussian_filter
-from ..dispatch._dispatch_ndfilters import dispatch_uniform_filter
 
 __all__ = [
     "uniform_filter",

@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
 import numbers
 from distutils.version import LooseVersion
 
 import pytest
-
 import numpy as np
 import scipy as sp
 import scipy.ndimage.fourier as sp_ndf

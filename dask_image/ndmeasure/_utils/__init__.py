@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
-
-
-from __future__ import division
-
 import warnings
-
-import numpy
 
 import dask
 import dask.array
-
+import numpy
 
 try:
     from dask.array import blockwise as da_blockwise

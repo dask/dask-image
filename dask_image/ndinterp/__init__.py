@@ -1,21 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import warnings
 from itertools import product
-import numpy as np
 
 import dask.array as da
+import numpy as np
 from dask.base import tokenize
 from dask.highlevelgraph import HighLevelGraph
-
 from scipy.ndimage import affine_transform as ndimage_affine_transform
-import warnings
 
-
-from ..dispatch._dispatch_ndinterp import (
-    dispatch_affine_transform,
-    dispatch_asarray,
-)
-
+from ..dispatch._dispatch_ndinterp import (dispatch_affine_transform,
+                                           dispatch_asarray)
 
 __all__ = [
     "affine_transform",
