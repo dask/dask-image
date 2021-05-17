@@ -10,9 +10,6 @@ import dask.array.utils as dau
 import dask_image.ndfilters as da_ndf
 
 
-assert dask
-
-
 def test_laplace_comprehensions():
     np.random.seed(0)
 

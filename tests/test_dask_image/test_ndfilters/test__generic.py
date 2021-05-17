@@ -11,9 +11,6 @@ import dask.array.utils as dau
 import dask_image.ndfilters as da_ndf
 
 
-assert dask
-
-
 @pytest.mark.parametrize(
     "da_func",
     [
