@@ -3,7 +3,7 @@
 
 import numbers
 
-import dask.array
+import dask.array as da
 import numpy as np
 import scipy.ndimage
 
@@ -57,7 +57,7 @@ def _get_mask(image, mask):
         mask = True
 
     mask_type = _get_dtype(mask).type
-    if isinstance(mask, (np.ndarray, dask.array.Array)):
+    if isinstance(mask, (np.ndarray, da.Array)):
         if mask.shape != image.shape:
             raise RuntimeError("`mask` must have the same shape as `image`.")
         if not issubclass(mask_type, np.bool8):

@@ -9,7 +9,6 @@ import scipy as sp
 import scipy.ndimage.fourier as sp_ndf
 
 import dask.array as da
-import dask.array.utils as dau
 import dask_image.ndfourier as da_ndf
 
 
@@ -69,8 +68,8 @@ def test_fourier_filter_identity(funcname, s):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(d, r_d)
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(d, r_d)
+    da.utils.assert_eq(r_a, r_d)
 
 
 @pytest.mark.parametrize(
@@ -116,7 +115,7 @@ def test_fourier_filter_type(funcname, upcast_type, dtype):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(r_a, r_d)
 
     if issubclass(dtype, upcast_type):
         assert r_d.real.dtype.type is np.float64
@@ -158,7 +157,7 @@ def test_fourier_filter_chunks(funcname, shape, chunks):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(r_a, r_d)
 
 
 @pytest.mark.parametrize(
@@ -191,7 +190,7 @@ def test_fourier_filter_non_positive(funcname, s):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(r_a, r_d)
 
 
 @pytest.mark.parametrize(
@@ -226,4 +225,4 @@ def test_fourier_filter(funcname, s):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(r_a, r_d)

@@ -8,7 +8,7 @@ import pytest
 import numpy as np
 import tifffile
 
-import dask.array.utils as dau
+import dask.array as da
 import dask_image.imread
 
 
@@ -94,4 +94,4 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pa
     else:
         assert (shape[0] % nframes) == d.chunks[0][-1]
 
-    dau.assert_eq(a, d)
+    da.utils.assert_eq(a, d)

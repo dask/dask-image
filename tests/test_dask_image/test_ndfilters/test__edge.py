@@ -4,9 +4,7 @@ import pytest
 import numpy as np
 import scipy.ndimage.filters as sp_ndf
 
-import dask
 import dask.array as da
-import dask.array.utils as dau
 
 import dask_image.ndfilters as da_ndf
 
@@ -50,8 +48,8 @@ def test_edge_comprehensions(da_func):
     l2s = [da_func(d[i]) for i in range(len(d))]
     l2c = [da_func(d[i])[None] for i in range(len(d))]
 
-    dau.assert_eq(np.stack(l2s), da.stack(l2s))
-    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
+    da.utils.assert_eq(np.stack(l2s), da.stack(l2s))
+    da.utils.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
 
 
 @pytest.mark.parametrize(
@@ -77,7 +75,7 @@ def test_edge_func_compare(da_func, sp_func, axis):
     a = np.arange(float(np.prod(s))).reshape(s)
     d = da.from_array(a, chunks=(5, 5, 6))
 
-    dau.assert_eq(
+    da.utils.assert_eq(
         sp_func(a, axis),
         da_func(d, axis)
     )

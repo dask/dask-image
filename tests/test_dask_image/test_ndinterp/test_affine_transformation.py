@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import pytest
 
 import dask_image.ndinterp as da_ndinterp

@@ -3,7 +3,7 @@
 
 import numbers
 
-import dask.array
+import dask.array as da
 import numpy as np
 
 
@@ -17,11 +17,11 @@ def _get_freq_grid(shape, chunks, dtype=float):
             not issubclass(dtype, numbers.Integral))
 
     freq_grid = [
-        dask.array.fft.fftfreq(s, chunks=c).astype(dtype)
+        da.fft.fftfreq(s, chunks=c).astype(dtype)
         for s, c in zip(shape, chunks)
     ]
-    freq_grid = dask.array.meshgrid(*freq_grid, indexing="ij")
-    freq_grid = dask.array.stack(freq_grid)
+    freq_grid = da.meshgrid(*freq_grid, indexing="ij")
+    freq_grid = da.stack(freq_grid)
 
     return freq_grid
 
@@ -46,7 +46,7 @@ def _norm_args(a, s, n=-1, axis=-1):
 
     if isinstance(s, numbers.Number):
         s = np.array(a.ndim * [s])
-    elif not isinstance(s, dask.array.Array):
+    elif not isinstance(s, da.Array):
         s = np.array(s)
 
     if issubclass(s.dtype.type, numbers.Integral):

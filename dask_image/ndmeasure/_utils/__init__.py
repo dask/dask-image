@@ -2,7 +2,7 @@
 import warnings
 
 import dask
-import dask.array
+import dask.array as da
 import numpy as np
 
 try:
@@ -16,19 +16,19 @@ def _norm_input_labels_index(image, label_image=None, index=None):
     Normalize arguments to a standard form.
     """
 
-    image = dask.array.asarray(image)
+    image = da.asarray(image)
 
     if label_image is None:
-        label_image = dask.array.ones(
+        label_image = da.ones(
             image.shape, dtype=int, chunks=image.chunks,
         )
-        index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
+        index = da.ones(tuple(), dtype=int, chunks=tuple())
     elif index is None:
         label_image = (label_image > 0).astype(int)
-        index = dask.array.ones(tuple(), dtype=int, chunks=tuple())
+        index = da.ones(tuple(), dtype=int, chunks=tuple())
 
-    label_image = dask.array.asarray(label_image)
-    index = dask.array.asarray(index)
+    label_image = da.asarray(label_image)
+    index = da.asarray(index)
 
     if index.ndim > 1:
         warnings.warn(
@@ -58,7 +58,7 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     """
 
     indices = [
-        dask.array.arange(
+        da.arange(
             0,
             np.prod(dimensions[i:], dtype=dtype),
             np.prod(dimensions[i + 1:], dtype=dtype),
@@ -195,7 +195,7 @@ def _labeled_comprehension_func(func,
     Ensures the result is a proper Dask Array and the computation delayed.
     """
 
-    return dask.array.from_delayed(
+    return da.from_delayed(
         _labeled_comprehension_delayed(func, out_dtype, default, a, positions),
         (1,),
         out_dtype

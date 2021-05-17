@@ -3,7 +3,6 @@
 import pytest
 import numpy as np
 import dask.array as da
-import dask.array.utils as dau
 
 import dask_image.ndmeasure._utils
 
@@ -49,9 +48,9 @@ def test__norm_input_labels_index():
     assert d_lbls_n.shape == d_lbls.shape
     assert ind_n.shape == ()
 
-    dau.assert_eq(d_n, d)
-    dau.assert_eq(d_lbls_n, d_lbls)
-    dau.assert_eq(ind_n, np.array(1, dtype=int))
+    da.utils.assert_eq(d_n, d)
+    da.utils.assert_eq(d_lbls_n, d_lbls)
+    da.utils.assert_eq(ind_n, np.array(1, dtype=int))
 
 
 @pytest.mark.parametrize(
@@ -105,4 +104,4 @@ def test___ravel_shape_indices(shape, chunks):
         shape, dtype=np.int64, chunks=chunks
     )
 
-    dau.assert_eq(d, a)
+    da.utils.assert_eq(d, a)

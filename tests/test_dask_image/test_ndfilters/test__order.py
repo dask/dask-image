@@ -4,9 +4,7 @@ import pytest
 import numpy as np
 import scipy.ndimage.filters as sp_ndf
 
-import dask
 import dask.array as da
-import dask.array.utils as dau
 
 import dask_image.ndfilters as da_ndf
 
@@ -112,11 +110,11 @@ def test_ordered_filter_identity(sp_func,
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(
+    da.utils.assert_eq(
         d, da_func(d, size=size, footprint=footprint, **extra_kwargs)
     )
 
-    dau.assert_eq(
+    da.utils.assert_eq(
         sp_func(a, size=size, footprint=footprint, **extra_kwargs),
         da_func(d, size=size, footprint=footprint, **extra_kwargs)
     )
@@ -141,8 +139,8 @@ def test_order_comprehensions(da_func, kwargs):
     l2s = [da_func(d[i], **kwargs) for i in range(len(d))]
     l2c = [da_func(d[i], **kwargs)[None] for i in range(len(d))]
 
-    dau.assert_eq(np.stack(l2s), da.stack(l2s))
-    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
+    da.utils.assert_eq(np.stack(l2s), da.stack(l2s))
+    da.utils.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
 
 
 @pytest.mark.parametrize(
@@ -187,7 +185,7 @@ def test_ordered_filter_compare(sp_func,
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(
+    da.utils.assert_eq(
         sp_func(
             a, size=size, footprint=footprint, origin=origin, **extra_kwargs
         ),

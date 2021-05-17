@@ -3,8 +3,7 @@ import glob
 import numbers
 import warnings
 
-import dask
-import dask.array
+import dask.array as da
 import dask.delayed
 import numpy as np
 import pims
@@ -69,16 +68,16 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
     # place source filenames into dask array
     filenames = sorted(glob.glob(sfname))  # pims also does this
     if len(filenames) > 1:
-        ar = dask.array.from_array(filenames, chunks=(nframes,))
+        ar = da.from_array(filenames, chunks=(nframes,))
         multiple_files = True
     else:
-        ar = dask.array.from_array(filenames * shape[0], chunks=(nframes,))
+        ar = da.from_array(filenames * shape[0], chunks=(nframes,))
         multiple_files = False
 
     # read in data using encoded filenames
     a = ar.map_blocks(
         _map_read_frame,
-        chunks=dask.array.core.normalize_chunks(
+        chunks=da.core.normalize_chunks(
             (nframes,) + shape[1:], shape),
         multiple_files=multiple_files,
         new_axis=list(range(1, len(shape))),

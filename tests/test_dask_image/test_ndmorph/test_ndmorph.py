@@ -5,7 +5,6 @@ import numpy as np
 import scipy.ndimage as spnd
 
 import dask.array as da
-import dask.array.utils as dau
 import dask_image.ndmorph as da_ndm
 
 
@@ -282,7 +281,7 @@ def test_binary_ops(funcname,
         origin=origin
     )
 
-    dau.assert_eq(sp_result, da_result)
+    da.utils.assert_eq(sp_result, da_result)
 
 
 @pytest.mark.parametrize(
@@ -363,7 +362,7 @@ def test_binary_ops_iter(funcname,
         origin=origin
     )
 
-    dau.assert_eq(sp_result, da_result)
+    da.utils.assert_eq(sp_result, da_result)
 
 
 @pytest.mark.parametrize(
@@ -513,4 +512,4 @@ def test_binary_ops_expanded(funcname,
         brute_force=brute_force
     )
 
-    dau.assert_eq(sp_result, da_result)
+    da.utils.assert_eq(sp_result, da_result)

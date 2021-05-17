@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numbers
 
-import dask.array
+import dask.array as da
 
 from . import _utils
 
@@ -66,9 +66,7 @@ def fourier_gaussian(image, sigma, n=-1, axis=-1):
 
     # Compute Fourier transformed Gaussian
     scale = (sigma ** 2) / -2
-    gaussian = dask.array.exp(
-        dask.array.tensordot(scale, ang_freq_grid ** 2, axes=1)
-    )
+    gaussian = da.exp(da.tensordot(scale, ang_freq_grid ** 2, axes=1))
 
     result = image * gaussian
 
@@ -135,9 +133,7 @@ def fourier_shift(image, shift, n=-1, axis=-1):
     )
 
     # Apply shift
-    phase_shift = dask.array.exp(
-        (-J) * dask.array.tensordot(shift, ang_freq_grid, axes=1)
-    )
+    phase_shift = da.exp((-J) * da.tensordot(shift, ang_freq_grid, axes=1))
     result = image * phase_shift
 
     return result
@@ -200,10 +196,8 @@ def fourier_uniform(image, size, n=-1, axis=-1):
     )
 
     # Compute uniform filter
-    uniform = dask.array.sinc(
-        size[(slice(None),) + image.ndim * (None,)] * freq_grid
-    )
-    uniform = dask.array.prod(uniform, axis=0)
+    uniform = da.sinc(size[(slice(None),) + image.ndim * (None,)] * freq_grid)
+    uniform = da.prod(uniform, axis=0)
 
     result = image * uniform
 

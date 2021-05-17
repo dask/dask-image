@@ -5,7 +5,7 @@ import functools
 import operator
 import warnings
 
-import dask.array
+import dask.array as da
 import numpy as np
 
 from . import _utils
@@ -74,14 +74,14 @@ def area(image, label_image=None, index=None):
     """
 
     if label_image is None:
-        return dask.array.prod(np.array([i for i in image.shape]))
+        return da.prod(np.array([i for i in image.shape]))
 
     else:
         image, label_image, index = _utils._norm_input_labels_index(
             image, label_image, index
         )
 
-        ones = dask.array.ones(
+        ones = da.ones(
             label_image.shape, dtype=bool, chunks=label_image.chunks
         )
 
@@ -189,7 +189,7 @@ def extrema(image, label_image=None, index=None):
         pos_nd = extrema_lbl[pos_key]
 
         if index.ndim == 0:
-            pos_nd = dask.array.squeeze(pos_nd)
+            pos_nd = da.squeeze(pos_nd)
         elif index.ndim > 1:
             pos_nd = pos_nd.reshape(
                 (int(np.prod(pos_nd.shape[:-1])), pos_nd.shape[-1])
@@ -285,7 +285,7 @@ def label(image, structure=None):
         How many objects were found.
     """
 
-    image = dask.array.asarray(image)
+    image = da.asarray(image)
 
     labeled_blocks = np.empty(image.numblocks, dtype=object)
 
@@ -295,7 +295,7 @@ def label(image, structure=None):
     block_iter = zip(
         np.ndindex(*image.numblocks),
         map(functools.partial(operator.getitem, image),
-            dask.array.core.slices_from_chunks(image.chunks))
+            da.core.slices_from_chunks(image.chunks))
     )
     index, input_block = next(block_iter)
     labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
@@ -303,7 +303,7 @@ def label(image, structure=None):
     for index, input_block in block_iter:
         labeled_block, n = _label.block_ndi_label_delayed(input_block,
                                                           structure)
-        block_label_offset = dask.array.where(labeled_block > 0,
+        block_label_offset = da.where(labeled_block > 0,
                                               total,
                                               _label.LABEL_DTYPE.type(0))
         labeled_block += block_label_offset
@@ -311,7 +311,7 @@ def label(image, structure=None):
         total += n
 
     # Put all the blocks together
-    block_labeled = dask.array.block(labeled_blocks.tolist())
+    block_labeled = da.block(labeled_blocks.tolist())
 
     # Now, build a label connectivity graph that groups labels across blocks.
     # We use this graph to find connected components and then relabel each
@@ -320,7 +320,7 @@ def label(image, structure=None):
                                                 total)
     new_labeling = _label.connected_components_delayed(label_groups)
     relabeled = _label.relabel_blocks(block_labeled, new_labeling)
-    n = dask.array.max(relabeled)
+    n = da.max(relabeled)
 
     return (relabeled, n)
 
@@ -399,7 +399,7 @@ def labeled_comprehension(image,
     for i in range(result.ndim - 1, -1, -1):
         result2 = result[..., 0]
         for j in np.ndindex(index.shape[:i]):
-            result2[j] = dask.array.stack(result[j].tolist(), axis=0)
+            result2[j] = da.stack(result[j].tolist(), axis=0)
         result = result2
     result = result[()][..., 0]
 
@@ -484,7 +484,7 @@ def maximum_position(image, label_image=None, index=None):
     max_pos_lbl = max_pos_lbl["pos"]
 
     if index.shape == tuple():
-        max_pos_lbl = dask.array.squeeze(max_pos_lbl)
+        max_pos_lbl = da.squeeze(max_pos_lbl)
 
     return max_pos_lbl
 
@@ -634,7 +634,7 @@ def minimum_position(image, label_image=None, index=None):
     min_pos_lbl = min_pos_lbl["pos"]
 
     if index.shape == tuple():
-        min_pos_lbl = dask.array.squeeze(min_pos_lbl)
+        min_pos_lbl = da.squeeze(min_pos_lbl)
 
     return min_pos_lbl
 
