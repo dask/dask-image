@@ -63,16 +63,19 @@ def fourier_gaussian(image, sigma, n=-1, axis=-1):
     ang_freq_grid = _utils._get_ang_freq_grid(
         image.shape,
         chunks=image.chunks,
+        n=n,
+        axis=axis,
         dtype=sigma.dtype
     )
 
     # Compute Fourier transformed Gaussian
+    result = image.copy()
     scale = (sigma ** 2) / -2
-    gaussian = dask.array.exp(
-        dask.array.tensordot(scale, ang_freq_grid ** 2, axes=1)
-    )
-
-    result = image * gaussian
+    for ax, f in enumerate(ang_freq_grid):
+        f *= f
+        gaussian = dask.array.exp(scale[ax] * f)
+        gaussian = _utils._reshape_nd(gaussian, ndim=image.ndim, axis=ax)
+        result *= gaussian
 
     return result
 
@@ -133,14 +136,17 @@ def fourier_shift(image, shift, n=-1, axis=-1):
     ang_freq_grid = _utils._get_ang_freq_grid(
         image.shape,
         chunks=image.chunks,
+        n=n,
+        axis=axis,
         dtype=shift.dtype
     )
 
     # Apply shift
-    phase_shift = dask.array.exp(
-        (-J) * dask.array.tensordot(shift, ang_freq_grid, axes=1)
-    )
-    result = image * phase_shift
+    result = image.copy()
+    for ax, f in enumerate(ang_freq_grid):
+        phase_shift = dask.array.exp((-J) * shift[ax] * f)
+        phase_shift = _utils._reshape_nd(phase_shift, ndim=image.ndim, axis=ax)
+        result *= phase_shift
 
     return result
 
@@ -198,15 +204,16 @@ def fourier_uniform(image, size, n=-1, axis=-1):
     freq_grid = _utils._get_freq_grid(
         image.shape,
         chunks=image.chunks,
+        n=n,
+        axis=axis,
         dtype=size.dtype
     )
 
     # Compute uniform filter
-    uniform = dask.array.sinc(
-        size[(slice(None),) + image.ndim * (None,)] * freq_grid
-    )
-    uniform = dask.array.prod(uniform, axis=0)
-
-    result = image * uniform
+    result = image.copy()
+    for ax, f in enumerate(freq_grid):
+        uniform = dask.array.sinc(size[ax] * f)
+        uniform = _utils._reshape_nd(uniform, ndim=image.ndim, axis=ax)
+        result *= uniform
 
     return result
