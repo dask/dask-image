@@ -6,14 +6,14 @@ import scipy.ndimage
 
 import dask.array as da
 
-import dask_image.ndfilters as da_ndf
+import dask_image.ndfilters
 
 
 @pytest.mark.parametrize(
     "da_func",
     [
-        (da_ndf.convolve),
-        (da_ndf.correlate),
+        (dask_image.ndfilters.convolve),
+        (dask_image.ndfilters.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -46,8 +46,8 @@ def test_convolutions_params(da_func,
 @pytest.mark.parametrize(
     "da_func",
     [
-        da_ndf.convolve,
-        da_ndf.correlate,
+        dask_image.ndfilters.convolve,
+        dask_image.ndfilters.correlate,
     ]
 )
 def test_convolutions_shape_type(da_func):
@@ -66,8 +66,8 @@ def test_convolutions_shape_type(da_func):
 @pytest.mark.parametrize(
     "da_func",
     [
-        da_ndf.convolve,
-        da_ndf.correlate,
+        dask_image.ndfilters.convolve,
+        dask_image.ndfilters.correlate,
     ]
 )
 def test_convolutions_comprehensions(da_func):
@@ -88,8 +88,8 @@ def test_convolutions_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.convolve, da_ndf.convolve),
-        (scipy.ndimage.filters.correlate, da_ndf.correlate),
+        (scipy.ndimage.filters.convolve, dask_image.ndfilters.convolve),
+        (scipy.ndimage.filters.correlate, dask_image.ndfilters.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -117,8 +117,8 @@ def test_convolutions_identity(sp_func,
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.convolve, da_ndf.convolve),
-        (scipy.ndimage.filters.correlate, da_ndf.correlate),
+        (scipy.ndimage.filters.convolve, dask_image.ndfilters.convolve),
+        (scipy.ndimage.filters.correlate, dask_image.ndfilters.correlate),
     ]
 )
 @pytest.mark.parametrize(

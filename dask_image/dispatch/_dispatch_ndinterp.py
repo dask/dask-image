@@ -10,8 +10,8 @@ __all__ = [
     "dispatch_asarray",
 ]
 
-
 dispatch_affine_transform = Dispatcher(name="dispatch_affine_transform")
+
 
 # ================== affine_transform ==================
 @dispatch_affine_transform.register(np.ndarray)
@@ -31,6 +31,7 @@ def register_cupy_affine_transform():
 
 
 dispatch_asarray = Dispatcher(name="dispatch_asarray")
+
 
 # ===================== asarray ========================
 @dispatch_asarray.register(np.ndarray)

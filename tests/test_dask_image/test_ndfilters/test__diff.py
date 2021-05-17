@@ -5,7 +5,7 @@ import scipy.ndimage
 
 import dask.array as da
 
-import dask_image.ndfilters as da_ndf
+import dask_image.ndfilters
 
 
 def test_laplace_comprehensions():
@@ -14,8 +14,8 @@ def test_laplace_comprehensions():
     a = np.random.random((3, 12, 14))
     d = da.from_array(a, chunks=(3, 6, 7))
 
-    l2s = [da_ndf.laplace(d[i]) for i in range(len(d))]
-    l2c = [da_ndf.laplace(d[i])[None] for i in range(len(d))]
+    l2s = [dask_image.ndfilters.laplace(d[i]) for i in range(len(d))]
+    l2c = [dask_image.ndfilters.laplace(d[i])[None] for i in range(len(d))]
 
     da.utils.assert_eq(np.stack(l2s), da.stack(l2s))
     da.utils.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
@@ -28,5 +28,5 @@ def test_laplace_compare():
 
     da.utils.assert_eq(
         scipy.ndimage.filters.laplace(a),
-        da_ndf.laplace(d)
+        dask_image.ndfilters.laplace(d)
     )

@@ -6,7 +6,7 @@ import scipy.ndimage
 
 import dask.array as da
 
-import dask_image.ndfilters as da_ndf
+import dask_image.ndfilters
 
 
 @pytest.mark.parametrize(
@@ -25,7 +25,7 @@ def test_uniform_filter_params(err_type, size, origin):
     d = da.from_array(a, chunks=(5, 7))
 
     with pytest.raises(err_type):
-        da_ndf.uniform_filter(d, size, origin=origin)
+        dask_image.ndfilters.uniform_filter(d, size, origin=origin)
 
 
 def test_uniform_shape_type():
@@ -37,13 +37,13 @@ def test_uniform_shape_type():
 
     assert all([(type(s) is int) for s in d.shape])
 
-    d2 = da_ndf.uniform_filter(d, size, origin=origin)
+    d2 = dask_image.ndfilters.uniform_filter(d, size, origin=origin)
 
     assert all([(type(s) is int) for s in d2.shape])
 
 
 def test_uniform_comprehensions():
-    da_func = lambda arr: da_ndf.uniform_filter(arr, 1, origin=0)  # noqa: E731
+    da_func = lambda arr: dask_image.ndfilters.uniform_filter(arr, 1, origin=0)  # noqa: E731
 
     np.random.seed(0)
 
@@ -68,12 +68,12 @@ def test_uniform_identity(size, origin):
     d = da.from_array(a, chunks=(5, 7))
 
     da.utils.assert_eq(
-        d, da_ndf.uniform_filter(d, size, origin=origin)
+        d, dask_image.ndfilters.uniform_filter(d, size, origin=origin)
     )
 
     da.utils.assert_eq(
         scipy.ndimage.filters.uniform_filter(a, size, origin=origin),
-        da_ndf.uniform_filter(d, size, origin=origin)
+        dask_image.ndfilters.uniform_filter(d, size, origin=origin)
     )
 
 
@@ -95,5 +95,5 @@ def test_uniform_compare(size, origin):
 
     da.utils.assert_eq(
         scipy.ndimage.filters.uniform_filter(a, size, origin=origin),
-        da_ndf.uniform_filter(d, size, origin=origin)
+        dask_image.ndfilters.uniform_filter(d, size, origin=origin)
     )

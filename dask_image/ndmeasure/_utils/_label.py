@@ -44,10 +44,10 @@ def relabel_blocks(block_labeled, new_labeling):
     """
     new_labeling = new_labeling.astype(LABEL_DTYPE)
     relabeled = da.map_blocks(operator.getitem,
-                                      new_labeling,
-                                      block_labeled,
-                                      dtype=LABEL_DTYPE,
-                                      chunks=block_labeled.chunks)
+                              new_labeling,
+                              block_labeled,
+                              dtype=LABEL_DTYPE,
+                              chunks=block_labeled.chunks)
     return relabeled
 
 
@@ -112,9 +112,7 @@ def _across_block_label_grouping_delayed(face, structure):
     """Delayed version of :func:`_across_block_label_grouping`."""
     _across_block_label_grouping_ = dask.delayed(_across_block_label_grouping)
     grouped = _across_block_label_grouping_(face, structure)
-    return da.from_delayed(grouped,
-                                   shape=(2, np.nan),
-                                   dtype=LABEL_DTYPE)
+    return da.from_delayed(grouped, shape=(2, np.nan), dtype=LABEL_DTYPE)
 
 
 @dask.delayed
@@ -229,7 +227,7 @@ def block_ndi_label_delayed(block, structure):
     labeled_block, n = label(block, structure=structure)
     n = dask.delayed(LABEL_DTYPE.type)(n)
     labeled = da.from_delayed(labeled_block, shape=block.shape,
-                                      dtype=LABEL_DTYPE)
+                              dtype=LABEL_DTYPE)
     n = da.from_delayed(n, shape=(), dtype=LABEL_DTYPE)
     return labeled, n
 

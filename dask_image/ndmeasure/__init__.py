@@ -168,8 +168,8 @@ def extrema(image, label_image=None, index=None):
     out_dtype = np.dtype([
         ("min_val", image.dtype),
         ("max_val", image.dtype),
-        ("min_pos", np.dtype(np.int), image.ndim),
-        ("max_pos", np.dtype(np.int), image.ndim)
+        ("min_pos", np.dtype(int), image.ndim),
+        ("max_pos", np.dtype(int), image.ndim)
     ])
     default_1d = np.zeros((1,), dtype=out_dtype)
 

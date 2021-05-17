@@ -5,7 +5,7 @@ import dask.array as da
 import numpy as np
 import pytest
 
-from dask_image import ndfilters
+import dask_image.ndfilters
 
 cupy = pytest.importorskip("cupy", minversion="7.7.0")
 
@@ -20,8 +20,8 @@ def array():
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func", [
-    ndfilters.convolve,
-    ndfilters.correlate,
+    dask_image.ndfilters.convolve,
+    dask_image.ndfilters.correlate,
 ])
 def test_cupy_conv(array, func):
     """Test convolve & correlate filters with cupy input arrays."""
@@ -32,7 +32,7 @@ def test_cupy_conv(array, func):
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func", [
-    ndfilters.laplace,
+    dask_image.ndfilters.laplace,
 ])
 def test_cupy_diff(array, func):
     result = func(array)
@@ -41,8 +41,8 @@ def test_cupy_diff(array, func):
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func", [
-    ndfilters.prewitt,
-    ndfilters.sobel,
+    dask_image.ndfilters.prewitt,
+    dask_image.ndfilters.sobel,
 ])
 def test_cupy_edge(array, func):
     result = func(array)
@@ -51,9 +51,9 @@ def test_cupy_edge(array, func):
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func", [
-    ndfilters.gaussian_filter,
-    ndfilters.gaussian_gradient_magnitude,
-    ndfilters.gaussian_laplace,
+    dask_image.ndfilters.gaussian_filter,
+    dask_image.ndfilters.gaussian_gradient_magnitude,
+    dask_image.ndfilters.gaussian_laplace,
 ])
 def test_cupy_gaussian(array, func):
     sigma = 1
@@ -72,18 +72,18 @@ def test_cupy_gaussian(array, func):
 def test_cupy_generic(array, size, footprint):
     my_sum = cupy.ReductionKernel(
         'T x', 'T out', 'x', 'a + b', 'out = a', '0', 'my_sum')
-    result = ndfilters.generic_filter(array, my_sum, size=size,
-                                      footprint=footprint)
+    result = dask_image.ndfilters.generic_filter(array, my_sum, size=size,
+                                                 footprint=footprint)
     result.compute()
 
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func, extra_arg, size", [
-    (ndfilters.minimum_filter, None, 3),
-    (ndfilters.median_filter, None, 3),
-    (ndfilters.maximum_filter, None, 3),
-    (ndfilters.rank_filter, 5, 3),
-    (ndfilters.percentile_filter, 50, 3),
+    (dask_image.ndfilters.minimum_filter, None, 3),
+    (dask_image.ndfilters.median_filter, None, 3),
+    (dask_image.ndfilters.maximum_filter, None, 3),
+    (dask_image.ndfilters.rank_filter, 5, 3),
+    (dask_image.ndfilters.percentile_filter, 50, 3),
 ])
 def test_cupy_order(array, func, extra_arg, size):
     if extra_arg is not None:
@@ -95,7 +95,7 @@ def test_cupy_order(array, func, extra_arg, size):
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func", [
-    ndfilters.uniform_filter,
+    dask_image.ndfilters.uniform_filter,
 ])
 def test_cupy_smooth(array, func):
     result = func(array)

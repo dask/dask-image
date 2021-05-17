@@ -6,7 +6,7 @@ import scipy.ndimage
 
 import dask.array as da
 
-import dask_image.ndfilters as da_ndf
+import dask_image.ndfilters
 
 
 @pytest.mark.parametrize(
@@ -20,8 +20,8 @@ import dask_image.ndfilters as da_ndf
 @pytest.mark.parametrize(
     "da_func",
     [
-        da_ndf.prewitt,
-        da_ndf.sobel,
+        dask_image.ndfilters.prewitt,
+        dask_image.ndfilters.sobel,
     ]
 )
 def test_edge_func_params(da_func, err_type, axis):
@@ -35,8 +35,8 @@ def test_edge_func_params(da_func, err_type, axis):
 @pytest.mark.parametrize(
     "da_func",
     [
-        da_ndf.prewitt,
-        da_ndf.sobel,
+        dask_image.ndfilters.prewitt,
+        dask_image.ndfilters.sobel,
     ]
 )
 def test_edge_comprehensions(da_func):
@@ -66,8 +66,8 @@ def test_edge_comprehensions(da_func):
 @pytest.mark.parametrize(
     "da_func, sp_func",
     [
-        (da_ndf.prewitt, scipy.ndimage.filters.prewitt),
-        (da_ndf.sobel, scipy.ndimage.filters.sobel),
+        (dask_image.ndfilters.prewitt, scipy.ndimage.filters.prewitt),
+        (dask_image.ndfilters.sobel, scipy.ndimage.filters.sobel),
     ]
 )
 def test_edge_func_compare(da_func, sp_func, axis):

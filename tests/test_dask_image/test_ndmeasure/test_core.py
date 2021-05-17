@@ -114,7 +114,7 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
     else:
         scipy_funcname = funcname
 
-    sp_func = getattr(ndi, scipy_funcname)
+    sp_func = getattr(scipy.ndimage, scipy_funcname)
     da_func = getattr(dask_image.ndmeasure, funcname)
 
     a = np.random.random(shape)

@@ -5,7 +5,7 @@ import numpy as np
 import scipy.ndimage
 
 import dask.array as da
-import dask_image.ndmorph as da_ndm
+import dask_image.ndmorph
 
 
 @pytest.mark.parametrize(
@@ -45,7 +45,7 @@ def test_errs_binary_ops(funcname,
                          input,
                          structure,
                          origin):
-    da_func = getattr(da_ndm, funcname)
+    da_func = getattr(dask_image.ndmorph, funcname)
 
     with pytest.raises(err_type):
         da_func(
@@ -89,7 +89,7 @@ def test_errs_binary_ops_iter(funcname,
                               structure,
                               iterations,
                               origin):
-    da_func = getattr(da_ndm, funcname)
+    da_func = getattr(dask_image.ndmorph, funcname)
 
     with pytest.raises(err_type):
         da_func(
@@ -154,7 +154,7 @@ def test_errs_binary_ops_expanded(funcname,
                                   border_value,
                                   origin,
                                   brute_force):
-    da_func = getattr(da_ndm, funcname)
+    da_func = getattr(dask_image.ndmorph, funcname)
 
     with pytest.raises(err_type):
         da_func(
@@ -266,7 +266,7 @@ def test_binary_ops(funcname,
                     input,
                     structure,
                     origin):
-    da_func = getattr(da_ndm, funcname)
+    da_func = getattr(dask_image.ndmorph, funcname)
     sp_func = getattr(scipy.ndimage, funcname)
 
     da_result = da_func(
@@ -345,7 +345,7 @@ def test_binary_ops_iter(funcname,
                          structure,
                          iterations,
                          origin):
-    da_func = getattr(da_ndm, funcname)
+    da_func = getattr(dask_image.ndmorph, funcname)
     sp_func = getattr(scipy.ndimage, funcname)
 
     da_result = da_func(
@@ -489,7 +489,7 @@ def test_binary_ops_expanded(funcname,
                              border_value,
                              origin,
                              brute_force):
-    da_func = getattr(da_ndm, funcname)
+    da_func = getattr(dask_image.ndmorph, funcname)
     sp_func = getattr(scipy.ndimage, funcname)
 
     da_result = da_func(
