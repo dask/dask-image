@@ -3,7 +3,7 @@ import warnings
 
 import dask
 import dask.array
-import numpy
+import numpy as np
 
 try:
     from dask.array import blockwise as da_blockwise
@@ -60,8 +60,8 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
     indices = [
         dask.array.arange(
             0,
-            numpy.prod(dimensions[i:], dtype=dtype),
-            numpy.prod(dimensions[i + 1:], dtype=dtype),
+            np.prod(dimensions[i:], dtype=dtype),
+            np.prod(dimensions[i + 1:], dtype=dtype),
             dtype=dtype,
             chunks=c
         )
@@ -82,9 +82,9 @@ def _argmax(a, positions, shape, dtype):
     Find original array position corresponding to the maximum.
     """
 
-    result = numpy.empty((1,), dtype=dtype)
+    result = np.empty((1,), dtype=dtype)
 
-    pos_nd = numpy.unravel_index(positions[numpy.argmax(a)], shape)
+    pos_nd = np.unravel_index(positions[np.argmax(a)], shape)
     for i, pos_nd_i in enumerate(pos_nd):
         result["pos"][0, i] = pos_nd_i
 
@@ -96,9 +96,9 @@ def _argmin(a, positions, shape, dtype):
     Find original array position corresponding to the minimum.
     """
 
-    result = numpy.empty((1,), dtype=dtype)
+    result = np.empty((1,), dtype=dtype)
 
-    pos_nd = numpy.unravel_index(positions[numpy.argmin(a)], shape)
+    pos_nd = np.unravel_index(positions[np.argmin(a)], shape)
     for i, pos_nd_i in enumerate(pos_nd):
         result["pos"][0, i] = pos_nd_i
 
@@ -110,14 +110,14 @@ def _center_of_mass(a, positions, shape, dtype):
     Find the center of mass for each ROI.
     """
 
-    result = numpy.empty((1,), dtype=dtype)
+    result = np.empty((1,), dtype=dtype)
 
-    positions_nd = numpy.unravel_index(positions, shape)
-    a_sum = numpy.sum(a)
+    positions_nd = np.unravel_index(positions, shape)
+    a_sum = np.sum(a)
 
-    a_wt_i = numpy.empty(a.shape)
+    a_wt_i = np.empty(a.shape)
     for i, pos_nd_i in enumerate(positions_nd):
-        a_wt_sum_i = numpy.multiply(a, pos_nd_i, out=a_wt_i).sum()
+        a_wt_sum_i = np.multiply(a, pos_nd_i, out=a_wt_i).sum()
         result["com"][0, i] = a_wt_sum_i / a_sum
 
     return result[0]
@@ -128,16 +128,16 @@ def _extrema(a, positions, shape, dtype):
     Find minimum and maximum as well as positions for both.
     """
 
-    result = numpy.empty((1,), dtype=dtype)
+    result = np.empty((1,), dtype=dtype)
 
-    int_min_pos = numpy.argmin(a)
-    int_max_pos = numpy.argmax(a)
+    int_min_pos = np.argmin(a)
+    int_max_pos = np.argmax(a)
 
     result["min_val"] = a[int_min_pos]
     result["max_val"] = a[int_max_pos]
 
-    min_pos_nd = numpy.unravel_index(positions[int_min_pos], shape)
-    max_pos_nd = numpy.unravel_index(positions[int_max_pos], shape)
+    min_pos_nd = np.unravel_index(positions[int_min_pos], shape)
+    max_pos_nd = np.unravel_index(positions[int_max_pos], shape)
     for i in range(len(shape)):
         result["min_pos"][0, i] = min_pos_nd[i]
         result["max_pos"][0, i] = max_pos_nd[i]
@@ -155,7 +155,7 @@ def _histogram(image,
     Also reformats the arguments.
     """
 
-    return numpy.histogram(image, bins, (min, max))[0]
+    return np.histogram(image, bins, (min, max))[0]
 
 
 @dask.delayed
@@ -171,7 +171,7 @@ def _labeled_comprehension_delayed(func,
     computation should not occur.
     """
 
-    result = numpy.empty((1,), dtype=out_dtype)
+    result = np.empty((1,), dtype=out_dtype)
 
     if a.size:
         if positions is None:

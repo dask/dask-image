@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pytest
-import numpy
+import numpy as np
 import dask.array
 
 from dask_image.ndmorph import _utils
@@ -87,24 +87,24 @@ def test_errs__get_brute_force(err_type, brute_force):
     "expected, input, structure",
     [
         (
-            numpy.array([1, 1, 1], dtype=bool),
+            np.array([1, 1, 1], dtype=bool),
             (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
             None
         ),
         (
-            numpy.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], dtype=bool),
+            np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], dtype=bool),
             (dask.array.arange(100, chunks=10).reshape(10, 10) % 2).astype(bool),  # noqa: E501
             None
         ),
         (
-            numpy.array([1, 1, 1], dtype=bool),
+            np.array([1, 1, 1], dtype=bool),
             (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
-            numpy.array([1, 1, 1], dtype=int)
+            np.array([1, 1, 1], dtype=int)
         ),
         (
-            numpy.array([1, 1, 1], dtype=bool),
+            np.array([1, 1, 1], dtype=bool),
             (dask.array.arange(10, chunks=(10,)) % 2).astype(bool),
-            numpy.array([1, 1, 1], dtype=bool)
+            np.array([1, 1, 1], dtype=bool)
         ),
     ]
 )
@@ -112,7 +112,7 @@ def test__get_structure(expected, input, structure):
     result = _utils._get_structure(input, structure)
 
     assert expected.dtype.type == result.dtype.type
-    assert numpy.array((expected == result).all())[()]
+    assert np.array((expected == result).all())[()]
 
 
 @pytest.mark.parametrize(
@@ -129,12 +129,12 @@ def test__get_iterations(expected, iterations):
 @pytest.mark.parametrize(
     "expected, a",
     [
-        (numpy.bool8, False),
-        (numpy.int_, 2),
-        (numpy.float64, 3.1),
-        (numpy.complex128, 1 + 2j),
-        (numpy.int16, numpy.int16(6)),
-        (numpy.uint32, numpy.arange(3, dtype=numpy.uint32)),
+        (np.bool8, False),
+        (np.int_, 2),
+        (np.float64, 3.1),
+        (np.complex128, 1 + 2j),
+        (np.int16, np.int16(6)),
+        (np.uint32, np.arange(3, dtype=np.uint32)),
     ]
 )
 def test__get_dtype(expected, a):
@@ -150,17 +150,17 @@ def test__get_dtype(expected, a):
         (
             True,
             dask.array.arange(2, dtype=bool, chunks=(2,)),
-            numpy.bool8(True)
+            np.bool8(True)
         ),
         (
             False,
             dask.array.arange(2, dtype=bool, chunks=(2,)),
-            numpy.bool8(False)
+            np.bool8(False)
         ),
         (
-            numpy.arange(2, dtype=bool),
+            np.arange(2, dtype=bool),
             dask.array.arange(2, dtype=bool, chunks=(2,)),
-            numpy.arange(2, dtype=bool)
+            np.arange(2, dtype=bool)
         ),
         (
             dask.array.arange(2, dtype=bool, chunks=(2,)),
@@ -174,8 +174,8 @@ def test__get_mask(expected, input, mask):
 
     assert type(expected) == type(result)
 
-    if isinstance(expected, (numpy.ndarray, dask.array.Array)):
-        assert numpy.array((expected == result).all())[()]
+    if isinstance(expected, (np.ndarray, dask.array.Array)):
+        assert np.array((expected == result).all())[()]
     else:
         assert expected == result
 

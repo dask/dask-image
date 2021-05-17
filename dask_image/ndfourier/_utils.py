@@ -4,14 +4,14 @@
 import numbers
 
 import dask.array
-import numpy
+import numpy as np
 
 
 def _get_freq_grid(shape, chunks, dtype=float):
     assert len(shape) == len(chunks)
 
     shape = tuple(shape)
-    dtype = numpy.dtype(dtype).type
+    dtype = np.dtype(dtype).type
 
     assert (issubclass(dtype, numbers.Real) and
             not issubclass(dtype, numbers.Integral))
@@ -27,12 +27,12 @@ def _get_freq_grid(shape, chunks, dtype=float):
 
 
 def _get_ang_freq_grid(shape, chunks, dtype=float):
-    dtype = numpy.dtype(dtype).type
+    dtype = np.dtype(dtype).type
 
     assert (issubclass(dtype, numbers.Real) and
             not issubclass(dtype, numbers.Integral))
 
-    pi = dtype(numpy.pi)
+    pi = dtype(np.pi)
 
     freq_grid = _get_freq_grid(shape, chunks, dtype=dtype)
     ang_freq_grid = (2 * pi) * freq_grid
@@ -45,9 +45,9 @@ def _norm_args(a, s, n=-1, axis=-1):
         a = a.astype(float)
 
     if isinstance(s, numbers.Number):
-        s = numpy.array(a.ndim * [s])
+        s = np.array(a.ndim * [s])
     elif not isinstance(s, dask.array.Array):
-        s = numpy.array(s)
+        s = np.array(s)
 
     if issubclass(s.dtype.type, numbers.Integral):
         s = s.astype(a.real.dtype)
