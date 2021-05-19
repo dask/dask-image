@@ -8,7 +8,7 @@ import dask.array as da
 import numpy as np
 import pytest
 import scipy
-from scipy import ndimage
+import scipy.ndimage
 
 import dask_image.ndinterp as da_ndinterp
 
@@ -42,7 +42,7 @@ def validate_affine_transform(n=2,
                               prefilter=False
                               ):
     """
-    Compare the outputs of `ndimage.affine_transformation`
+    Compare the outputs of `scipy.ndimage.affine_transformation`
     and `dask_image.ndinterp.affine_transformation`.
 
     Notes
@@ -93,7 +93,7 @@ def validate_affine_transform(n=2,
     output_chunks = [input_output_chunksize_per_dim[1]] * n
 
     # transform with scipy
-    image_t_scipy = ndimage.affine_transform(
+    image_t_scipy = scipy.ndimage.affine_transform(
         image, matrix, offset,
         output_shape=output_shape,
         order=interp_order,

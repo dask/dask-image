@@ -8,7 +8,7 @@ import dask.array as da
 import numpy as np
 import pytest
 import scipy
-from scipy import ndimage
+import scipy.ndimage
 
 import dask_image.ndinterp as da_ndinterp
 
@@ -33,7 +33,7 @@ def validate_spline_filter(n=2,
                            input_as_non_dask_array=False,
                            depth=None):
     """
-    Compare the outputs of `ndimage.spline_transform`
+    Compare the outputs of `scipy.ndimage.spline_transform`
     and `dask_image.ndinterp.spline_transform`. If axis is not None, then
     `spline_transform1d` is tested instead.
 
@@ -69,11 +69,11 @@ def validate_spline_filter(n=2,
             image_da = image_da.map_blocks(cp.asarray)
 
     if axis is not None:
-        scipy_func = ndimage.spline_filter1d
+        scipy_func = scipy.ndimage.spline_filter1d
         dask_image_func = da_ndinterp.spline_filter1d
         kwargs = {'axis': axis}
     else:
-        scipy_func = ndimage.spline_filter
+        scipy_func = scipy.ndimage.spline_filter
         dask_image_func = da_ndinterp.spline_filter
         kwargs = {}
 
