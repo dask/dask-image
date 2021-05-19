@@ -13,6 +13,7 @@ __all__ = [
 
 dispatch_affine_transform = Dispatcher(name="dispatch_affine_transform")
 
+
 # ================== affine_transform ==================
 @dispatch_affine_transform.register(np.ndarray)
 def numpy_affine_transform(*args, **kwargs):
@@ -31,6 +32,7 @@ def register_cupy_affine_transform():
 
 
 dispatch_spline_filter = Dispatcher(name="dispatch_spline_filter")
+
 
 # ================== spline_filter ==================
 @dispatch_spline_filter.register(np.ndarray)
@@ -51,6 +53,7 @@ def register_cupy_spline_filter():
 
 dispatch_spline_filter1d = Dispatcher(name="dispatch_spline_filter1d")
 
+
 # ================== spline_filter1d ==================
 @dispatch_spline_filter1d.register(np.ndarray)
 def numpy_spline_filter1d(*args, **kwargs):
@@ -69,6 +72,7 @@ def register_cupy_spline_filter1d():
 
 
 dispatch_asarray = Dispatcher(name="dispatch_asarray")
+
 
 # ===================== asarray ========================
 @dispatch_asarray.register(np.ndarray)

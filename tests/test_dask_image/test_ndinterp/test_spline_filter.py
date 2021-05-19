@@ -38,7 +38,8 @@ def validate_spline_filter(n=2,
     `spline_transform1d` is tested instead.
 
     """
-    if (np.dtype(output) != np.float64
+    if (
+        np.dtype(output) != np.float64
         and version.parse(scipy.__version__) < version.parse('1.4.0')
     ):
         pytest.skip("bug in output dtype handling in SciPy < 1.4")
@@ -142,7 +143,7 @@ def test_spline_filter_cupy(
     input_as_non_dask_array,
 ):
 
-    cupy = pytest.importorskip("cupy", minversion="6.0.0")
+    pytest.importorskip("cupy", minversion="6.0.0")
 
     validate_spline_filter(
         n=n,
@@ -185,8 +186,6 @@ def test_spline_filter1d_general(
 
 @pytest.mark.parametrize("axis", [None, -1])
 def test_spline_filter_non_dask_array_input(axis):
-    if axis == 1 and n < 2:
-        pytest.skip(msg="skip axis=1 for 1d signals")
 
     validate_spline_filter(
         axis=axis,
@@ -197,8 +196,6 @@ def test_spline_filter_non_dask_array_input(axis):
 @pytest.mark.parametrize("depth", [None, 24])
 @pytest.mark.parametrize("axis", [None, -1])
 def test_spline_filter_non_default_depth(depth, axis):
-    if axis == 1 and n < 2:
-        pytest.skip(msg="skip axis=1 for 1d signals")
 
     validate_spline_filter(
         axis=axis,

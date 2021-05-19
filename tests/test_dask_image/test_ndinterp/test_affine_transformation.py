@@ -68,7 +68,8 @@ def validate_affine_transform(n=2,
         import cupy as cp
         image_da = image_da.map_blocks(cp.asarray)
 
-    if (prefilter
+    if (
+        prefilter
         and interp_mode in _supported_prefilter_modes
         and interp_order > 1
         and version.parse(dask.__version__) < version.parse("2020.1.0")
@@ -154,7 +155,7 @@ def test_affine_transform_cupy(n,
                                interp_order,
                                input_output_chunksize_per_dim,
                                random_seed):
-    cupy = pytest.importorskip("cupy", minversion="6.0.0")
+    pytest.importorskip("cupy", minversion="6.0.0")
 
     kwargs = dict()
     kwargs['n'] = n
