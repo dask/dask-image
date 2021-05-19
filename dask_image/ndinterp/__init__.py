@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 
+import functools
+import math
 from itertools import product
-import numpy as np
 
 import dask.array as da
+import numpy as np
 from dask.base import tokenize
 from dask.highlevelgraph import HighLevelGraph
-
+import scipy
 from scipy.ndimage import affine_transform as ndimage_affine_transform
-import warnings
-
 
 from ..dispatch._dispatch_ndinterp import (
     dispatch_affine_transform,
     dispatch_asarray,
+    dispatch_spline_filter,
+    dispatch_spline_filter1d,
 )
+from ..ndfilters._utils import _get_depth_boundary
 
 
 __all__ = [
@@ -105,21 +108,28 @@ def affine_transform(
         offset = matrix[:image.ndim, image.ndim]
         matrix = matrix[:image.ndim, :image.ndim]
 
-    # process kwargs
-    # prefilter is not yet supported
-    if 'prefilter' in kwargs:
-        if kwargs['prefilter'] and order > 1:
-            warnings.warn('Currently, `dask_image.ndinterp.affine_transform` '
-                          'doesn\'t support `prefilter=True`. Proceeding with'
-                          ' `prefilter=False`, which if order > 1 can lead '
-                          'to the output containing more blur than with '
-                          'prefiltering.', UserWarning)
-        del kwargs['prefilter']
+    cval = kwargs.pop('cval', 0)
+    mode = kwargs.pop('mode', 'constant')
+    prefilter = kwargs.pop('prefilter', False)
 
-    if 'mode' in kwargs:
-        if kwargs['mode'] in ['wrap', 'reflect', 'mirror']:
-            raise(NotImplementedError("Mode %s is not currently supported."
-                                      % kwargs['mode']))
+    supported_modes = ['constant', 'nearest']
+    if scipy.__version__ > np.lib.NumpyVersion('1.6.0'):
+        supported_modes += ['grid-constant']
+    if mode in ['wrap', 'reflect', 'mirror', 'grid-mirror', 'grid-wrap']:
+        raise NotImplementedError(
+            f"Mode {mode} is not currently supported. It must be one of "
+            f"{supported_modes}.")
+
+    # process kwargs
+    if prefilter and order > 1:
+        # prefilter is not yet supported for all modes
+        if mode in ['nearest', 'grid-constant']:
+            raise NotImplementedError(
+                f"order > 1 with mode='{mode}' is not supported. Currently "
+                f"prefilter is only supported with mode='constant'."
+            )
+        image = spline_filter(image, order, output=np.float64,
+                              mode=mode)
 
     n = image.ndim
     image_shape = image.shape
@@ -212,8 +222,8 @@ def affine_transform(
                         tuple(out_chunk_shape),  # output_shape
                         None,  # out
                         order,
-                        'constant' if 'mode' not in kwargs else kwargs['mode'],
-                        0. if 'cval' not in kwargs else kwargs['cval'],
+                        mode,
+                        cval,
                         False  # prefilter
         )
 
@@ -232,3 +242,139 @@ def affine_transform(
                            meta=meta)
 
     return transformed
+
+
+# magnitude of the maximum filter pole for each order
+# (obtained from scipy/ndimage/src/ni_splines.c)
+_maximum_pole = {
+    2: 0.171572875253809902396622551580603843,
+    3: 0.267949192431122706472553658494127633,
+    4: 0.361341225900220177092212841325675255,
+    5: 0.430575347099973791851434783493520110,
+}
+
+
+def _get_default_depth(order, tol=1e-8):
+    """Determine the approximate depth needed for a given tolerance.
+
+    Here depth is chosen as the smallest integer such that ``|p| ** n < tol``
+    where `|p|` is the magnitude of the largest pole in the IIR filter.
+    """
+    return math.ceil(np.log(tol) / np.log(_maximum_pole[order]))
+
+
+def spline_filter(
+        image,
+        order=3,
+        output=np.float64,
+        mode='mirror',
+        output_chunks=None,
+        *,
+        depth=None,
+        **kwargs
+):
+
+    if not type(image) == da.core.Array:
+        image = da.from_array(image)
+
+    # use dispatching mechanism to determine backend
+    spline_filter_method = dispatch_spline_filter(image)
+
+    try:
+        dtype = np.dtype(output)
+    except TypeError:     # pragma: no cover
+        raise TypeError(  # pragma: no cover
+            "Could not coerce the provided output to a dtype. "
+            "Passing array to output is not currently supported."
+        )
+
+    if depth is None:
+        depth = _get_default_depth(order)
+
+    if mode == 'wrap':
+        raise NotImplementedError(
+            "mode='wrap' is unsupported. It is recommended to use 'grid-wrap' "
+            "instead."
+        )
+
+    # Note: depths of 12 and 24 give results matching SciPy to approximately
+    #       single and double precision accuracy, respectively.
+    boundary = "periodic" if mode == 'grid-wrap' else "none"
+    depth, boundary = _get_depth_boundary(image.ndim, depth, boundary)
+
+    # cannot pass a func kwarg named "output" to map_overlap
+    spline_filter_method = functools.partial(spline_filter_method,
+                                             output=dtype)
+
+    result = image.map_overlap(
+        spline_filter_method,
+        depth=depth,
+        boundary=boundary,
+        dtype=dtype,
+        meta=image._meta,
+        # spline_filter kwargs
+        order=order,
+        mode=mode,
+    )
+
+    return result
+
+
+def spline_filter1d(
+        image,
+        order=3,
+        axis=-1,
+        output=np.float64,
+        mode='mirror',
+        output_chunks=None,
+        *,
+        depth=None,
+        **kwargs
+):
+
+    if not type(image) == da.core.Array:
+        image = da.from_array(image)
+
+    # use dispatching mechanism to determine backend
+    spline_filter1d_method = dispatch_spline_filter1d(image)
+
+    try:
+        dtype = np.dtype(output)
+    except TypeError:     # pragma: no cover
+        raise TypeError(  # pragma: no cover
+            "Could not coerce the provided output to a dtype. "
+            "Passing array to output is not currently supported."
+        )
+
+    if depth is None:
+        depth = _get_default_depth(order)
+
+    # use depth 0 on all axes except the filtered axis
+    if not np.isscalar(depth):
+        raise ValueError("depth must be a scalar value")
+    depths = [0] * image.ndim
+    depths[axis] = depth
+
+    if mode == 'wrap':
+        raise NotImplementedError(
+            "mode='wrap' is unsupported. It is recommended to use 'grid-wrap' "
+            "instead."
+        )
+
+    # cannot pass a func kwarg named "output" to map_overlap
+    spline_filter1d_method = functools.partial(spline_filter1d_method,
+                                               output=dtype)
+
+    result = image.map_overlap(
+        spline_filter1d_method,
+        depth=tuple(depths),
+        boundary="periodic" if mode == 'grid-wrap' else "none",
+        dtype=dtype,
+        meta=image._meta,
+        # spline_filter1d kwargs
+        order=order,
+        axis=axis,
+        mode=mode,
+    )
+
+    return result
