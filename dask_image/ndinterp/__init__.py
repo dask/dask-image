@@ -8,6 +8,7 @@ import dask.array as da
 import numpy as np
 from dask.base import tokenize
 from dask.highlevelgraph import HighLevelGraph
+import scipy
 from scipy.ndimage import affine_transform as ndimage_affine_transform
 
 from ..dispatch._dispatch_ndinterp import (
@@ -110,15 +111,22 @@ def affine_transform(
     cval = kwargs.pop('cval', 0)
     mode = kwargs.pop('mode', 'constant')
     prefilter = kwargs.pop('prefilter', False)
+
+    supported_modes = ['constant', 'nearest']
+    if scipy.__version__ > np.lib.NumpyVersion('1.6.0'):
+        supported_modes += ['grid-constant']
     if mode in ['wrap', 'reflect', 'mirror', 'grid-mirror', 'grid-wrap']:
-        raise NotImplementedError(f"Mode {mode} is not currently supported.")
+        raise NotImplementedError(
+            f"Mode {mode} is not currently supported. It must be one of "
+            f"{supported_modes}.")
 
     # process kwargs
     if prefilter and order > 1:
         # prefilter is not yet supported for all modes
         if mode in ['nearest', 'grid-constant']:
             raise NotImplementedError(
-                f"order > 1 with mode='{mode}' is not supported."
+                f"order > 1 with mode='{mode}' is not supported. Currently "
+                f"prefilter is only supported with mode='constant'."
             )
         image = spline_filter(image, order, output=np.float64,
                               mode=mode)
@@ -283,10 +291,10 @@ def spline_filter(
     if depth is None:
         depth = _get_default_depth(order)
 
-    if mode in ['wrap']:
+    if mode == 'wrap':
         raise NotImplementedError(
-            f"legacy mode={mode} is unsupported. It is recommended to use "
-            "'grid-wrap' instead"
+            "mode='wrap' is unsupported. It is recommended to use 'grid-wrap' "
+            "instead."
         )
 
     # Note: depths of 12 and 24 give results matching SciPy to approximately
@@ -347,8 +355,11 @@ def spline_filter1d(
     depths = [0] * image.ndim
     depths[axis] = depth
 
-    if mode in ['wrap']:
-        raise NotImplementedError(f"mode={mode} is unsupported.")
+    if mode == 'wrap':
+        raise NotImplementedError(
+            "mode='wrap' is unsupported. It is recommended to use 'grid-wrap' "
+            "instead."
+        )
 
     # cannot pass a func kwarg named "output" to map_overlap
     spline_filter1d_method = functools.partial(spline_filter1d_method,
