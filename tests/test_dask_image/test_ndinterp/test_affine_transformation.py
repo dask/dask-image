@@ -74,7 +74,7 @@ def validate_affine_transform(n=2,
         and version.parse(dask.__version__) < version.parse("2020.1.0")
     ):
         # older dask will fail if any chunks have size smaller than depth
-        depth = da_ndinterp._get_default_depth(interp_order)
+        depth = dask_image.ndinterp._get_default_depth(interp_order)
         in_size = input_output_shape_per_dim[0]
         in_chunksize = input_output_chunksize_per_dim[0]
         rem = in_size % in_chunksize

@@ -10,7 +10,7 @@ import pytest
 import scipy
 import scipy.ndimage
 
-import dask_image.ndinterp as da_ndinterp
+import dask_image.ndinterp
 
 # mode lists for the case with prefilter = False
 _supported_modes = ['constant', 'nearest', 'reflect', 'mirror']
@@ -50,7 +50,7 @@ def validate_spline_filter(n=2,
 
     if version.parse(dask.__version__) < version.parse("2020.1.0"):
         # older dask will fail if any chunks have size smaller than depth
-        _depth = da_ndinterp._get_default_depth(interp_order)
+        _depth = dask_image.ndinterp._get_default_depth(interp_order)
         rem = axis_size % chunksize
         if chunksize < _depth or (rem != 0 and rem < _depth):
             pytest.skip("older dask doesn't automatically rechunk")
@@ -70,11 +70,11 @@ def validate_spline_filter(n=2,
 
     if axis is not None:
         scipy_func = scipy.ndimage.spline_filter1d
-        dask_image_func = da_ndinterp.spline_filter1d
+        dask_image_func = dask_image.ndinterp.spline_filter1d
         kwargs = {'axis': axis}
     else:
         scipy_func = scipy.ndimage.spline_filter
-        dask_image_func = da_ndinterp.spline_filter
+        dask_image_func = dask_image.ndinterp.spline_filter
         kwargs = {}
 
     # transform with scipy
