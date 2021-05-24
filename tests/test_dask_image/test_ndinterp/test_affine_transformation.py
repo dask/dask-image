@@ -287,7 +287,7 @@ def test_affine_transform_no_output_shape_or_chunks_specified():
 def test_affine_transform_prefilter_warning():
 
     with pytest.warns(UserWarning):
-        dask_image.ndinterp.affine_transform(da.ones(3), [1], [0],
+        dask_image.ndinterp.affine_transform(da.ones(20), [1], [0],
                                              order=3, prefilter=True)
 
 
