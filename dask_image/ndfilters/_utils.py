@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from __future__ import division
-
-import collections.abc
+import collections
 import inspect
 import numbers
 import re
 
-import numpy
+import numpy as np
 
 
 def _get_docstring(func):
@@ -103,7 +100,7 @@ def _get_size(ndim, size):
 
     if isinstance(size, numbers.Number):
         size = ndim * (size,)
-    size = numpy.array(size)
+    size = np.array(size)
 
     if size.ndim != 1:
         raise RuntimeError("The size must have only one dimension.")
@@ -120,13 +117,13 @@ def _get_size(ndim, size):
 
 
 def _get_origin(size, origin=0):
-    size = numpy.array(size)
+    size = np.array(size)
     ndim = len(size)
 
     if isinstance(origin, numbers.Number):
         origin = ndim * (origin,)
 
-    origin = numpy.array(origin)
+    origin = np.array(origin)
 
     if not issubclass(origin.dtype.type, numbers.Integral):
         raise TypeError("The origin must be of integral type.")
@@ -150,8 +147,8 @@ def _get_origin(size, origin=0):
 
 
 def _get_depth(size, origin=0):
-    origin = numpy.array(_get_origin(size, origin))
-    size = numpy.array(size)
+    origin = np.array(_get_origin(size, origin))
+    size = np.array(size)
 
     half_size = size // 2
     depth = half_size + abs(origin)
@@ -171,7 +168,7 @@ def _get_footprint(ndim, size=None, footprint=None):
     # Get a footprint based on the size.
     if size is not None:
         size = _get_size(ndim, size)
-        footprint = numpy.ones(size, dtype=bool)
+        footprint = np.ones(size, dtype=bool)
 
     # Validate the footprint.
     if footprint.ndim != ndim:

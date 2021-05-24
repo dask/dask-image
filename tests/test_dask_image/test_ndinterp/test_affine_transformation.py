@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from packaging import version
 
 import dask
@@ -10,7 +9,7 @@ import pytest
 import scipy
 import scipy.ndimage
 
-import dask_image.ndinterp as da_ndinterp
+import dask_image.ndinterp
 
 # mode lists for the case with prefilter = False
 _supported_modes = ['constant', 'nearest']
@@ -75,7 +74,7 @@ def validate_affine_transform(n=2,
         and version.parse(dask.__version__) < version.parse("2020.1.0")
     ):
         # older dask will fail if any chunks have size smaller than depth
-        depth = da_ndinterp._get_default_depth(interp_order)
+        depth = dask_image.ndinterp._get_default_depth(interp_order)
         in_size = input_output_shape_per_dim[0]
         in_chunksize = input_output_chunksize_per_dim[0]
         rem = in_size % in_chunksize
@@ -102,7 +101,7 @@ def validate_affine_transform(n=2,
         prefilter=prefilter)
 
     # transform with dask-image
-    image_t_dask = da_ndinterp.affine_transform(
+    image_t_dask = dask_image.ndinterp.affine_transform(
         image_da, matrix, offset,
         output_shape=output_shape,
         output_chunks=output_chunks,
@@ -239,7 +238,7 @@ def test_affine_transform_prefilter_not_implemented(
 def test_affine_transform_numpy_input():
 
     image = np.ones((3, 3))
-    image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
+    image_t = dask_image.ndinterp.affine_transform(image, np.eye(2), [0, 0])
 
     assert image_t.shape == image.shape
     assert (image == image_t).min()
@@ -248,7 +247,7 @@ def test_affine_transform_numpy_input():
 def test_affine_transform_minimal_input():
 
     image = np.ones((3, 3))
-    image_t = da_ndinterp.affine_transform(np.ones((3, 3)), np.eye(2))
+    image_t = dask_image.ndinterp.affine_transform(np.ones((3, 3)), np.eye(2))
 
     assert image_t.shape == image.shape
 
@@ -256,7 +255,7 @@ def test_affine_transform_minimal_input():
 def test_affine_transform_type_consistency():
 
     image = da.ones((3, 3))
-    image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
+    image_t = dask_image.ndinterp.affine_transform(image, np.eye(2), [0, 0])
 
     assert isinstance(image, type(image_t))
     assert isinstance(image[0, 0].compute(), type(image_t[0, 0].compute()))
@@ -268,7 +267,7 @@ def test_affine_transform_type_consistency_gpu():
     cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
     image = da.ones((3, 3))
-    image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
+    image_t = dask_image.ndinterp.affine_transform(image, np.eye(2), [0, 0])
 
     image.map_blocks(cupy.asarray)
 
@@ -279,7 +278,7 @@ def test_affine_transform_type_consistency_gpu():
 def test_affine_transform_no_output_shape_or_chunks_specified():
 
     image = da.ones((3, 3))
-    image_t = da_ndinterp.affine_transform(image, np.eye(2), [0, 0])
+    image_t = dask_image.ndinterp.affine_transform(image, np.eye(2), [0, 0])
 
     assert image_t.shape == image.shape
     assert image_t.chunks == tuple([(s,) for s in image.shape])
@@ -288,8 +287,8 @@ def test_affine_transform_no_output_shape_or_chunks_specified():
 def test_affine_transform_prefilter_warning():
 
     with pytest.warns(UserWarning):
-        da_ndinterp.affine_transform(da.ones(3), [1], [0],
-                                     order=3, prefilter=False)
+        dask_image.ndinterp.affine_transform(da.ones(20), [1], [0],
+                                             order=3, prefilter=True)
 
 
 @pytest.mark.timeout(15)
@@ -300,9 +299,9 @@ def test_affine_transform_large_input_small_output_cpu():
 
     # fully computed, this array would occupy 8TB
     image = da.random.random([10000] * 3, chunks=(200, 200, 200))
-    image_t = da_ndinterp.affine_transform(image, np.eye(3), [0, 0, 0],
-                                           output_chunks=[1, 1, 1],
-                                           output_shape=[1, 1, 1])
+    image_t = dask_image.ndinterp.affine_transform(image, np.eye(3), [0, 0, 0],
+                                                   output_chunks=[1, 1, 1],
+                                                   output_shape=[1, 1, 1])
 
     # if more than the needed chunks should be computed,
     # this would take long and eventually raise a MemoryError
@@ -321,9 +320,9 @@ def test_affine_transform_large_input_small_output_gpu():
     image = da.random.random([2000] * 3, chunks=(50, 50, 50))
     image.map_blocks(cupy.asarray)
 
-    image_t = da_ndinterp.affine_transform(image, np.eye(3), [0, 0, 0],
-                                           output_chunks=[1, 1, 1],
-                                           output_shape=[1, 1, 1])
+    image_t = dask_image.ndinterp.affine_transform(image, np.eye(3), [0, 0, 0],
+                                                   output_chunks=[1, 1, 1],
+                                                   output_shape=[1, 1, 1])
     # if more than the needed chunks should be computed,
     # this would take long and eventually raise a MemoryError
     image_t[0, 0, 0].compute()
@@ -351,23 +350,23 @@ def test_affine_transform_parameter_formats(n):
     image = da.random.random([5] * n)
 
     # reference run
-    image_t_0 = da_ndinterp.affine_transform(image,
-                                             matrix_n,
-                                             offset).compute()
+    image_t_0 = dask_image.ndinterp.affine_transform(image,
+                                                     matrix_n,
+                                                     offset).compute()
 
     # assert that the different parameter formats
     # lead to the same output
-    image_t_scale = da_ndinterp.affine_transform(image,
-                                                 matrix_only_scaling,
-                                                 offset).compute()
+    image_t_scale = dask_image.ndinterp.affine_transform(image,
+                                                         matrix_only_scaling,
+                                                         offset).compute()
     assert (np.allclose(image_t_0, image_t_scale))
 
     for matrix in [matrix_pre_homogeneous, matrix_homogeneous]:
 
-        image_t = da_ndinterp.affine_transform(image,
-                                               matrix,
-                                               offset + 10.,  # ignored
-                                               ).compute()
+        image_t = dask_image.ndinterp.affine_transform(image,
+                                                       matrix,
+                                                       offset + 10.,  # ignored
+                                                       ).compute()
 
         assert(np.allclose(image_t_0, image_t))
 
@@ -375,6 +374,6 @@ def test_affine_transform_parameter_formats(n):
     with pytest.raises(ValueError):
         matrix_not_homogeneous = np.vstack((matrix_pre_homogeneous,
                                            [-1] * n + [1]))
-        da_ndinterp.affine_transform(image,
-                                     matrix_not_homogeneous,
-                                     offset)
+        dask_image.ndinterp.affine_transform(image,
+                                             matrix_not_homogeneous,
+                                             offset)

@@ -3,6 +3,7 @@
 import functools
 import math
 from itertools import product
+import warnings
 
 import dask.array as da
 import numpy as np
@@ -19,6 +20,8 @@ from ..dispatch._dispatch_ndinterp import (
 )
 from ..ndfilters._utils import _get_depth_boundary
 
+from ..dispatch._dispatch_ndinterp import (dispatch_affine_transform,
+                                           dispatch_asarray)
 
 __all__ = [
     "affine_transform",

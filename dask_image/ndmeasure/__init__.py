@@ -5,8 +5,8 @@ import functools
 import operator
 import warnings
 
-import numpy
-import dask.array
+import dask.array as da
+import numpy as np
 
 from . import _utils
 from ._utils import _label
@@ -74,14 +74,14 @@ def area(image, label_image=None, index=None):
     """
 
     if label_image is None:
-        return dask.array.prod(numpy.array([i for i in image.shape]))
+        return da.prod(np.array([i for i in image.shape]))
 
     else:
         image, label_image, index = _utils._norm_input_labels_index(
             image, label_image, index
         )
 
-        ones = dask.array.ones(
+        ones = da.ones(
             label_image.shape, dtype=bool, chunks=label_image.chunks
         )
 
@@ -124,8 +124,8 @@ def center_of_mass(image, label_image=None, index=None):
     # This only matters if index is some array.
     index = index.T
 
-    out_dtype = numpy.dtype([("com", float, (image.ndim,))])
-    default_1d = numpy.full((1,), numpy.nan, dtype=out_dtype)
+    out_dtype = np.dtype([("com", float, (image.ndim,))])
+    default_1d = np.full((1,), np.nan, dtype=out_dtype)
 
     func = functools.partial(
         _utils._center_of_mass, shape=image.shape, dtype=out_dtype
@@ -165,13 +165,13 @@ def extrema(image, label_image=None, index=None):
         image, label_image, index
     )
 
-    out_dtype = numpy.dtype([
+    out_dtype = np.dtype([
         ("min_val", image.dtype),
         ("max_val", image.dtype),
-        ("min_pos", numpy.dtype(numpy.int), image.ndim),
-        ("max_pos", numpy.dtype(numpy.int), image.ndim)
+        ("min_pos", np.dtype(int), image.ndim),
+        ("max_pos", np.dtype(int), image.ndim)
     ])
-    default_1d = numpy.zeros((1,), dtype=out_dtype)
+    default_1d = np.zeros((1,), dtype=out_dtype)
 
     func = functools.partial(
         _utils._extrema, shape=image.shape, dtype=out_dtype
@@ -189,10 +189,10 @@ def extrema(image, label_image=None, index=None):
         pos_nd = extrema_lbl[pos_key]
 
         if index.ndim == 0:
-            pos_nd = dask.array.squeeze(pos_nd)
+            pos_nd = da.squeeze(pos_nd)
         elif index.ndim > 1:
             pos_nd = pos_nd.reshape(
-                (int(numpy.prod(pos_nd.shape[:-1])), pos_nd.shape[-1])
+                (int(np.prod(pos_nd.shape[:-1])), pos_nd.shape[-1])
             )
 
         extrema_lbl[pos_key] = pos_nd
@@ -285,17 +285,17 @@ def label(image, structure=None):
         How many objects were found.
     """
 
-    image = dask.array.asarray(image)
+    image = da.asarray(image)
 
-    labeled_blocks = numpy.empty(image.numblocks, dtype=object)
+    labeled_blocks = np.empty(image.numblocks, dtype=object)
 
     # First, label each block independently, incrementing the labels in that
     # block by the total number of labels from previous blocks. This way, each
     # block's labels are globally unique.
     block_iter = zip(
-        numpy.ndindex(*image.numblocks),
+        np.ndindex(*image.numblocks),
         map(functools.partial(operator.getitem, image),
-            dask.array.core.slices_from_chunks(image.chunks))
+            da.core.slices_from_chunks(image.chunks))
     )
     index, input_block = next(block_iter)
     labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
@@ -303,15 +303,15 @@ def label(image, structure=None):
     for index, input_block in block_iter:
         labeled_block, n = _label.block_ndi_label_delayed(input_block,
                                                           structure)
-        block_label_offset = dask.array.where(labeled_block > 0,
-                                              total,
-                                              _label.LABEL_DTYPE.type(0))
+        block_label_offset = da.where(labeled_block > 0,
+                                      total,
+                                      _label.LABEL_DTYPE.type(0))
         labeled_block += block_label_offset
         labeled_blocks[index] = labeled_block
         total += n
 
     # Put all the blocks together
-    block_labeled = dask.array.block(labeled_blocks.tolist())
+    block_labeled = da.block(labeled_blocks.tolist())
 
     # Now, build a label connectivity graph that groups labels across blocks.
     # We use this graph to find connected components and then relabel each
@@ -320,7 +320,7 @@ def label(image, structure=None):
                                                 total)
     new_labeling = _label.connected_components_delayed(label_groups)
     relabeled = _label.relabel_blocks(block_labeled, new_labeling)
-    n = dask.array.max(relabeled)
+    n = da.max(relabeled)
 
     return (relabeled, n)
 
@@ -376,8 +376,8 @@ def labeled_comprehension(image,
         image, label_image, index
     )
 
-    out_dtype = numpy.dtype(out_dtype)
-    default_1d = numpy.full((1,), default, dtype=out_dtype)
+    out_dtype = np.dtype(out_dtype)
+    default_1d = np.full((1,), default, dtype=out_dtype)
 
     pass_positions = bool(pass_positions)
 
@@ -388,8 +388,8 @@ def labeled_comprehension(image,
         )
         args = (image, positions)
 
-    result = numpy.empty(index.shape, dtype=object)
-    for i in numpy.ndindex(index.shape):
+    result = np.empty(index.shape, dtype=object)
+    for i in np.ndindex(index.shape):
         lbl_mtch_i = (label_image == index[i])
         args_lbl_mtch_i = tuple(e[lbl_mtch_i] for e in args)
         result[i] = _utils._labeled_comprehension_func(
@@ -398,8 +398,8 @@ def labeled_comprehension(image,
 
     for i in range(result.ndim - 1, -1, -1):
         result2 = result[..., 0]
-        for j in numpy.ndindex(index.shape[:i]):
-            result2[j] = dask.array.stack(result[j].tolist(), axis=0)
+        for j in np.ndindex(index.shape[:i]):
+            result2[j] = da.stack(result[j].tolist(), axis=0)
         result = result2
     result = result[()][..., 0]
 
@@ -434,7 +434,7 @@ def maximum(image, label_image=None, index=None):
     )
 
     return labeled_comprehension(
-        image, label_image, index, numpy.max, image.dtype, image.dtype.type(0)
+        image, label_image, index, np.max, image.dtype, image.dtype.type(0)
     )
 
 
@@ -471,8 +471,8 @@ def maximum_position(image, label_image=None, index=None):
     if index.shape:
         index = index.flatten()
 
-    out_dtype = numpy.dtype([("pos", int, (image.ndim,))])
-    default_1d = numpy.zeros((1,), dtype=out_dtype)
+    out_dtype = np.dtype([("pos", int, (image.ndim,))])
+    default_1d = np.zeros((1,), dtype=out_dtype)
 
     func = functools.partial(
         _utils._argmax, shape=image.shape, dtype=out_dtype
@@ -484,7 +484,7 @@ def maximum_position(image, label_image=None, index=None):
     max_pos_lbl = max_pos_lbl["pos"]
 
     if index.shape == tuple():
-        max_pos_lbl = dask.array.squeeze(max_pos_lbl)
+        max_pos_lbl = da.squeeze(max_pos_lbl)
 
     return max_pos_lbl
 
@@ -516,10 +516,10 @@ def mean(image, label_image=None, index=None):
         image, label_image, index
     )
 
-    nan = numpy.float64(numpy.nan)
+    nan = np.float64(np.nan)
 
     mean_lbl = labeled_comprehension(
-        image, label_image, index, numpy.mean, numpy.float64, nan
+        image, label_image, index, np.mean, np.float64, nan
     )
 
     return mean_lbl
@@ -552,10 +552,10 @@ def median(image, label_image=None, index=None):
         image, label_image, index
     )
 
-    nan = numpy.float64(numpy.nan)
+    nan = np.float64(np.nan)
 
     return labeled_comprehension(
-        image, label_image, index, numpy.median, numpy.float64, nan
+        image, label_image, index, np.median, np.float64, nan
     )
 
 
@@ -587,7 +587,7 @@ def minimum(image, label_image=None, index=None):
     )
 
     return labeled_comprehension(
-        image, label_image, index, numpy.min, image.dtype, image.dtype.type(0)
+        image, label_image, index, np.min, image.dtype, image.dtype.type(0)
     )
 
 
@@ -621,8 +621,8 @@ def minimum_position(image, label_image=None, index=None):
     if index.shape:
         index = index.flatten()
 
-    out_dtype = numpy.dtype([("pos", int, (image.ndim,))])
-    default_1d = numpy.zeros((1,), dtype=out_dtype)
+    out_dtype = np.dtype([("pos", int, (image.ndim,))])
+    default_1d = np.zeros((1,), dtype=out_dtype)
 
     func = functools.partial(
         _utils._argmin, shape=image.shape, dtype=out_dtype
@@ -634,7 +634,7 @@ def minimum_position(image, label_image=None, index=None):
     min_pos_lbl = min_pos_lbl["pos"]
 
     if index.shape == tuple():
-        min_pos_lbl = dask.array.squeeze(min_pos_lbl)
+        min_pos_lbl = da.squeeze(min_pos_lbl)
 
     return min_pos_lbl
 
@@ -666,10 +666,10 @@ def standard_deviation(image, label_image=None, index=None):
         image, label_image, index
     )
 
-    nan = numpy.float64(numpy.nan)
+    nan = np.float64(np.nan)
 
     std_lbl = labeled_comprehension(
-        image, label_image, index, numpy.std, numpy.float64, nan
+        image, label_image, index, np.std, np.float64, nan
     )
 
     return std_lbl
@@ -703,7 +703,7 @@ def sum_labels(image, label_image=None, index=None):
     )
 
     sum_lbl = labeled_comprehension(
-        image, label_image, index, numpy.sum, numpy.float64, numpy.float64(0)
+        image, label_image, index, np.sum, np.float64, np.float64(0)
     )
 
     return sum_lbl
@@ -711,7 +711,8 @@ def sum_labels(image, label_image=None, index=None):
 
 def sum(image, label_image=None, index=None):
     """DEPRECATED FUNCTION. Use `sum_labels` instead."""
-    warnings.warn("DEPRECATED FUNCTION. Use `sum_labels` instead.", DeprecationWarning)
+    warnings.warn("DEPRECATED FUNCTION. Use `sum_labels` instead.",
+                  DeprecationWarning)
     return sum_labels(image, label_image=label_image, index=index)
 
 
@@ -742,10 +743,10 @@ def variance(image, label_image=None, index=None):
         image, label_image, index
     )
 
-    nan = numpy.float64(numpy.nan)
+    nan = np.float64(np.nan)
 
     var_lbl = labeled_comprehension(
-        image, label_image, index, numpy.var, numpy.float64, nan
+        image, label_image, index, np.var, np.float64, nan
     )
 
     return var_lbl

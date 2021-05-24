@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import numpy
+import numpy as np
 import pims
 
 
-def _read_frame(fn, i, *, arrayfunc=numpy.asanyarray):
+def _read_frame(fn, i, *, arrayfunc=np.asanyarray):
     with pims.open(fn) as imgs:
         return arrayfunc(imgs[i])

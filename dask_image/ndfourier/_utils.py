@@ -4,16 +4,15 @@ import functools
 import operator
 import numbers
 
-import numpy
-
-import dask.array
+import dask.array as da
+import numpy as np
 
 
 def _get_freq_grid(shape, chunks, axis, n, dtype=float):
     assert len(shape) == len(chunks)
 
     shape = tuple(shape)
-    dtype = numpy.dtype(dtype).type
+    dtype = np.dtype(dtype).type
 
     assert (issubclass(dtype, numbers.Real) and
             not issubclass(dtype, numbers.Integral))
@@ -23,23 +22,23 @@ def _get_freq_grid(shape, chunks, axis, n, dtype=float):
     freq_grid = []
     for ax, (s, c) in enumerate(zip(shape, chunks)):
         if axis == ax and n > 0:
-            f = dask.array.fft.rfftfreq(n, chunks=c).astype(dtype)
+            f = da.fft.rfftfreq(n, chunks=c).astype(dtype)
         else:
-            f = dask.array.fft.fftfreq(s, chunks=c).astype(dtype)
+            f = da.fft.fftfreq(s, chunks=c).astype(dtype)
         freq_grid.append(f)
 
-    freq_grid = dask.array.meshgrid(*freq_grid, indexing="ij", sparse=True)
+    freq_grid = da.meshgrid(*freq_grid, indexing="ij", sparse=True)
 
     return freq_grid
 
 
 def _get_ang_freq_grid(shape, chunks, axis, n, dtype=float):
-    dtype = numpy.dtype(dtype).type
+    dtype = np.dtype(dtype).type
 
     assert (issubclass(dtype, numbers.Real) and
             not issubclass(dtype, numbers.Integral))
 
-    pi = dtype(numpy.pi)
+    pi = dtype(np.pi)
 
     freq_grid = _get_freq_grid(shape, chunks, axis, n, dtype=dtype)
     ang_freq_grid = tuple((2 * pi) * f for f in freq_grid)
@@ -52,9 +51,9 @@ def _norm_args(a, s, n=-1, axis=-1):
         a = a.astype(float)
 
     if isinstance(s, numbers.Number):
-        s = numpy.array(a.ndim * [s])
-    elif not isinstance(s, dask.array.Array):
-        s = numpy.array(s)
+        s = np.array(a.ndim * [s])
+    elif not isinstance(s, da.Array):
+        s = np.array(s)
 
     if issubclass(s.dtype.type, numbers.Integral):
         s = s.astype(a.real.dtype)

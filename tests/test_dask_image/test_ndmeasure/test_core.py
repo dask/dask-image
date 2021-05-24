@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
 from distutils.version import LooseVersion
-import scipy
 import itertools as it
 import warnings as wrn
 
 import pytest
-
 import numpy as np
-
 import scipy
-import scipy.ndimage as spnd
+import scipy.ndimage
 
 import dask.array as da
 
@@ -118,7 +113,7 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
     else:
         scipy_funcname = funcname
 
-    sp_func = getattr(spnd, scipy_funcname)
+    sp_func = getattr(scipy.ndimage, scipy_funcname)
     da_func = getattr(dask_image.ndmeasure, funcname)
 
     a = np.random.random(shape)
@@ -247,7 +242,7 @@ def test_extrema(shape, chunks, has_lbls, ind):
         )
         d_lbls = da.from_array(lbls, chunks=d.chunks)
 
-    a_r = spnd.extrema(a, lbls, ind)
+    a_r = scipy.ndimage.extrema(a, lbls, ind)
     d_r = dask_image.ndmeasure.extrema(d, d_lbls, ind)
 
     assert len(a_r) == len(d_r)
@@ -302,7 +297,7 @@ def test_histogram(shape, chunks, has_lbls, ind, min, max, bins):
         )
         d_lbls = da.from_array(lbls, chunks=d.chunks)
 
-    a_r = spnd.histogram(a, min, max, bins, lbls, ind)
+    a_r = scipy.ndimage.histogram(a, min, max, bins, lbls, ind)
     d_r = dask_image.ndmeasure.histogram(d, min, max, bins, d_lbls, ind)
 
     if ind is None or np.isscalar(ind):
@@ -355,9 +350,9 @@ def test_label(seed, prob, shape, chunks, connectivity):
     a = np.random.random(shape) < prob
     d = da.from_array(a, chunks=chunks)
 
-    s = spnd.generate_binary_structure(a.ndim, connectivity)
+    s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
 
-    a_l, a_nl = spnd.label(a, s)
+    a_l, a_nl = scipy.ndimage.label(a, s)
     d_l, d_nl = dask_image.ndmeasure.label(d, s)
 
     assert a_nl == d_nl.compute()
@@ -412,7 +407,7 @@ def test_labeled_comprehension(shape, chunks, ind, default, pass_positions):
 
         return (val * pos).sum() / (1 + val.max() * pos.max())
 
-    a_cm = spnd.labeled_comprehension(
+    a_cm = scipy.ndimage.labeled_comprehension(
         a, lbls, ind, func, np.float64, default, pass_positions
     )
     d_cm = dask_image.ndmeasure.labeled_comprehension(
@@ -469,10 +464,10 @@ def test_labeled_comprehension_struct(shape, chunks, ind):
 
         return result[()]
 
-    a_max = spnd.labeled_comprehension(
+    a_max = scipy.ndimage.labeled_comprehension(
         a, lbls, ind, func_max, dtype["val"], default["val"], False
     )
-    a_argmax = spnd.labeled_comprehension(
+    a_argmax = scipy.ndimage.labeled_comprehension(
         a, lbls, ind, func_argmax, dtype["pos"], default["pos"], True
     )
 
@@ -523,7 +518,7 @@ def test_labeled_comprehension_object(shape, chunks, ind):
     def func_min_max(val):
         return np.array([np.min(val), np.max(val)])
 
-    a_r = spnd.labeled_comprehension(
+    a_r = scipy.ndimage.labeled_comprehension(
         a, lbls, ind, func_min_max, dtype, default, False
     )
 

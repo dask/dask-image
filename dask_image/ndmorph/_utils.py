@@ -3,18 +3,12 @@
 
 import numbers
 
-import numpy
-import scipy.ndimage
-
-import dask.array
+import dask.array as da
+import numpy as np
 
 from ..dispatch._dispatch_ndmorph import dispatch_binary_structure
-from ..ndfilters._utils import (
-    _update_wrapper,
-    _get_depth_boundary,
-    _get_origin,
-    _get_depth
-)
+from ..ndfilters._utils import (_get_depth, _get_depth_boundary, _get_origin,
+                                _update_wrapper)
 
 _update_wrapper = _update_wrapper
 _get_depth_boundary = _get_depth_boundary
@@ -32,7 +26,7 @@ def _get_structure(image, structure):
             raise RuntimeError(
                 "`structure` must have the same rank as `image`."
             )
-        if not issubclass(structure.dtype.type, numpy.bool8):
+        if not issubclass(structure.dtype.type, np.bool8):
             structure = (structure != 0)
     else:
         raise TypeError("`structure` must be an array.")
@@ -54,7 +48,7 @@ def _get_iterations(iterations):
 def _get_dtype(a):
     # Get the dtype of a value or an array.
     # Even handle non-NumPy types.
-    return getattr(a, "dtype", numpy.dtype(type(a)))
+    return getattr(a, "dtype", np.dtype(type(a)))
 
 
 def _get_mask(image, mask):
@@ -62,12 +56,12 @@ def _get_mask(image, mask):
         mask = True
 
     mask_type = _get_dtype(mask).type
-    if isinstance(mask, (numpy.ndarray, dask.array.Array)):
+    if isinstance(mask, (np.ndarray, da.Array)):
         if mask.shape != image.shape:
             raise RuntimeError("`mask` must have the same shape as `image`.")
-        if not issubclass(mask_type, numpy.bool8):
+        if not issubclass(mask_type, np.bool8):
             mask = (mask != 0)
-    elif issubclass(mask_type, numpy.bool8):
+    elif issubclass(mask_type, np.bool8):
         mask = bool(mask)
     else:
         raise TypeError("`mask` must be a Boolean or an array.")

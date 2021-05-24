@@ -10,7 +10,6 @@ __all__ = [
     "dispatch_asarray",
 ]
 
-
 dispatch_affine_transform = Dispatcher(name="dispatch_affine_transform")
 
 

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-
-from __future__ import division
 import numbers
 
-import dask.array
+import dask.array as da
 
 from . import _utils
 
@@ -71,9 +69,10 @@ def fourier_gaussian(image, sigma, n=-1, axis=-1):
     # Compute Fourier transformed Gaussian
     result = image.copy()
     scale = (sigma ** 2) / -2
+
     for ax, f in enumerate(ang_freq_grid):
         f *= f
-        gaussian = dask.array.exp(scale[ax] * f)
+        gaussian = da.exp(scale[ax] * f)
         gaussian = _utils._reshape_nd(gaussian, ndim=image.ndim, axis=ax)
         result *= gaussian
 
@@ -144,7 +143,7 @@ def fourier_shift(image, shift, n=-1, axis=-1):
     # Apply shift
     result = image.copy()
     for ax, f in enumerate(ang_freq_grid):
-        phase_shift = dask.array.exp((-J) * shift[ax] * f)
+        phase_shift = da.exp((-J) * shift[ax] * f)
         phase_shift = _utils._reshape_nd(phase_shift, ndim=image.ndim, axis=ax)
         result *= phase_shift
 
@@ -212,7 +211,7 @@ def fourier_uniform(image, size, n=-1, axis=-1):
     # Compute uniform filter
     result = image.copy()
     for ax, f in enumerate(freq_grid):
-        uniform = dask.array.sinc(size[ax] * f)
+        uniform = da.sinc(size[ax] * f)
         uniform = _utils._reshape_nd(uniform, ndim=image.ndim, axis=ax)
         result *= uniform
 
