@@ -11,6 +11,7 @@ from dask.base import tokenize
 from dask.highlevelgraph import HighLevelGraph
 import scipy
 from scipy.ndimage import affine_transform as ndimage_affine_transform
+from scipy.ndimage import map_coordinates as ndimage_map_coordinates
 
 from ..dispatch._dispatch_ndinterp import (
     dispatch_affine_transform,
@@ -381,3 +382,68 @@ def spline_filter1d(
     )
 
     return result
+
+
+def map_coordinates(image, coordinates, order=3,
+                    mode='constant', cval=0.0, prefilter=False):
+    """
+    Pre-map coordinates onto the chunks of 'image' and execute
+    `ndimage.map_coordinates` for every chunk.
+    """
+
+    coordinates = np.asarray(coordinates)
+
+    coord_chunk_locations = [np.searchsorted(np.cumsum(image.chunks[dim]),
+                                             coordinates[dim])
+                             for dim in range(image.ndim)]
+
+    coord_chunk_locations = np.array(coord_chunk_locations).T
+
+    required_chunks, coord_rc_inds = np.unique(coord_chunk_locations,
+                                               axis=0, return_inverse=True)
+
+    rc_coord_inds = [[] for _ in range(len(required_chunks))]
+
+    rois = np.ones((2, len(required_chunks), image.ndim)) * np.nan
+    for ic, c in enumerate(coordinates.T):
+
+        rois[0][coord_rc_inds[ic]] = np.nanmin([rois[0][coord_rc_inds[ic]],
+                                                np.floor(c - order // 2)], 0)
+        rois[1][coord_rc_inds[ic]] = np.nanmax([rois[1][coord_rc_inds[ic]],
+                                                np.ceil(c + order // 2)], 0)
+
+        rc_coord_inds[coord_rc_inds[ic]] += [ic]
+
+    name = "map_coordinates-%s" % tokenize(image,
+                                           coordinates,
+                                           order,
+                                           mode,
+                                           cval,
+                                           prefilter)
+
+    keys = [(name, i) for i in range(len(required_chunks))]
+
+    values = []
+    for irc, rc in enumerate(required_chunks):
+        offset = np.min([np.max([[0] * image.ndim,
+                                 rois[0][irc].astype(np.int64)], 0),
+                         np.array(image.shape) - 1], 0)
+        sl = [slice(offset[dim],
+                    min(image.shape[dim], int(rois[1][irc][dim]) + 1))
+              for dim in range(image.ndim)]
+
+        values.append((ndimage_map_coordinates,
+                       image[tuple(sl)],
+                       coordinates[:, rc_coord_inds[irc]] - offset[:, None],
+                       None,
+                       order,
+                       mode,
+                       cval,
+                       prefilter))
+
+    dsk = dict(zip(keys, values))
+    ar = da.Array(dsk, name, tuple([[len(rc_ci) for rc_ci in rc_coord_inds]]), image.dtype)
+
+    orig_order = np.argsort([ic for rc_ci in rc_coord_inds for ic in rc_ci])
+
+    return ar[orig_order]
