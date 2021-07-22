@@ -6,10 +6,12 @@ import operator
 import warnings
 
 import dask.array as da
+import dask.bag as db
 import numpy as np
 
 from . import _utils
 from ._utils import _label
+from ._utils._find_objects import _array_chunk_location, _find_bounding_boxes, _merge_bounding_boxes
 
 __all__ = [
     "area",
@@ -199,6 +201,28 @@ def extrema(image, label_image=None, index=None):
 
     result = tuple(extrema_lbl.values())
 
+    return result
+
+
+def find_objects(label_image):
+    """Return bounding box slices for each object labelled by integers.
+
+    Parameters
+    ----------
+    label_image : ndarray
+        Image features noted by integers.
+    """
+    block_iter = zip(
+        np.ndindex(*label_image.numblocks),
+        map(functools.partial(operator.getitem, label_image),
+            da.core.slices_from_chunks(label_image.chunks))
+    )
+    arrays = []
+    for block_id, block in block_iter:
+        array_location = _array_chunk_location(block_id, label_image.chunks)
+        arrays.append(_find_bounding_boxes(block, array_location))
+    bag = db.from_sequence(arrays)
+    result = bag.reduction(_merge_bounding_boxes, _merge_bounding_boxes, split_every=2)
     return result
 
 
