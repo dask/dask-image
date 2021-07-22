@@ -222,7 +222,8 @@ def find_objects(label_image):
         array_location = _array_chunk_location(block_id, label_image.chunks)
         arrays.append(_find_bounding_boxes(block, array_location))
     bag = db.from_sequence(arrays)
-    result = bag.reduction(_merge_bounding_boxes, _merge_bounding_boxes, split_every=2)
+    meta = dd.utils.make_meta([('x', np.int64), ('y', np.int64)])
+    result = bag.fold(_merge_bounding_boxes, split_every=2)
     return result
 
 

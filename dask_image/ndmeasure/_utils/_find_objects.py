@@ -52,12 +52,9 @@ def _combine_dataframes(s1, s2):
     return combined
 
 
-def _merge_bounding_boxes(iterable):
-    iterable = list(iterable)
-    if len(iterable) == 1:
-        df1 = iterable[0]
+def _merge_bounding_boxes(df1, df2=None):
+    if df2 is None:
         return df1
     else:
-        df1, df2 = iterable
         result = df1.combine(df2, _combine_dataframes)
         return result
