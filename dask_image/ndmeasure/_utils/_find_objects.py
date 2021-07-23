@@ -25,36 +25,29 @@ def _find_bounding_boxes(x, array_location):
     return pd.DataFrame.from_dict(result, orient='index')
 
 
-def isnan(value):
-    try:
-        if np.isnan(value):
-            return True
-    except Exception:
-        if value is np.nan:
-            return True
+def _combine_slices(slices):
+    "Return the union of all slices."
+    if len(slices) == 1:
+        return slices[0]
     else:
-        return False
-
-
-def _combine_series(a, b):
-    if isnan(a):
-        return b
-    elif isnan(b):
-        return a
-    else:
-        start = min(a.start, b.start)
-        stop = max(a.stop, b.stop)
+        start = min([sl.start for sl in slices])
+        stop = max([sl.stop for sl in slices])
         return slice(start, stop, 1)
 
 
-def _combine_dataframes(s1, s2):
-    combined = s1.combine(s2, _combine_series)
-    return combined
+def _merge_bounding_boxes(x, ndim):
+    x = x.dropna()
+    data = {}
+    for i in range(ndim):
+        slices = [x[ii] for ii in x.index if str(ii).startswith(str(i))]
+        combined_slices = _combine_slices(slices)
+        data[i] = combined_slices
+    result = pd.Series(data=data, index=[i for i in range(ndim)], name=x.name)
+    return result
 
 
-def _merge_bounding_boxes(df1, df2=None):
-    if df2 is None:
-        return df1
-    else:
-        result = df1.combine(df2, _combine_dataframes)
-        return result
+def _find_objects(df1, df2, ndim=2):
+    ddf = dd.merge(df1, df2, how="outer", left_index=True, right_index=True)
+    meta = dd.utils.make_meta([(i, object) for i in range(ndim)])
+    result = ddf.apply(_merge_bounding_boxes, ndim=ndim, axis=1, meta=meta)
+    return result

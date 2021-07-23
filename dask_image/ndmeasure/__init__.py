@@ -11,7 +11,7 @@ import numpy as np
 
 from . import _utils
 from ._utils import _label
-from ._utils._find_objects import _array_chunk_location, _find_bounding_boxes, _merge_bounding_boxes
+from ._utils._find_objects import _array_chunk_location, _find_bounding_boxes, _find_objects
 
 __all__ = [
     "area",
@@ -222,8 +222,7 @@ def find_objects(label_image):
         array_location = _array_chunk_location(block_id, label_image.chunks)
         arrays.append(_find_bounding_boxes(block, array_location))
     bag = db.from_sequence(arrays)
-    meta = dd.utils.make_meta([('x', np.int64), ('y', np.int64)])
-    result = bag.fold(_merge_bounding_boxes, split_every=2)
+    result = bag.fold(_find_objects, split_every=2)
     return result
 
 
