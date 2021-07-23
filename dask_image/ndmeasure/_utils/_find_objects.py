@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from dask.delayed import delayed
+from dask.delayed import delayed, Delayed
 import dask.dataframe as dd
 
 
@@ -47,7 +47,11 @@ def _merge_bounding_boxes(x, ndim):
 
 
 def _find_objects(df1, df2, ndim=2):
-    ddf = dd.merge(df1, df2, how="outer", left_index=True, right_index=True)
     meta = dd.utils.make_meta([(i, object) for i in range(ndim)])
+    if isinstance(df1, Delayed):
+        df1 = dd.from_delayed(df1, meta=meta)
+    if isinstance(df2, Delayed):
+        df2 = dd.from_delayed(df2, meta=meta)
+    ddf = dd.merge(df1, df2, how="outer", left_index=True, right_index=True)
     result = ddf.apply(_merge_bounding_boxes, ndim=ndim, axis=1, meta=meta)
     return result
