@@ -31,7 +31,7 @@ def _combine_slices(slices):
     else:
         start = min([sl.start for sl in slices])
         stop = max([sl.stop for sl in slices])
-        return slice(start, stop, 1)
+        return slice(start, stop)
 
 
 def _merge_bounding_boxes(x, ndim):
