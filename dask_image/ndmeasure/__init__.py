@@ -226,8 +226,8 @@ def find_objects(label_image):
     bag = db.from_sequence(arrays)
     result = bag.fold(_find_objects, split_every=2).to_delayed()
     meta = dd.utils.make_meta([(i, object) for i in range(label_image.ndim)])
-    result = dd.from_delayed(result, meta=meta, prefix="find-objects-", verify_meta=False)
     result = delayed(compute)(result)[0]  # avoid the user having to call compute twice on result
+    result = dd.from_delayed(result, meta=meta, prefix="find-objects-", verify_meta=False)
     return result
 
 
