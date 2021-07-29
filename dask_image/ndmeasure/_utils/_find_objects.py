@@ -50,7 +50,7 @@ def _merge_bounding_boxes(x, ndim):
     return result
 
 
-def _find_objects(df1, df2, ndim=2):
+def _find_objects(ndim, df1, df2):
     meta = dd.utils.make_meta([(i, object) for i in range(ndim)])
     if isinstance(df1, Delayed):
         df1 = dd.from_delayed(df1, meta=meta)

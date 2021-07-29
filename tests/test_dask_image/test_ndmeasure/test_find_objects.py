@@ -1,3 +1,4 @@
+from dask_image.ndmeasure._utils import _labeled_comprehension_delayed
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -28,7 +29,7 @@ def label_image():
     return label_image
 
 
-def test_bounding_boxes(label_image):
+def test_find_objects(label_image):
     result = dask_image.ndmeasure.find_objects(label_image)
     assert isinstance(result, dd.DataFrame)
     computed_result = result.compute()
@@ -36,5 +37,19 @@ def test_bounding_boxes(label_image):
     expected = pd.DataFrame.from_dict(
         {0: {111: slice(1, 3), 222: slice(3, 4), 333: slice(0, 2)},
         1: {111: slice(0, 2), 222: slice(3, 8), 333: slice(7, 10)}}
+    )
+    assert computed_result.equals(expected)
+
+
+def test_3d_find_objects(label_image):
+    label_image = da.stack([label_image, label_image], axis=2)
+    result = dask_image.ndmeasure.find_objects(label_image)
+    assert isinstance(result, dd.DataFrame)
+    computed_result = result.compute()
+    assert isinstance(computed_result, pd.DataFrame)
+    expected = pd.DataFrame.from_dict(
+        {0: {111: slice(1, 3), 222: slice(3, 4), 333: slice(0, 2)},
+        1: {111: slice(0, 2), 222: slice(3, 8), 333: slice(7, 10)},
+        2: {111: slice(0, 2), 222: slice(0, 2), 333: slice(0, 2)}}
     )
     assert computed_result.equals(expected)
