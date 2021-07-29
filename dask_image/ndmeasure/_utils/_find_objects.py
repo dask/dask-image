@@ -13,7 +13,16 @@ def _array_chunk_location(block_id, chunks):
 
 
 def _find_bounding_boxes(x, array_location):
-    """An alternative to scipy.ndi.find_objects"""
+    """An alternative to scipy.ndimage.find_objects.
+
+    We use this alternative because scipy.ndimage.find_objects
+    returns a tuple of length N, where N is the largest integer label.
+    This is not ideal for distributed labels, where there might be only
+    one or two objects in an image chunk labelled with very large integers.
+
+    This alternative function returns a pandas dataframe,
+    with one row per object found in the image chunk.
+    """
     unique_vals = np.unique(x)
     unique_vals = unique_vals[unique_vals != 0]
     result = {}
@@ -35,10 +44,11 @@ def _combine_slices(slices):
 
 
 def _merge_bounding_boxes(x, ndim):
+    """Merge the bounding boxes describing objects over multiple image chunks."""
     x = x.dropna()
     data = {}
     # For each dimension in the array,
-    # go through every integer label and pick out the values belonging to that dimension
+    # pick out the slice values belonging to that dimension
     # and combine those slices (find the union; the slice expanded to all input slices).
     for i in range(ndim):
         # Array dimensions are labelled by a number followed by an underscroe
@@ -51,6 +61,7 @@ def _merge_bounding_boxes(x, ndim):
 
 
 def _find_objects(ndim, df1, df2):
+    """Main utility function for find_objects."""
     meta = dd.utils.make_meta([(i, object) for i in range(ndim)])
     if isinstance(df1, Delayed):
         df1 = dd.from_delayed(df1, meta=meta)
