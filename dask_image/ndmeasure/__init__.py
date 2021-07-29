@@ -214,20 +214,26 @@ def find_objects(label_image):
     label_image : ndarray
         Image features noted by integers.
     """
+    if label_image.dtype.char not in np.typecodes['AllInteger']:
+        raise ValueError("find_objects only accepts integer dtype arrays")
+
     block_iter = zip(
         np.ndindex(*label_image.numblocks),
         map(functools.partial(operator.getitem, label_image),
             da.core.slices_from_chunks(label_image.chunks))
     )
+
     arrays = []
     for block_id, block in block_iter:
         array_location = _array_chunk_location(block_id, label_image.chunks)
         arrays.append(delayed(_find_bounding_boxes)(block, array_location))
+
     bag = db.from_sequence(arrays)
     result = bag.fold(functools.partial(_find_objects, label_image.ndim), split_every=2).to_delayed()
     meta = dd.utils.make_meta([(i, object) for i in range(label_image.ndim)])
     result = delayed(compute)(result)[0]  # avoid the user having to call compute twice on result
     result = dd.from_delayed(result, meta=meta, prefix="find-objects-", verify_meta=False)
+
     return result
 
 
