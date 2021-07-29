@@ -4,10 +4,12 @@ import collections
 import functools
 import operator
 import warnings
+from dask import delayed
 
 import dask.array as da
 import dask.bag as db
 import dask.dataframe as dd
+from dask.delayed import delayed
 import numpy as np
 
 from . import _utils
@@ -221,7 +223,7 @@ def find_objects(label_image):
     arrays = []
     for block_id, block in block_iter:
         array_location = _array_chunk_location(block_id, label_image.chunks)
-        arrays.append(_find_bounding_boxes(block, array_location))
+        arrays.append(delayed(_find_bounding_boxes)(block, array_location))
     bag = db.from_sequence(arrays)
     result = bag.fold(_find_objects, split_every=2).to_delayed()
     meta = dd.utils.make_meta([(i, object) for i in range(label_image.ndim)])

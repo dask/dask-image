@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from dask.delayed import delayed, Delayed
+from dask.delayed import Delayed
 import dask.dataframe as dd
 
 
@@ -12,7 +12,6 @@ def _array_chunk_location(block_id, chunks):
     return tuple(array_location)
 
 
-@delayed
 def _find_bounding_boxes(x, array_location):
     """An alternative to scipy.ndi.find_objects"""
     unique_vals = np.unique(x)
