@@ -4,7 +4,7 @@ import collections
 import functools
 import operator
 import warnings
-from dask import delayed
+from dask import compute, delayed
 
 import dask.array as da
 import dask.bag as db
@@ -227,6 +227,7 @@ def find_objects(label_image):
     result = bag.fold(_find_objects, split_every=2).to_delayed()
     meta = dd.utils.make_meta([(i, object) for i in range(label_image.ndim)])
     result = dd.from_delayed(result, meta=meta, prefix="find-objects-", verify_meta=False)
+    result = delayed(compute)(result)[0]  # avoid the user having to call compute twice on result
     return result
 
 

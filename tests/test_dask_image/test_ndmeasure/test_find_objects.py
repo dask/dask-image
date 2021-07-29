@@ -28,7 +28,7 @@ def label_image():
 
 
 def test_bounding_boxes(label_image):
-    result = dask_image.ndmeasure.find_objects(label_image).compute().compute()
+    result = dask_image.ndmeasure.find_objects(label_image).compute()
     expected = pd.DataFrame.from_dict(
         {0: {111: slice(1, 3), 222: slice(3, 4), 333: slice(0, 2)},
         1: {111: slice(0, 2), 222: slice(3, 8), 333: slice(7, 10)}}
