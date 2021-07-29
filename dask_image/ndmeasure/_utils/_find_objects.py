@@ -19,7 +19,7 @@ def _find_bounding_boxes(x, array_location):
     result = {}
     for val in unique_vals:
         positions = np.where(x == val)
-        slices = tuple(slice(np.min(pos) + array_location[i], np.max(pos) + 1 + array_location[i], 1) for i, pos in enumerate(positions))
+        slices = tuple(slice(np.min(pos) + array_location[i], np.max(pos) + 1 + array_location[i]) for i, pos in enumerate(positions))
         result[val] = slices
     return pd.DataFrame.from_dict(result, orient='index')
 
