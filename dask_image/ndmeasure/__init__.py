@@ -9,7 +9,6 @@ from dask import delayed
 import dask.array as da
 import dask.bag as db
 import dask.dataframe as dd
-from dask.delayed import delayed
 import numpy as np
 
 from . import _utils
