@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-import dask.array
+import dask.array as da
 
 from . import _utils
 
@@ -36,6 +36,7 @@ def _binary_op(func,
             origin=origin,
             **kwargs
         )
-        result = dask.array.where(mask, iter_result, result)
+        result = da.where(mask, iter_result, result)
+        result._meta = image._meta.astype(bool)
 
     return result

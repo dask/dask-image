@@ -1,13 +1,13 @@
 *****************
-Function Coverage 
+Function Coverage
 *****************
 
 Coverage of dask-image vs scipy ndimage functions
 *************************************************
 
-This table shows which SciPy ndimage functions are supported by dask-image. 
+This table shows which SciPy ndimage functions are supported by dask-image.
 
-.. list-table:: 
+.. list-table::
    :widths: 25 25 50
    :header-rows: 0
 
@@ -205,10 +205,10 @@ This table shows which SciPy ndimage functions are supported by dask-image.
      - ✓
    * - ``spline_filter``
      - ✓
-     -
+     - ✓
    * - ``spline_filter1d``
      - ✓
-     -
+     - ✓
    * - ``standard_deviation``
      - ✓
      - ✓
@@ -233,4 +233,4 @@ This table shows which SciPy ndimage functions are supported by dask-image.
    * - ``zoom``
      - ✓
      -
-           
+

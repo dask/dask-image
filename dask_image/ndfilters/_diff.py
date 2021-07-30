@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 
-import scipy.ndimage.filters
+import scipy.ndimage
 
-from . import _utils
 from ..dispatch._dispatch_ndfilters import dispatch_laplace
+from . import _utils
 
 __all__ = [
     "laplace",

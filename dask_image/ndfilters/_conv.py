@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import scipy.ndimage.filters
+import scipy.ndimage
 
-from . import _utils
+from ..dispatch._dispatch_ndfilters import (dispatch_convolve,
+                                            dispatch_correlate)
 from ..dispatch._utils import check_arraytypes_compatible
-from ..dispatch._dispatch_ndfilters import (
-    dispatch_convolve,
-    dispatch_correlate)
+from . import _utils
 
 __all__ = [
     "convolve",

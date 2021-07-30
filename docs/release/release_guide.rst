@@ -36,14 +36,14 @@ to add it as a secret.
 Determining the new version number
 ----------------------------------
 
-We use `semantic versioning <https://medium.com/the-non-traditional-developer/semantic-versioning-for-dummies-45c7fe04a1f8>`_
+We use `calendar versioning (CalVer) <https://calver.org/>`_
 for `dask-image`. This means version numbers have the format
-`Major.Minor.Patch`.
+`YYYY.MM.DD`.
 
 `Versioneer <https://github.com/warner/python-versioneer>`_
 then determines the exact version from the latest
 `git tag <https://git-scm.com/book/en/v2/Git-Basics-Tagging>`_
-beginning with `v`.
+beginning with `v`. So our git tags will have the format `vYYYY.MM.DD`.
 
 
 Generate the release notes
@@ -88,7 +88,7 @@ including all changes since the last tagged release.
 
     .. code-block:: bash
 
-       python docs/release/generate_release_notes.py  v0.14.0 main --version 0.15.0
+       python docs/release/generate_release_notes.py  v2021.05.24 main --version 2021.06.03
 
 
     See help for this script with:
@@ -116,7 +116,7 @@ Go to the dask-image releases page: https://github.com/dask/dask-image/releases
 
 Click the "Draft Release" button to create a new release candidate.
 
-- Both the tag version and release title should have the format ``vX.Y.Zrc1``.
+- Both the tag version and release title should have the format ``vYYYY.MM.DDrc1``.
 - Copy-paste the release notes from ``HISTORY.rst`` for this release into the
   description text box.
 
@@ -142,7 +142,7 @@ in order to isolate dependencies.
 
 If the release candidate is not what you want, make your changes and
 repeat the process from the beginning but
-incrementing the number after ``rc`` (e.g. ``vX.Y.Zrc2``).
+incrementing the number after ``rc`` (e.g. ``vYYYY.MM.DDrc1``).
 
 Once you are satisfied with the release candidate it is time to generate
 the actual release.

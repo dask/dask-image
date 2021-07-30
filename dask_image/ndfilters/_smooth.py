@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 
-import scipy.ndimage.filters
+import scipy.ndimage
 
+from ..dispatch._dispatch_ndfilters import dispatch_uniform_filter
 from . import _utils
 from ._gaussian import gaussian_filter
-from ..dispatch._dispatch_ndfilters import dispatch_uniform_filter
 
 __all__ = [
     "uniform_filter",

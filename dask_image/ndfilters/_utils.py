@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from __future__ import division
-
 import collections
 import inspect
 import numbers
 import re
 
-import numpy
+import numpy as np
 
 
 def _get_docstring(func):
@@ -61,13 +58,13 @@ def _get_depth_boundary(ndim, depth, boundary=None):
 
     if isinstance(depth, numbers.Number):
         depth = ndim * (depth,)
-    if not isinstance(depth, collections.Sized):
+    if not isinstance(depth, collections.abc.Sized):
         raise TypeError("Unexpected type for `depth`.")
     if len(depth) != ndim:
         raise ValueError("Expected `depth` to have a length equal to `ndim`.")
-    if isinstance(depth, collections.Sequence):
+    if isinstance(depth, collections.abc.Sequence):
         depth = dict(zip(range(ndim), depth))
-    if not isinstance(depth, collections.Mapping):
+    if not isinstance(depth, collections.abc.Mapping):
         raise TypeError("Unexpected type for `depth`.")
 
     if not all(map(lambda d: isinstance(d, numbers.Integral), depth.values())):
@@ -79,15 +76,15 @@ def _get_depth_boundary(ndim, depth, boundary=None):
 
     if (boundary is None) or isinstance(boundary, strlike):
         boundary = ndim * (boundary,)
-    if not isinstance(boundary, collections.Sized):
+    if not isinstance(boundary, collections.abc.Sized):
         raise TypeError("Unexpected type for `boundary`.")
     if len(boundary) != ndim:
         raise ValueError(
             "Expected `boundary` to have a length equal to `ndim`."
         )
-    if isinstance(boundary, collections.Sequence):
+    if isinstance(boundary, collections.abc.Sequence):
         boundary = dict(zip(range(ndim), boundary))
-    if not isinstance(boundary, collections.Mapping):
+    if not isinstance(boundary, collections.abc.Mapping):
         raise TypeError("Unexpected type for `boundary`.")
 
     type_check = lambda b: (b is None) or isinstance(b, strlike)  # noqa: E731
@@ -103,7 +100,7 @@ def _get_size(ndim, size):
 
     if isinstance(size, numbers.Number):
         size = ndim * (size,)
-    size = numpy.array(size)
+    size = np.array(size)
 
     if size.ndim != 1:
         raise RuntimeError("The size must have only one dimension.")
@@ -120,13 +117,13 @@ def _get_size(ndim, size):
 
 
 def _get_origin(size, origin=0):
-    size = numpy.array(size)
+    size = np.array(size)
     ndim = len(size)
 
     if isinstance(origin, numbers.Number):
         origin = ndim * (origin,)
 
-    origin = numpy.array(origin)
+    origin = np.array(origin)
 
     if not issubclass(origin.dtype.type, numbers.Integral):
         raise TypeError("The origin must be of integral type.")
@@ -150,8 +147,8 @@ def _get_origin(size, origin=0):
 
 
 def _get_depth(size, origin=0):
-    origin = numpy.array(_get_origin(size, origin))
-    size = numpy.array(size)
+    origin = np.array(_get_origin(size, origin))
+    size = np.array(size)
 
     half_size = size // 2
     depth = half_size + abs(origin)
@@ -171,7 +168,7 @@ def _get_footprint(ndim, size=None, footprint=None):
     # Get a footprint based on the size.
     if size is not None:
         size = _get_size(ndim, size)
-        footprint = numpy.ones(size, dtype=bool)
+        footprint = np.ones(size, dtype=bool)
 
     # Validate the footprint.
     if footprint.ndim != ndim:

@@ -2,6 +2,54 @@
 History
 =======
 
+0.6.0 (2021-05-06)
+------------------
+
+We're pleased to announce the release of dask-image 0.6.0!
+
+Highlights
+
+The highlights of this release include GPU support for binary morphological
+functions, and improvements to the performance of ``imread``.
+
+Cupy version 9.0.0 or higher is required for GPU support of the ``ndmorph`` subpackage.
+Cupy version 7.7.0 or higher is required for GPU support of the ``ndfilters`` and ``imread`` subpackages.
+
+New Features
+
+* GPU support for ndmorph subpackage: binary morphological functions (#157)
+
+Improvements
+
+* Improve imread performance: reduced overhead of pim.open calls when reading from image sequence (#182)
+
+Bug Fixes
+
+* dask-image imread v0.5.0 not working with dask distributed Client & napari (#194)
+* Not able to map actual image name with dask_image.imread (#200, fixed by #182)
+* affine_transform: Remove inconsistencies with ndimage implementation #205
+
+API Changes
+
+* Add alias ``gaussian`` pointing to ``gaussian_filter`` (#193)
+
+Other Pull Requests
+
+* Change default branch from master to main (#185)
+* Fix rst formatting in release_guide.rst (#186)
+
+4 authors added to this release (alphabetical)
+
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `Julia Signell <https://github.com/dask/dask-image/commits?author=jsignell>`_ - @jsignell
+* `KM Goh <https://github.com/dask/dask-image/commits?author=K-Monty>`_ - @K-Monty
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+
+2 reviewers added to this release (alphabetical)
+
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `KM Goh <https://github.com/dask/dask-image/commits?author=K-Monty>`_ - @K-Monty
+
 0.5.0 (2021-02-01)
 ------------------
 

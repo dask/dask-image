@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import scipy.ndimage.filters
+import scipy.ndimage
 
 from ._dispatcher import Dispatcher
 

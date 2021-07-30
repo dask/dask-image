@@ -1,8 +1,8 @@
 import dask.array as da
 import numpy as np
 
-from . import _gaussian, _generic, _order
 from ..dispatch._dispatch_ndfilters import dispatch_threshold_local_mean
+from . import _gaussian, _generic, _order
 
 __all__ = [
     "threshold_local",
