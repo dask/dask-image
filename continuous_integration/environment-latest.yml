@@ -1,4 +1,4 @@
-name: dask_image_py38_env
+name: dask-image-testenv
 
 channels:
   - conda-forge
@@ -16,4 +16,4 @@ dependencies:
   - scipy==1.3.2
   - scikit-image==0.16.2
   - pims==0.4.1
-  - slicerator==1.0.0
+  - slicerator

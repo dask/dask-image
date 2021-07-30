@@ -22,7 +22,6 @@ omit =
     */eggs/*
     */.eggs/*
     *tests/*
-    */travis_pypi_setup.py
     */versioneer.py
     */_version.py
     */_vendor/*

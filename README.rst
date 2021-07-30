@@ -11,9 +11,9 @@ dask-image
         :target: https://anaconda.org/conda-forge/dask-image
         :alt: conda-forge
 
-.. image:: https://img.shields.io/travis/dask/dask-image/main.svg
-        :target: https://travis-ci.org/dask/dask-image
-        :alt: Travis CI
+.. image:: https://github.com/dask/dask-image/workflows/CI/badge.svg
+        :target: https://github.com/dask/dask-image/actions
+        :alt: GitHub Actions CI
 
 .. image:: https://readthedocs.org/projects/dask-image/badge/?version=latest
         :target: https://dask-image.readthedocs.io/en/latest/?badge=latest

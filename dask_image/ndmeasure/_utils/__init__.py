@@ -22,10 +22,10 @@ def _norm_input_labels_index(image, label_image=None, index=None):
         label_image = da.ones(
             image.shape, dtype=int, chunks=image.chunks,
         )
-        index = da.ones(tuple(), dtype=int, chunks=tuple())
+        index = da.from_array(np.array(1, dtype=int))
     elif index is None:
         label_image = (label_image > 0).astype(int)
-        index = da.ones(tuple(), dtype=int, chunks=tuple())
+        index = da.from_array(np.array(1, dtype=int))
 
     label_image = da.asarray(label_image)
     index = da.asarray(index)
