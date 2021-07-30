@@ -16,4 +16,4 @@ dependencies:
   - scipy==1.2.0
   - scikit-image==0.14.2
   - pims==0.4.1
-  - slicerator
+  - slicerator==0.9.8
