@@ -130,7 +130,7 @@ Running tests locally
 
 To setup a local testing environment that matches the test environments we use
 for our continuous integration services, you can use the ``.yml``
-conda environment files included in the ``.continuous_integration`` folder
+conda environment files included in the ``continuous_integration`` folder
 in the dask-image repository.
 
 There is a separate environment file for each supported Python version.
@@ -146,7 +146,7 @@ We will use conda to
 
 .. code-block:: console
 
-    $ conda env create -f .continuous_integration/environment-latest.yml
+    $ conda env create -f continuous_integration/environment-latest.yml
 
 This command will create a new conda test environment
 called ``dask-image-testenv`` with all required dependencies.
