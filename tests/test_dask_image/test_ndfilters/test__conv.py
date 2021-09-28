@@ -164,8 +164,8 @@ def test_convolutions_compare(sp_func,
 @pytest.mark.parametrize(
     "weights",
     [
-     np.ones((1,5))
-     np.ones((5,1))
+     np.ones((1,5)),
+     np.ones((5,1)),
     ]
 )
 @pytest.mark.parametrize(
