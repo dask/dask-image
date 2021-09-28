@@ -47,7 +47,7 @@ def correlate(image, weights, mode="reflect", cval=0.0, origin=0):
     depth = _utils._get_depth(weights.shape, origin)
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
 
-    if mode == "wrap":
+    if mode == "wrap":  # Fixes https://github.com/dask/dask-image/issues/242
         boundary = "periodic"
         mode = "constant"
 
