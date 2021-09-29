@@ -13,16 +13,16 @@ __all__ = [
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.convolve)
-def convolve(image,
-             weights,
-             mode='reflect',
-             cval=0.0,
-             origin=0):
+def convolve(image, weights, mode="reflect", cval=0.0, origin=0):
     check_arraytypes_compatible(image, weights)
 
     origin = _utils._get_origin(weights.shape, origin)
     depth = _utils._get_depth(weights.shape, origin)
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
+
+    if mode == "wrap":  # Fixes https://github.com/dask/dask-image/issues/242
+        boundary = "periodic"
+        mode = "constant"
 
     result = image.map_overlap(
         dispatch_convolve(image),
@@ -33,23 +33,23 @@ def convolve(image,
         weights=weights,
         mode=mode,
         cval=cval,
-        origin=origin
+        origin=origin,
     )
 
     return result
 
 
 @_utils._update_wrapper(scipy.ndimage.filters.correlate)
-def correlate(image,
-              weights,
-              mode='reflect',
-              cval=0.0,
-              origin=0):
+def correlate(image, weights, mode="reflect", cval=0.0, origin=0):
     check_arraytypes_compatible(image, weights)
 
     origin = _utils._get_origin(weights.shape, origin)
     depth = _utils._get_depth(weights.shape, origin)
     depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
+
+    if mode == "wrap":  # Fixes https://github.com/dask/dask-image/issues/242
+        boundary = "periodic"
+        mode = "constant"
 
     result = image.map_overlap(
         dispatch_correlate(image),
@@ -60,7 +60,7 @@ def correlate(image,
         weights=weights,
         mode=mode,
         cval=cval,
-        origin=origin
+        origin=origin,
     )
 
     return result
