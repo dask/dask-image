@@ -13,7 +13,7 @@ dependencies:
   - pytest-flake8==1.0.4
   - dask==2.8.1
   - numpy==1.15.4
-  - scipy==1.2.0
+  - scipy==1.4.0
   - scikit-image==0.14.2
   - pims==0.4.1
   - slicerator
