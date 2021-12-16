@@ -54,5 +54,5 @@ conda info
 conda config --show-sources
 conda list --show-channel-urls
 
-gpuci_logger "Python py.test for distributed"
+gpuci_logger "Python py.test for dask-image"
 py.test $WORKSPACE -v -m cupy --junitxml="$WORKSPACE/junit-dask-image.xml"
