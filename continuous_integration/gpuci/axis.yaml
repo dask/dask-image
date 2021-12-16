@@ -7,7 +7,4 @@ CUDA_VER:
 LINUX_VER:
 - ubuntu18.04
 
-RAPIDS_VER:
-- "22.02"
-
 excludes:
