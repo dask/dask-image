@@ -213,6 +213,18 @@ def find_objects(label_image):
     ----------
     label_image : ndarray
         Image features noted by integers.
+
+    Returns
+    -------
+    Dask dataframe
+        Each row respresents an indivdual integrer label. Columns contain the
+        slice information for the object boundaries in each dimension
+        (dimensions are named: 0, 1, ..., nd).
+
+    Notes
+    -----
+    You must have the optional dependency ``dask[dataframe]`` installed
+    to use the ``find_objects`` function.
     """
     if label_image.dtype.char not in np.typecodes['AllInteger']:
         raise ValueError("find_objects only accepts integer dtype arrays")
