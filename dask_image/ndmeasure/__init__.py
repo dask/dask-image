@@ -4,12 +4,16 @@ import collections
 import functools
 import operator
 import warnings
+from dask import compute, delayed
 
 import dask.array as da
+import dask.bag as db
+import dask.dataframe as dd
 import numpy as np
 
 from . import _utils
 from ._utils import _label
+from ._utils._find_objects import _array_chunk_location, _find_bounding_boxes, _find_objects
 
 __all__ = [
     "area",
@@ -198,6 +202,49 @@ def extrema(image, label_image=None, index=None):
         extrema_lbl[pos_key] = pos_nd
 
     result = tuple(extrema_lbl.values())
+
+    return result
+
+
+def find_objects(label_image):
+    """Return bounding box slices for each object labelled by integers.
+
+    Parameters
+    ----------
+    label_image : ndarray
+        Image features noted by integers.
+
+    Returns
+    -------
+    Dask dataframe
+        Each row respresents an indivdual integrer label. Columns contain the
+        slice information for the object boundaries in each dimension
+        (dimensions are named: 0, 1, ..., nd).
+
+    Notes
+    -----
+    You must have the optional dependency ``dask[dataframe]`` installed
+    to use the ``find_objects`` function.
+    """
+    if label_image.dtype.char not in np.typecodes['AllInteger']:
+        raise ValueError("find_objects only accepts integer dtype arrays")
+
+    block_iter = zip(
+        np.ndindex(*label_image.numblocks),
+        map(functools.partial(operator.getitem, label_image),
+            da.core.slices_from_chunks(label_image.chunks))
+    )
+
+    arrays = []
+    for block_id, block in block_iter:
+        array_location = _array_chunk_location(block_id, label_image.chunks)
+        arrays.append(delayed(_find_bounding_boxes)(block, array_location))
+
+    bag = db.from_sequence(arrays)
+    result = bag.fold(functools.partial(_find_objects, label_image.ndim), split_every=2).to_delayed()
+    meta = dd.utils.make_meta([(i, object) for i in range(label_image.ndim)])
+    result = delayed(compute)(result)[0]  # avoid the user having to call compute twice on result
+    result = dd.from_delayed(result, meta=meta, prefix="find-objects-", verify_meta=False)
 
     return result
 
