@@ -30,7 +30,8 @@ def _find_bounding_boxes(x, array_location):
         positions = np.where(x == val)
         slices = tuple(slice(np.min(pos) + array_location[i], np.max(pos) + 1 + array_location[i]) for i, pos in enumerate(positions))
         result[val] = slices
-    return pd.DataFrame.from_dict(result, orient='index')
+    column_names = [i for i in range(x.ndim)]  # column names are: 0, 1, ... nD
+    return pd.DataFrame.from_dict(result, orient='index', columns=column_names)
 
 
 def _combine_slices(slices):
