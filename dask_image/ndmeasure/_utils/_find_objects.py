@@ -49,10 +49,12 @@ def _merge_bounding_boxes(x, ndim):
     data = {}
     # For each dimension in the array,
     # pick out the slice values belonging to that dimension
-    # and combine those slices (find the union; the slice expanded to all input slices).
+    # and combine the slices
+    # (i.e. find the union; the slice expanded to all input slices).
     for i in range(ndim):
         # Array dimensions are labelled by a number followed by an underscroe
         # i.e. column labels are: 0_x, 1_x, 2_x, ... 0_y, 1_y, 2_y, ...
+        # (x and y represent the pair of chunks label slices are merged from)
         slices = [x[ii] for ii in x.index if str(ii).startswith(str(i))]
         combined_slices = _combine_slices(slices)
         data[i] = combined_slices
