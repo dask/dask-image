@@ -2,6 +2,78 @@
 History
 =======
 
+2021.12.0
+----------
+
+We're pleased to announce the release of dask-image 2021.12.0!
+
+Highlights
+
+The major highlights of this release include the introduction of new featurees for ``find_objects`` and spline filters.
+We have also moved to using CalVer (calendar version numbers) to match the main Dask project.
+
+New Features
+
+* Find objects bounding boxes (#240)
+* Add spline_filter and spline_filter1d (#215)
+
+
+Improvements
+
+* ENH: add remaining kwargs to binary_closing and binary_opening (#221)
+* ndfourier: support n > 0 (for rfft) and improve performance (#222)
+* affine_transform: increased shape of required input array slices (#216)
+
+
+Bug Fixes
+
+* BUG: add missing import of warnings in dask_image.ndmeasure (#224)
+* Fix wrap bug in ndfilters convolve and correlate (#243)
+* Upgrade for compatibility with latest dask release (#241)
+
+
+Test infrastructure
+
+* GitHub actions testing (#188)
+* Set up gpuCI testing on PRs (#248)
+* Remove `RAPIDS_VER` axis, bump `CUDA_VER` in gpuCI matrix (#249)
+
+
+Documentation updates
+
+* Code style cleanup (#227)
+* Remove out of date email address, strip __author__ & __email__ (#225)
+* Update release guide, Dask CalVer uses YYYY.MM.DD (#236)
+* Update min python version in setup.py (#250)
+* Use new Dask docs theme (#245)
+* Docs: Add `find_objects` to the coverage table (#254)
+
+
+Other Pull Requests
+
+* Switch to CalVer (calendar versioning) (#233)
+
+
+6 authors added to this release (alphabetical)
+
+* `anlavandier <https://github.com/dask/dask-image/commits?author=anlavandier>`_ - @anlavandier
+* `Charles Blackmon-Luca <https://github.com/dask/dask-image/commits?author=charlesbluca>`_ - @charlesbluca
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `Gregory R. Lee <https://github.com/dask/dask-image/commits?author=grlee77>`_ - @grlee77
+* `Jacob Tomlinson <https://github.com/dask/dask-image/commits?author=jacobtomlinson>`_ - @jacobtomlinson
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+
+
+6 reviewers added to this release (alphabetical)
+
+* `anlavandier <https://github.com/dask/dask-image/commits?author=anlavandier>`_ - @anlavandier
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `Gregory R. Lee <https://github.com/dask/dask-image/commits?author=grlee77>`_ - @grlee77
+* `Jacob Tomlinson <https://github.com/dask/dask-image/commits?author=jacobtomlinson>`_ - @jacobtomlinson
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+
+
 0.6.0 (2021-05-06)
 ------------------
 
