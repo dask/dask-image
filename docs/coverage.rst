@@ -70,7 +70,7 @@ This table shows which SciPy ndimage functions are supported by dask-image.
      - ✓
    * - ``find_objects``
      - ✓
-     -
+     - ✓
    * - ``fourier_ellipsoid``
      - ✓
      -
