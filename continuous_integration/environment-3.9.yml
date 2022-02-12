@@ -4,15 +4,15 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3.7.*
-  - pip==22.0.3
+  - python=3.9.*
+  - pip==22.0.2
   - wheel==0.37.1
-  - coverage==6.3.1
+  - coverage==6.3
   - flake8==4.0.1
-  - pytest==7.0.0
+  - pytest==6.2.5
   - pytest-flake8==1.0.7
-  - dask==2.8.1
-  - numpy==1.21.5
+  - dask==2022.1.1
+  - numpy==1.22.1
   - scipy==1.7.3
   - scikit-image==0.19.1
   - pims==0.5
