@@ -48,9 +48,7 @@ def test_gaussian_filters_params(da_func, err_type, sigma, truncate):
 )
 @pytest.mark.parametrize(
     "sp_func, da_func",
-    [
-        (scipy.ndimage.filters.gaussian_filter, dask_image.ndfilters.gaussian_filter),  # noqa: E501
-    ]
+    [(scipy.ndimage.gaussian_filter, dask_image.ndfilters.gaussian_filter)]
 )
 def test_gaussian_filters_identity(sp_func, da_func, order, sigma, truncate):
     a = np.arange(140.0).reshape(10, 14)
@@ -131,11 +129,10 @@ def test_gaussian_filter_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.gaussian_filter,
-         dask_image.ndfilters.gaussian_filter),
-        (scipy.ndimage.filters.gaussian_gradient_magnitude,
+        (scipy.ndimage.gaussian_filter, dask_image.ndfilters.gaussian_filter),
+        (scipy.ndimage.gaussian_gradient_magnitude,
          dask_image.ndfilters.gaussian_gradient_magnitude),
-        (scipy.ndimage.filters.gaussian_laplace,
+        (scipy.ndimage.gaussian_laplace,
          dask_image.ndfilters.gaussian_laplace),
     ]
 )
@@ -175,9 +172,7 @@ def test_gaussian_filters_compare(sp_func, da_func, sigma, truncate):
 )
 @pytest.mark.parametrize(
     "sp_func, da_func",
-    [
-        (scipy.ndimage.filters.gaussian_filter, dask_image.ndfilters.gaussian_filter),  # noqa: E501
-    ]
+    [(scipy.ndimage.gaussian_filter, dask_image.ndfilters.gaussian_filter)]
 )
 def test_gaussian_derivative_filters_compare(sp_func, da_func,
                                              order, sigma, truncate):

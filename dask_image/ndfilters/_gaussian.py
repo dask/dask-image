@@ -55,7 +55,7 @@ def _get_border(image, sigma, truncate):
     return half_shape
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.gaussian_filter)
+@_utils._update_wrapper(scipy.ndimage.gaussian_filter)
 def gaussian_filter(image,
                     sigma,
                     order=0,
@@ -98,7 +98,7 @@ def gaussian(image,
                            truncate=truncate)
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.gaussian_gradient_magnitude)
+@_utils._update_wrapper(scipy.ndimage.gaussian_gradient_magnitude)
 def gaussian_gradient_magnitude(image,
                                 sigma,
                                 mode='reflect',
@@ -126,7 +126,7 @@ def gaussian_gradient_magnitude(image,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.gaussian_laplace)
+@_utils._update_wrapper(scipy.ndimage.gaussian_laplace)
 def gaussian_laplace(image,
                      sigma,
                      mode='reflect',

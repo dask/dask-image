@@ -11,7 +11,7 @@ __all__ = [
 ]
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.generic_filter)
+@_utils._update_wrapper(scipy.ndimage.generic_filter)
 def generic_filter(image,
                    function,
                    size=None,

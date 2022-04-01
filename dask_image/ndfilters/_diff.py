@@ -11,7 +11,7 @@ __all__ = [
 ]
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.laplace)
+@_utils._update_wrapper(scipy.ndimage.laplace)
 def laplace(image, mode='reflect', cval=0.0):
     result = image.map_overlap(
         dispatch_laplace(image),

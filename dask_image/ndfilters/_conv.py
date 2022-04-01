@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.convolve)
+@_utils._update_wrapper(scipy.ndimage.convolve)
 def convolve(image, weights, mode="reflect", cval=0.0, origin=0):
     check_arraytypes_compatible(image, weights)
 
@@ -39,7 +39,7 @@ def convolve(image, weights, mode="reflect", cval=0.0, origin=0):
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.correlate)
+@_utils._update_wrapper(scipy.ndimage.correlate)
 def correlate(image, weights, mode="reflect", cval=0.0, origin=0):
     check_arraytypes_compatible(image, weights)
 
