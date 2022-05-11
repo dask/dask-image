@@ -27,6 +27,5 @@ def test_laplace_compare():
     d = da.from_array(a, chunks=(5, 5, 6))
 
     da.utils.assert_eq(
-        scipy.ndimage.filters.laplace(a),
-        dask_image.ndfilters.laplace(d)
+        scipy.ndimage.laplace(a), dask_image.ndfilters.laplace(d)
     )

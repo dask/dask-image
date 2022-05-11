@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.minimum_filter)
+@_utils._update_wrapper(scipy.ndimage.minimum_filter)
 def minimum_filter(image,
                    size=None,
                    footprint=None,
@@ -45,7 +45,7 @@ def minimum_filter(image,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.median_filter)
+@_utils._update_wrapper(scipy.ndimage.median_filter)
 def median_filter(image,
                   size=None,
                   footprint=None,
@@ -72,7 +72,7 @@ def median_filter(image,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.maximum_filter)
+@_utils._update_wrapper(scipy.ndimage.maximum_filter)
 def maximum_filter(image,
                    size=None,
                    footprint=None,
@@ -99,7 +99,7 @@ def maximum_filter(image,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.rank_filter)
+@_utils._update_wrapper(scipy.ndimage.rank_filter)
 def rank_filter(image,
                 rank,
                 size=None,
@@ -128,7 +128,7 @@ def rank_filter(image,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.percentile_filter)
+@_utils._update_wrapper(scipy.ndimage.percentile_filter)
 def percentile_filter(image,
                       percentile,
                       size=None,

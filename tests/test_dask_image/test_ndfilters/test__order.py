@@ -82,15 +82,14 @@ def test_ordered_filter_shape_type(da_func,
 @pytest.mark.parametrize(
     "sp_func, da_func, extra_kwargs",
     [
-        (scipy.ndimage.filters.minimum_filter,
+        (scipy.ndimage.minimum_filter,
          dask_image.ndfilters.minimum_filter, {}),
-        (scipy.ndimage.filters.median_filter,
-         dask_image.ndfilters.median_filter, {}),
-        (scipy.ndimage.filters.maximum_filter,
+        (scipy.ndimage.median_filter, dask_image.ndfilters.median_filter, {}),
+        (scipy.ndimage.maximum_filter,
          dask_image.ndfilters.maximum_filter, {}),
-        (scipy.ndimage.filters.rank_filter,
+        (scipy.ndimage.rank_filter,
          dask_image.ndfilters.rank_filter, {"rank": 0}),
-        (scipy.ndimage.filters.percentile_filter,
+        (scipy.ndimage.percentile_filter,
          dask_image.ndfilters.percentile_filter, {"percentile": 0}),
     ]
 )
@@ -146,15 +145,14 @@ def test_order_comprehensions(da_func, kwargs):
 @pytest.mark.parametrize(
     "sp_func, da_func, extra_kwargs",
     [
-        (scipy.ndimage.filters.minimum_filter,
+        (scipy.ndimage.minimum_filter,
          dask_image.ndfilters.minimum_filter, {}),
-        (scipy.ndimage.filters.median_filter,
-         dask_image.ndfilters.median_filter, {}),
-        (scipy.ndimage.filters.maximum_filter,
+        (scipy.ndimage.median_filter, dask_image.ndfilters.median_filter, {}),
+        (scipy.ndimage.maximum_filter,
          dask_image.ndfilters.maximum_filter, {}),
-        (scipy.ndimage.filters.rank_filter,
+        (scipy.ndimage.rank_filter,
          dask_image.ndfilters.rank_filter, {"rank": 1}),
-        (scipy.ndimage.filters.percentile_filter,
+        (scipy.ndimage.percentile_filter,
          dask_image.ndfilters.percentile_filter, {"percentile": 10}),
     ]
 )
