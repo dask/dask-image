@@ -14,4 +14,4 @@ dependencies:
   - slicerator==0.9.8
   - pip:
       - slicerator==0.9.8
-      - dask-sphinx-theme>=2
+      - dask-sphinx-theme>=3.0.0
