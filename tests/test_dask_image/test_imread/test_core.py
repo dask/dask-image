@@ -95,3 +95,15 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pa
         assert (shape[0] % nframes) == d.chunks[0][-1]
 
     da.utils.assert_eq(a, d)
+
+
+@pytest.mark.parametrize("sortfunc, expected", [
+                            pytest.param(sorted, np.array([[10],[9]])), 
+                            pytest.param(tifffile.natural_sorted, np.array([[9],[10]]))
+                            ])
+def test_tiff_imread_glob_sort(tmpdir, sortfunc, expected):
+    dirpth = tmpdir.mkdir("test_imread")
+    tifffile.imwrite(dirpth.join("10.tif"), np.array([10]))
+    tifffile.imwrite(dirpth.join("9.tif"), np.array([9]))
+    actual = np.array(dask_image.imread.imread(dirpth.join("*.tif"), sortfunc=sortfunc))
+    assert np.all(actual==expected)

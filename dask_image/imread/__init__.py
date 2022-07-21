@@ -10,7 +10,7 @@ import pims
 from . import _utils
 
 
-def imread(fname, nframes=1, *, arraytype="numpy"):
+def imread(fname, nframes=1, *, arraytype="numpy", sortfunc=sorted):
     """
     Read image data into a Dask Array.
 
@@ -25,6 +25,8 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         Number of the frames to include in each chunk (default: 1).
     arraytype : str, optional
         Array type for dask chunks. Available options: "numpy", "cupy".
+    sortfunc: Callable
+        A function for sorting the glob results.
 
     Returns
     -------
@@ -65,7 +67,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         )
 
     # place source filenames into dask array
-    filenames = sorted(glob.glob(sfname))  # pims also does this
+    filenames = sortfunc(glob.glob(sfname))  # pims also does this
     if len(filenames) > 1:
         ar = da.from_array(filenames, chunks=(nframes,))
         multiple_files = True
@@ -83,7 +85,6 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         arrayfunc=arrayfunc,
         meta=arrayfunc([]).astype(dtype),  # meta overwrites `dtype` argument
     )
-
     return a
 
 
