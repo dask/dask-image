@@ -25,8 +25,8 @@ def imread(fname, nframes=1, *, arraytype="numpy", sortfunc=sorted):
         Number of the frames to include in each chunk (default: 1).
     arraytype : str, optional
         Array type for dask chunks. Available options: "numpy", "cupy".
-    sortfunc: Callable
-        A function for sorting the glob results.
+    sortfunc: Callable, optional
+        A function for sorting the glob results, default is "sorted".
 
     Returns
     -------
