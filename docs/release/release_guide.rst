@@ -38,13 +38,17 @@ Determining the new version number
 
 We use `calendar versioning (CalVer) <https://calver.org/>`_
 for `dask-image`. This means version numbers have the format
-`YYYY.MM.DD`.
+`YYYY.MM.X`. Here, YYYY indicates the year, MM indicates the month,
+and X is an integer counter beginning at zero (to distinguish
+between cases where multiple releases were made in the same month).
 
 `Versioneer <https://github.com/warner/python-versioneer>`_
 then determines the exact version from the latest
 `git tag <https://git-scm.com/book/en/v2/Git-Basics-Tagging>`_
-beginning with `v`. So our git tags will have the format `vYYYY.MM.DD`.
+beginning with `v`. So our git tags will have the format `vYYYY.MM.X`.
 
+So for example, a git tag "v2030.01.0" will be the first release
+made in the month of January, in the year 2030.
 
 Generate the release notes
 --------------------------
