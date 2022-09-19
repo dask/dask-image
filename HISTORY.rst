@@ -2,6 +2,46 @@
 History
 =======
 
+v2022.09.0 (2022-09-19)
+-----------------------
+
+We're pleased to announce the release of dask-image v2022.09.0!
+
+Not much has changed since the last release.
+Volker Hilsenstein has improved imread, which now uses natural sorting for strings.
+Fred Blunt has fixed deprecation warnings from scipy.ndimage,
+and we've also done some miscellaneous maintenance work.
+
+Improvements
+
+* Use natural sorting in  `imread(...)` when globbing multiple files  (#265)
+* Avoid DeprecationWarnings when importing scipy.ndimage filter functions (#261)
+
+
+Maintenance
+
+* Remove/add testing for python 3.6/3.9, update CI pinnings (#257)
+* Update docs theme for rebranding (#263)
+* Run CI on `main` (#264)
+
+
+6 authors added to this release (alphabetical)
+
+* `Charles Blackmon-Luca <https://github.com/dask/dask-image/commits?author=charlesbluca>`_ - @charlesbluca
+* `Fred Bunt <https://github.com/dask/dask-image/commits?author=fbunt>`_ - @fbunt
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Sarah Charlotte Johnson <https://github.com/dask/dask-image/commits?author=scharlottej13>`_ - @scharlottej13
+* `Volker Hilsenstein <https://github.com/dask/dask-image/commits?author=VolkerH>`_ - @VolkerH
+
+
+3 reviewers added to this release (alphabetical)
+
+* `Charles Blackmon-Luca <https://github.com/dask/dask-image/commits?author=charlesbluca>`_ - @charlesbluca
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+
+
 2021.12.0
 ----------
 
