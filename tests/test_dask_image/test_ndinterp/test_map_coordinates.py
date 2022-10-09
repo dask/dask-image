@@ -94,6 +94,11 @@ def test_map_coordinates_basic(n,
 @pytest.mark.timeout(3)
 def test_map_coordinates_large_input():
 
+    """
+    This test assesses whether relatively large
+    inputs are processed before timeout.
+    """
+
     # define large test image
     image_da = da.random.random([1000] * 3, chunks=200)
 
