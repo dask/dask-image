@@ -38,7 +38,7 @@ jobs:
 
       - name: Run tests
         shell: bash -l {0}
-        run: pytest -v
+        run: pytest -v --cov=dask_image
 
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@1.1.3
