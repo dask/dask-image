@@ -47,7 +47,7 @@ conda environment for building the dask-image documentation:
 
 .. code-block:: console
 
-    $ conda env create -f environment_doc.yml
+    $ conda env create -f continuous_integration/environment-doc.yml
     $ conda activate dask_image_doc_env
 
 This conda environment contains dask-image and its dependencies, sphinx,
