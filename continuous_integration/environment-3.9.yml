@@ -10,6 +10,7 @@ dependencies:
   - coverage==6.3
   - flake8==4.0.1
   - pytest==6.2.5
+  - pytest-cov==4.0.0
   - pytest-flake8==1.0.7
   - dask==2022.1.1
   - numpy==1.22.1
