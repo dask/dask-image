@@ -5,6 +5,7 @@ import math
 from itertools import product
 import warnings
 
+from dask import compute, delayed
 import dask.array as da
 import numpy as np
 from dask.base import tokenize
@@ -384,16 +385,14 @@ def spline_filter1d(
     return result
 
 
-def map_coordinates(image, coordinates, order=3,
+def _map_single_coordinates_array_chunk(image, coordinates, order=3,
                     mode='constant', cval=0.0, prefilter=False):
     """
-    Wraps ndimage.map_coordinates.
+    Central helper function for implementing map_coordinates.
 
-    Covers the use case in which the coordinates are non-dask arrays
-    and the input image array consists of a (potentially large) dask array.
+    Receives 'image' as a dask array and computed coordinates.
 
     Implementation details and steps:
-
     1) associate each coordinate in coordinates with the chunk
        it maps to in the input image
     2) for each input image chunk that has been associated to at least one
@@ -412,7 +411,7 @@ def map_coordinates(image, coordinates, order=3,
     coord_chunk_locations = np.array([
         np.searchsorted(np.cumsum(image.chunks[dim]), coordinates[dim])
         for dim in range(image.ndim)]).T
-    # associate coordinates with the chunks they map into
+    # associate coordinates_chunk with the chunks they map into
     required_input_chunks, coord_rc_inds, coord_rc_count = np.unique(
         coord_chunk_locations, axis=0, return_inverse=True, return_counts=True)
 
@@ -437,7 +436,7 @@ def map_coordinates(image, coordinates, order=3,
     # coordinates, define a dask task and apply ndimage.map_coordinates
 
     # prepare building of dask graph
-    name = "map_coordinates-%s" % tokenize(image,
+    name = "map_coordinates_chunk-%s" % tokenize(image,
                                            coordinates,
                                            order,
                                            mode,
@@ -471,4 +470,72 @@ def map_coordinates(image, coordinates, order=3,
     # to match input order
     orig_order = np.argsort([ic for rc_ci in rc_coord_inds for ic in rc_ci])
 
-    return ar[orig_order]
+    return ar[orig_order].compute()
+
+
+def map_coordinates(image, coordinates, order=3,
+                    mode='constant', cval=0.0, prefilter=False):
+    """
+    Wraps ndimage.map_coordinates.
+
+    Both the image and coordinate arrays can be dask arrays.
+
+    For each chunk in the coordinates array, the coordinates are computed
+    and mapped onto the required slices of the input image. One task is
+    is defined for each input image chunk that has been associated to at
+    least one coordinate. The outputs of the tasks are then rearranged to
+    match the input order. For more details see the docstring of
+    '_map_single_coordinates_array_chunk'.
+
+    image : array_like
+        The input array.
+    coordinates : array_like
+        The coordinates at which to sample the input.
+    order : int, optional
+        The order of the spline interpolation, default is 3. The order has to
+        be in the range 0-5.
+    mode : boundary behavior mode, optional
+    cval : float, optional
+        Value to fill past edges of input if mode is 'constant'. Default is 0.0
+    prefilter : bool, optional
+
+    Comments:
+     - in case of a small coordinate array, it might make sense to rechunk
+       it into a single chunk
+    """
+
+    # if coordinate array is not a dask array, convert it into one
+    if type(coordinates) is not da.Array:
+        coordinates = da.from_array(coordinates, chunks=coordinates.shape)
+    else:
+        # make sure indices are not split across chunks, i.e. that there's
+        # no chunking along the first dimension 
+        if len(coordinates.chunks[0]) > 1:
+            coordinates = da.rechunk(coordinates,
+                                    (-1,) + coordinates.chunks[1:])
+
+    # if image array is not a dask array, convert it into one
+    if type(image) is not da.Array:
+        image = da.from_array(image, chunks=image.shape)
+
+    # Map each chunk of the coordinates array onto the entire input image.
+    # 'image' is passed to `_map_single_coordinates_array_chunk` using a
+    # dirty trick: it is split into its components and passed as a delayed
+    # object, which reconstructs the original array when the task is
+    # executed. Therefore two `compute` calls are required to obtain the
+    # final result, one of which is peformed by
+    # `_map_single_coordinates_array_chunk`
+    output = da.map_blocks(
+        _map_single_coordinates_array_chunk,
+        delayed(da.Array)(image.dask, image.name, image.chunks, image.dtype),
+        coordinates,
+        order=order,
+        mode=mode,
+        cval=cval,
+        prefilter=prefilter,
+        dtype=image.dtype,
+        chunks=coordinates.chunks[1:],
+        drop_axis=0,
+    )
+
+    return output

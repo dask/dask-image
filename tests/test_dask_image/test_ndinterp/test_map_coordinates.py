@@ -51,6 +51,7 @@ def validate_map_coordinates_general(n=2,
 
     # define test coordinates
     coords = np.random.random((n, coord_len)) * im_shape_per_dim + coord_offset
+    coords_da = da.from_array(coords, chunks=(n, coord_chunksize))
 
     # ndimage result
     ints_scipy = scipy.ndimage.map_coordinates(
@@ -65,7 +66,7 @@ def validate_map_coordinates_general(n=2,
     # dask-image result
     ints_dask = dask_image.ndinterp.map_coordinates(
         image_da,
-        coords,
+        coords_da,
         order=interp_order,
         mode=interp_mode,
         cval=0.0,
