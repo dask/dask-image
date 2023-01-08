@@ -44,37 +44,38 @@ def validate_map_coordinates_general(n=2,
         # not clear on the underlying cause, but this fails on older SciPy
         pytest.skip("requires SciPy >= 1.6.0")
 
-    # define test image
+    # define test input
     np.random.seed(random_seed)
-    image = np.random.random([im_shape_per_dim] * n)
-    image_da = da.from_array(image, chunks=im_chunksize_per_dim)
+    input = np.random.random([im_shape_per_dim] * n)
+    input_da = da.from_array(input, chunks=im_chunksize_per_dim)
 
     # define test coordinates
     coords = np.random.random((n, coord_len)) * im_shape_per_dim + coord_offset
     coords_da = da.from_array(coords, chunks=(n, coord_chunksize))
 
     # ndimage result
-    ints_scipy = scipy.ndimage.map_coordinates(
-        image,
+    mapped_scipy = scipy.ndimage.map_coordinates(
+        input,
         coords,
-        output=None,
         order=interp_order,
         mode=interp_mode,
         cval=0.0,
         prefilter=prefilter)
 
-    # dask-image result
-    ints_dask = dask_image.ndinterp.map_coordinates(
-        image_da,
-        coords_da,
-        order=interp_order,
-        mode=interp_mode,
-        cval=0.0,
-        prefilter=prefilter)
+    # dask-image results
+    for input_array in [input, input_da]:
+        for coords_array in [coords, coords_da]:
+            mapped_dask = dask_image.ndinterp.map_coordinates(
+                input_array,
+                coords_array,
+                order=interp_order,
+                mode=interp_mode,
+                cval=0.0,
+                prefilter=prefilter)
 
-    ints_dask_computed = ints_dask.compute()
+            mapped_dask_computed = mapped_dask.compute()
 
-    assert np.allclose(ints_scipy, ints_dask_computed)
+            assert np.allclose(mapped_scipy, mapped_dask_computed)
 
 
 @pytest.mark.parametrize("n",
