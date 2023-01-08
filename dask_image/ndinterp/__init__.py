@@ -482,7 +482,7 @@ def map_coordinates(input, coordinates, order=3,
 
     For each chunk in the coordinates array, the coordinates are computed
     and mapped onto the required slices of the input array. One task is
-    is defined for each input image chunk that has been associated to at
+    is defined for each input array chunk that has been associated to at
     least one coordinate. The outputs of the tasks are then rearranged to
     match the input order. For more details see the docstring of
     '_map_single_coordinates_array_chunk'.
