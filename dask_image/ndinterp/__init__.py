@@ -13,6 +13,7 @@ from dask.highlevelgraph import HighLevelGraph
 import scipy
 from scipy.ndimage import affine_transform as ndimage_affine_transform
 from scipy.ndimage import map_coordinates as ndimage_map_coordinates
+from scipy.ndimage import labeled_comprehension as ndimage_labeled_comprehension
 
 from ..dispatch._dispatch_ndinterp import (
     dispatch_affine_transform,
@@ -407,30 +408,47 @@ def _map_single_coordinates_array_chunk(input, coordinates, order=3,
     # STEP 1: Associate each coordinate in coordinates with
     # the chunk it maps to in the input array
 
-    # determine which chunk each coordinate maps to
-    coord_chunk_locations = np.array([
-        np.searchsorted(np.cumsum(input.chunks[dim]), coordinates[dim])
-        for dim in range(input.ndim)]).T
+    coord_chunk_locations = coordinates.T // np.array(input.chunksize)
+    
     # associate coordinates_chunk with the chunks they map into
-    required_input_chunks, coord_rc_inds, coord_rc_count = np.unique(
-        coord_chunk_locations, axis=0, return_inverse=True, return_counts=True)
+    input_chunk_locations = np.array([i for i in np.ndindex(input.numblocks)])
+    coordinate_chunk_indices = np.sum(coord_chunk_locations *\
+        np.array([np.product(input.numblocks[:dim])
+            for dim in range(input.ndim)])[::-1], axis=1, dtype=np.int64)
+    chunk_indices_count = np.bincount(coordinate_chunk_indices,
+                                      minlength=np.product(input.numblocks))
+    required_input_chunk_indices = np.where(chunk_indices_count > 0)[0]
+    required_input_chunks = input_chunk_locations[required_input_chunk_indices]
+    coord_rc_count = chunk_indices_count[required_input_chunk_indices]
 
     # STEP 2: for each input chunk that has been associated to at least
     # one coordinate, calculate the minimal slice required to map all
     # coordinates that are associated to it (note that resulting slice
     # coordinates can lie outside of the coordinate's chunk)
 
-    input_slices = np.ones((2, len(required_input_chunks), input.ndim)) * np.nan
-    rc_coord_inds = [np.where(coord_rc_inds == irc)[0]
-                     for irc in range(len(required_input_chunks))]
-    for ic, c in enumerate(coordinates.T):
+    input_slices_lower = np.array([np.clip(
+            ndimage_labeled_comprehension(
+                np.floor(coordinates[dim] - order // 2),
+                coordinate_chunk_indices,
+                required_input_chunk_indices,
+                np.min, np.int64, 0),
+            0, input.shape[dim] - 1)
+        for dim in range(input.ndim)])
 
-        input_slices[0][coord_rc_inds[ic]]\
-            = np.nanmin([input_slices[0][coord_rc_inds[ic]],
-                         np.floor(c - order // 2)], 0)
-        input_slices[1][coord_rc_inds[ic]]\
-            = np.nanmax([input_slices[1][coord_rc_inds[ic]],
-                         np.ceil(c + order // 2)], 0)
+    input_slices_upper = np.array([np.clip(
+            ndimage_labeled_comprehension(
+                np.ceil(coordinates[dim] + order // 2) + 1,
+                coordinate_chunk_indices,
+                required_input_chunk_indices,
+                np.max, np.int64, 0),
+            0, input.shape[dim])
+        for dim in range(input.ndim)])
+
+    input_slices = np.array([input_slices_lower, input_slices_upper])
+    input_slices = np.swapaxes(input_slices, 1, 2)
+
+    rc_coord_inds = [np.where(coordinate_chunk_indices == irc)[0]
+                     for irc in required_input_chunk_indices]
 
     # STEP 3: For each previously obtained slice and its associated
     # coordinates, define a dask task and apply ndimage.map_coordinates
@@ -447,16 +465,15 @@ def _map_single_coordinates_array_chunk(input, coordinates, order=3,
 
     values = []
     for irc, _rc in enumerate(required_input_chunks):
-        offset = np.min([np.max([[0] * input.ndim,
-                                 input_slices[0][irc].astype(np.int64)], 0),
-                         np.array(input.shape) - 1], 0)
-        sl = [slice(offset[dim],
-                    min(input.shape[dim], int(input_slices[1][irc][dim]) + 1))
-              for dim in range(input.ndim)]
+
+        ric_slice = [slice(input_slices[0][irc][dim],
+                           input_slices[1][irc][dim])
+                                for dim in range(input.ndim)]
+        ric_offset = input_slices[0][irc]
 
         values.append((ndimage_map_coordinates,
-                       input[tuple(sl)],
-                       coordinates[:, rc_coord_inds[irc]] - offset[:, None],
+                       input[tuple(ric_slice)],
+                       coordinates[:, rc_coord_inds[irc]] - ric_offset[:, None],
                        None,
                        order,
                        mode,
@@ -470,7 +487,8 @@ def _map_single_coordinates_array_chunk(input, coordinates, order=3,
     # to match input order
     orig_order = np.argsort([ic for rc_ci in rc_coord_inds for ic in rc_ci])
 
-    return ar[orig_order].compute()
+    # return ar[orig_order].compute()
+    return ar.compute()[orig_order]
 
 
 def map_coordinates(input, coordinates, order=3,
