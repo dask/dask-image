@@ -65,9 +65,7 @@ def test_generic_filter_shape_type(da_func):
 
 @pytest.mark.parametrize(
     "sp_func, da_func",
-    [
-        (scipy.ndimage.filters.generic_filter, dask_image.ndfilters.generic_filter),  # noqa: E501
-    ],
+    [(scipy.ndimage.generic_filter, dask_image.ndfilters.generic_filter)],
 )
 @pytest.mark.parametrize(
     "function, size, footprint",
@@ -112,9 +110,7 @@ def test_generic_filter_comprehensions(da_func):
 
 @pytest.mark.parametrize(
     "sp_func, da_func",
-    [
-        (scipy.ndimage.filters.generic_filter, dask_image.ndfilters.generic_filter),  # noqa: E501
-    ],
+    [(scipy.ndimage.generic_filter, dask_image.ndfilters.generic_filter)],
 )
 @pytest.mark.parametrize(
     "function, size, footprint, origin",

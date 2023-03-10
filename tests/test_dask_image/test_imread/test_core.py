@@ -95,3 +95,11 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pa
         assert (shape[0] % nframes) == d.chunks[0][-1]
 
     da.utils.assert_eq(a, d)
+
+
+def test_tiff_imread_glob_natural_sort(tmpdir):
+    dirpth = tmpdir.mkdir("test_imread")
+    tifffile.imwrite(dirpth.join("10.tif"), np.array([10]))
+    tifffile.imwrite(dirpth.join("9.tif"), np.array([9]))
+    actual = np.array(dask_image.imread.imread(dirpth.join("*.tif")))
+    assert np.all(actual == np.array([[9], [10]]))

@@ -88,8 +88,8 @@ def test_convolutions_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.convolve, dask_image.ndfilters.convolve),
-        (scipy.ndimage.filters.correlate, dask_image.ndfilters.correlate),
+        (scipy.ndimage.convolve, dask_image.ndfilters.convolve),
+        (scipy.ndimage.correlate, dask_image.ndfilters.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -117,8 +117,8 @@ def test_convolutions_identity(sp_func,
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.convolve, dask_image.ndfilters.convolve),
-        (scipy.ndimage.filters.correlate, dask_image.ndfilters.correlate),
+        (scipy.ndimage.convolve, dask_image.ndfilters.convolve),
+        (scipy.ndimage.correlate, dask_image.ndfilters.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -152,5 +152,37 @@ def test_convolutions_compare(sp_func,
         ),
         da_func(
             d, weights, origin=origin
+        )
+    )
+@pytest.mark.parametrize(
+    "sp_func, da_func",
+    [
+        (scipy.ndimage.convolve, dask_image.ndfilters.convolve),
+        (scipy.ndimage.correlate, dask_image.ndfilters.correlate),
+    ]
+)
+@pytest.mark.parametrize(
+    "weights",
+    [
+     np.ones((1,5)),
+     np.ones((5,1)),
+    ]
+)
+@pytest.mark.parametrize(
+    "mode",
+    ["reflect","wrap","nearest","constant","mirror"])
+def test_convolutions_modes(sp_func,
+                            da_func,
+                            weights,
+                            mode):
+    a = np.arange(140).reshape(10,14)
+    d = da.from_array(a,chunks =(5, 7))
+    
+    da.utils.assert_eq(
+        sp_func(
+            a, weights, mode = mode
+        ),
+        da_func(
+            d, weights, mode = mode
         )
     )
