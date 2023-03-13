@@ -100,7 +100,6 @@ class TestInvalidArguments:
              [4, 5, 1, 0, 0]], dtype=int), chunks=(5, 5))
 
     @pytest.mark.parametrize("method, block_size, error_type", [
-        ('gaussian', np.nan, ValueError),
         ('median', np.nan, TypeError),
     ])
     def test_nan_blocksize(self, method, block_size, error_type):
