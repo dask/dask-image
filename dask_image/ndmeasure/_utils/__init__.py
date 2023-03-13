@@ -5,11 +5,6 @@ import dask
 import dask.array as da
 import numpy as np
 
-try:
-    from dask.array import blockwise as da_blockwise
-except ImportError:
-    from dask.array import atop as da_blockwise
-
 
 def _norm_input_labels_index(image, label_image=None, index=None):
     """
@@ -68,7 +63,7 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
         for i, c in enumerate(chunks)
     ]
 
-    indices = da_blockwise(
+    indices = da.blockwise(
         _ravel_shape_indices_kernel, tuple(range(len(indices))),
         *sum([(a, (i,)) for i, a in enumerate(indices)], tuple()),
         dtype=dtype
