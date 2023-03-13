@@ -6,6 +6,7 @@ __all__ = [
     "laplace",
     "prewitt",
     "sobel",
+    "gaussian",
     "gaussian_filter",
     "gaussian_gradient_magnitude",
     "gaussian_laplace",
@@ -22,8 +23,8 @@ __all__ = [
 from ._conv import convolve, correlate
 from ._diff import laplace
 from ._edge import prewitt, sobel
-from ._gaussian import (gaussian_filter, gaussian_gradient_magnitude,
-                        gaussian_laplace)
+from ._gaussian import (gaussian, gaussian_filter,
+                        gaussian_gradient_magnitude, gaussian_laplace)
 from ._generic import generic_filter
 from ._order import (maximum_filter, median_filter, minimum_filter,
                      percentile_filter, rank_filter)
@@ -38,6 +39,7 @@ laplace.__module__ = __name__
 prewitt.__module__ = __name__
 sobel.__module__ = __name__
 
+gaussian.__module__ = __name__
 gaussian_filter.__module__ = __name__
 gaussian_gradient_magnitude.__module__ = __name__
 gaussian_laplace.__module__ = __name__
