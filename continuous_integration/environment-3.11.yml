@@ -1,0 +1,20 @@
+name: dask-image-testenv-py311
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11.*
+  - pip
+  - wheel
+  - coverage
+  - flake8
+  - pytest
+  - pytest-cov
+  - pytest-flake8
+  - dask
+  - numpy
+  - scipy
+  - scikit-image
+  - pims
+  - slicerator
