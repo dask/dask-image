@@ -33,6 +33,7 @@ requirements = [
     "numpy >=1.11.3",
     "scipy >=0.19.1",
     "pims >=0.4.1",
+    "tifffile >=2018.10.18",
 ]
 
 test_requirements = [
@@ -40,7 +41,6 @@ test_requirements = [
     "pytest >=3.0.5",
     "pytest-flake8 >=0.8.1",
     "pytest-timeout >=1.0.0",
-    "tifffile >=2018.10.18",
 ]
 
 cmdclasses = {
