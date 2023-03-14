@@ -8,8 +8,6 @@ import numpy as np
 import pims
 from tifffile import natural_sorted
 
-from . import _utils
-
 
 def imread(fname, nframes=1, *, arraytype="numpy"):
     """
@@ -98,4 +96,9 @@ def _map_read_frame(x, multiple_files, block_info=None, **kwargs):
     else:
         i, j = block_info[None]['array-location'][0]
 
-    return _utils._read_frame(fn=fn, i=slice(i, j), **kwargs)
+    return _read_frame(fn=fn, i=slice(i, j), **kwargs)
+
+
+def _read_frame(fn, i, *, arrayfunc=np.asanyarray):
+    with pims.open(fn) as imgs:
+        return arrayfunc(imgs[i])
