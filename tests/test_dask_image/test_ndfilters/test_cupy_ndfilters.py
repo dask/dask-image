@@ -51,6 +51,7 @@ def test_cupy_edge(array, func):
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func", [
+    dask_image.ndfilters.gaussian,
     dask_image.ndfilters.gaussian_filter,
     dask_image.ndfilters.gaussian_gradient_magnitude,
     dask_image.ndfilters.gaussian_laplace,
