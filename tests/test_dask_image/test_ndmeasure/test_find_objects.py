@@ -49,6 +49,12 @@ def label_image_with_empty_chunk():
     return label_image
 
 
+def test_find_objects_err(label_image):
+    label_image = label_image.astype(float)
+    with pytest.raises(ValueError):
+        dask_image.ndmeasure.find_objects(label_image)
+
+
 def test_find_objects(label_image):
     result = dask_image.ndmeasure.find_objects(label_image)
     assert isinstance(result, dd.DataFrame)
