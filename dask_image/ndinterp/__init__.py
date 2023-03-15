@@ -251,13 +251,11 @@ def affine_transform(
 
 def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
            mode='constant', cval=0.0, prefilter=False,output_chunks=None,output_shape=None):
-    """
-    
-    Rotate an array using Dask. Chunkwise processing is performed
-    using dask_image.ndinterp.affine_transform
+    """Rotate an array using Dask.
 
     The array is rotated in the plane defined by the two axes given by the
     `axes` parameter using spline interpolation of the requested order.
+    Chunkwise processing is performed using dask_image.ndinterp.affine_transform.
 
     Parameters
     ----------
@@ -290,12 +288,11 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
           (affecting the output in case of interpolation `order > 1`)
         - default order is 1
         - modes 'reflect', 'mirror' and 'wrap' are not supported
-        
+
         Arguments equal to `ndimage.affine_rotate`,
         except for `output_chunks`.
 
     .. versionadded:: 1.6.0
-
 
     Examples
     --------
@@ -323,22 +320,19 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     (724, 724)
 
     """
-  #  input_arr = input#np.asarray(input)
-  
-  
     if not type(input_arr) == da.core.Array:
         input_arr = da.from_array(input_arr)
-    
+
     if output_shape is None:
         output_shape = input_arr.shape
 
     ndim = input_arr.ndim
-    
+
     if reshape & (output_shape != None):
         warnings.warn('Both reshaping desired and output_shape provided.'
                       'Will use the explicit output_shape.', UserWarning)
 
-    
+
     if ndim < 2:
         raise ValueError('input array should be at least 2D')
 
@@ -366,7 +360,7 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
     img_shape = np.asarray(input_arr.shape)
     in_plane_shape = img_shape[axes]
-    
+
     if reshape:
         # Compute transformed input bounds
         iy, ix = in_plane_shape
@@ -376,14 +370,14 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
         out_plane_shape = (out_bounds.ptp(axis=1) + 0.5).astype(int)
     else:
         out_plane_shape = img_shape[axes]
-    
-    if output_shape is None:        
+
+    if output_shape is None:
         output_shape = img_shape
         output_shape[axes] = out_plane_shape
     else:
         out_plane_shape = np.asarray(output_shape)[axes]
-        
-    
+
+
     out_center = rot_matrix @ ((out_plane_shape - 1) / 2)
     in_center = (in_plane_shape - 1) / 2
     offset = in_center - out_center
@@ -391,26 +385,26 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
 
 
-    if ndim <= 2:        
-            
+    if ndim <= 2:
+
         output = affine_transform(input_arr, rot_matrix,
                                   offset=offset, output_shape=tuple(output_shape),
                                   order=order, mode=mode, cval=cval,
                                   prefilter=prefilter,output_chunks=output_chunks)
-        
-        
+
+
     elif ndim >= 3:
         rotmat_nd = np.eye(ndim)
         offset_nd = np.zeros(ndim)
-        
+
         for o_x,idx in enumerate(axes):
-            
+
             rotmat_nd[idx,axes[0]] = rot_matrix[o_x,0]
             rotmat_nd[idx,axes[1]] = rot_matrix[o_x,1]
-    
+
             offset_nd[idx] = offset[o_x]
 
-        
+
         output = affine_transform(input_arr, rotmat_nd,
                                   offset=offset_nd, output_shape=tuple(output_shape),
                                   order=order, mode=mode, cval=cval,
