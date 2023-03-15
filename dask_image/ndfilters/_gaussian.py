@@ -3,14 +3,13 @@
 
 import numbers
 
-import numpy
-import scipy.ndimage.filters
+import numpy as np
+import scipy.ndimage
 
-from . import _utils
 from ..dispatch._dispatch_ndfilters import (
-    dispatch_gaussian_filter,
-    dispatch_gaussian_gradient_magnitude,
+    dispatch_gaussian_filter, dispatch_gaussian_gradient_magnitude,
     dispatch_gaussian_laplace)
+from . import _utils
 
 __all__ = [
     "gaussian_filter",
@@ -23,9 +22,9 @@ __all__ = [
 def _get_sigmas(image, sigma):
     ndim = image.ndim
 
-    nsigmas = numpy.array(sigma)
+    nsigmas = np.array(sigma)
     if nsigmas.ndim == 0:
-        nsigmas = numpy.array(ndim * [nsigmas[()]])
+        nsigmas = np.array(ndim * [nsigmas[()]])
 
     if nsigmas.ndim != 1:
         raise RuntimeError(
@@ -46,17 +45,17 @@ def _get_sigmas(image, sigma):
 
 
 def _get_border(image, sigma, truncate):
-    sigma = numpy.array(_get_sigmas(image, sigma))
+    sigma = np.array(_get_sigmas(image, sigma))
 
     if not isinstance(truncate, numbers.Real):
         raise TypeError("Must have a real truncate value.")
 
-    half_shape = tuple(numpy.ceil(sigma * truncate).astype(int))
+    half_shape = tuple(np.ceil(sigma * truncate).astype(int))
 
     return half_shape
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.gaussian_filter)
+@_utils._update_wrapper(scipy.ndimage.gaussian_filter)
 def gaussian_filter(image,
                     sigma,
                     order=0,
@@ -99,7 +98,7 @@ def gaussian(image,
                            truncate=truncate)
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.gaussian_gradient_magnitude)
+@_utils._update_wrapper(scipy.ndimage.gaussian_gradient_magnitude)
 def gaussian_gradient_magnitude(image,
                                 sigma,
                                 mode='reflect',
@@ -127,7 +126,7 @@ def gaussian_gradient_magnitude(image,
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.gaussian_laplace)
+@_utils._update_wrapper(scipy.ndimage.gaussian_laplace)
 def gaussian_laplace(image,
                      sigma,
                      mode='reflect',

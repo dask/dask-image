@@ -3,10 +3,10 @@
 
 import numbers
 
-import scipy.ndimage.filters
+import scipy.ndimage
 
-from . import _utils
 from ..dispatch._dispatch_ndfilters import dispatch_prewitt, dispatch_sobel
+from . import _utils
 
 __all__ = [
     "prewitt",
@@ -21,7 +21,7 @@ def _validate_axis(ndim, axis):
         raise ValueError("The axis is out of range.")
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.prewitt)
+@_utils._update_wrapper(scipy.ndimage.prewitt)
 def prewitt(image, axis=-1, mode='reflect', cval=0.0):
     _validate_axis(image.ndim, axis)
 
@@ -39,7 +39,7 @@ def prewitt(image, axis=-1, mode='reflect', cval=0.0):
     return result
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.sobel)
+@_utils._update_wrapper(scipy.ndimage.sobel)
 def sobel(image, axis=-1, mode='reflect', cval=0.0):
     _validate_axis(image.ndim, axis)
 

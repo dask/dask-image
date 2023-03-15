@@ -1,20 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
 import numbers
 from distutils.version import LooseVersion
 
 import pytest
-
 import numpy as np
 import scipy as sp
-import scipy.ndimage.fourier as sp_ndf
+import scipy.ndimage
 
 import dask.array as da
-import dask.array.utils as dau
-import dask_image.ndfourier as da_ndf
+import dask_image.ndfourier
 
 
 @pytest.mark.parametrize(
@@ -38,7 +33,7 @@ import dask_image.ndfourier as da_ndf
     ]
 )
 def test_fourier_filter_err(funcname, err_type, s, n):
-    da_func = getattr(da_ndf, funcname)
+    da_func = getattr(dask_image.ndfourier, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
@@ -62,8 +57,8 @@ def test_fourier_filter_err(funcname, err_type, s, n):
     ]
 )
 def test_fourier_filter_identity(funcname, s):
-    da_func = getattr(da_ndf, funcname)
-    sp_func = getattr(sp_ndf, funcname)
+    da_func = getattr(dask_image.ndfourier, funcname)
+    sp_func = getattr(scipy.ndimage.fourier, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
@@ -73,8 +68,8 @@ def test_fourier_filter_identity(funcname, s):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(d, r_d)
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(d, r_d)
+    da.utils.assert_eq(r_a, r_d)
 
 
 @pytest.mark.parametrize(
@@ -109,8 +104,8 @@ def test_fourier_filter_type(funcname, upcast_type, dtype):
 
     s = 1
 
-    da_func = getattr(da_ndf, funcname)
-    sp_func = getattr(sp_ndf, funcname)
+    da_func = getattr(dask_image.ndfourier, funcname)
+    sp_func = getattr(scipy.ndimage.fourier, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(dtype)
     d = da.from_array(a, chunks=(5, 7))
@@ -120,7 +115,7 @@ def test_fourier_filter_type(funcname, upcast_type, dtype):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(r_a, r_d)
 
     if issubclass(dtype, upcast_type):
         assert r_d.real.dtype.type is np.float64
@@ -151,8 +146,8 @@ def test_fourier_filter_chunks(funcname, shape, chunks):
 
     s = 1
 
-    da_func = getattr(da_ndf, funcname)
-    sp_func = getattr(sp_ndf, funcname)
+    da_func = getattr(dask_image.ndfourier, funcname)
+    sp_func = getattr(scipy.ndimage.fourier, funcname)
 
     a = np.arange(np.prod(shape)).reshape(shape).astype(dtype)
     d = da.from_array(a, chunks=chunks)
@@ -162,7 +157,7 @@ def test_fourier_filter_chunks(funcname, shape, chunks):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(r_a, r_d)
 
 
 @pytest.mark.parametrize(
@@ -184,8 +179,8 @@ def test_fourier_filter_chunks(funcname, shape, chunks):
     ]
 )
 def test_fourier_filter_non_positive(funcname, s):
-    da_func = getattr(da_ndf, funcname)
-    sp_func = getattr(sp_ndf, funcname)
+    da_func = getattr(dask_image.ndfourier, funcname)
+    sp_func = getattr(scipy.ndimage.fourier, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
@@ -195,7 +190,7 @@ def test_fourier_filter_non_positive(funcname, s):
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(r_a, r_d)
 
 
 @pytest.mark.parametrize(
@@ -218,16 +213,30 @@ def test_fourier_filter_non_positive(funcname, s):
         "fourier_uniform",
     ]
 )
-def test_fourier_filter(funcname, s):
-    da_func = getattr(da_ndf, funcname)
-    sp_func = getattr(sp_ndf, funcname)
 
-    a = np.arange(140.0).reshape(10, 14).astype(complex)
+
+@pytest.mark.parametrize(
+    "real_fft, axis",
+    [
+        (True, -1),
+        (True, 0),
+        (False, -1),
+    ]
+)
+def test_fourier_filter(funcname, s, real_fft, axis):
+    da_func = getattr(dask_image.ndfourier, funcname)
+    sp_func = getattr(scipy.ndimage.fourier, funcname)
+
+    shape = (10, 14)
+    n = 2 * shape[axis] - 1 if real_fft else -1
+    dtype = np.float64 if real_fft else np.complex128
+
+    a = np.arange(140.0).reshape(shape).astype(dtype)
     d = da.from_array(a, chunks=(5, 7))
 
-    r_a = sp_func(a, s)
-    r_d = da_func(d, s)
+    r_a = sp_func(a, s, n=n, axis=axis)
+    r_d = da_func(d, s, n=n, axis=axis)
 
     assert d.chunks == r_d.chunks
 
-    dau.assert_eq(r_a, r_d)
+    da.utils.assert_eq(r_a, r_d)

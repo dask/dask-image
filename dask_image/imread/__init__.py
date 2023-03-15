@@ -1,21 +1,12 @@
 # -*- coding: utf-8 -*-
-
-
-__author__ = """John Kirkham"""
-__email__ = "kirkhamj@janelia.hhmi.org"
-
-
 import glob
 import numbers
 import warnings
 
-import dask
-import dask.array
-import dask.delayed
-import numpy
+import dask.array as da
+import numpy as np
 import pims
-
-from . import _utils
+from tifffile import natural_sorted
 
 
 def imread(fname, nframes=1, *, arraytype="numpy"):
@@ -29,6 +20,8 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
     ----------
     fname : str or pathlib.Path
         A glob like string that may match one or multiple filenames.
+        Where multiple filenames match, they are sorted using
+        natural (as opposed to alphabetical) sort.
     nframes : int, optional
         Number of the frames to include in each chunk (default: 1).
     arraytype : str, optional
@@ -47,14 +40,14 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         raise ValueError("`nframes` must be greater than zero.")
 
     if arraytype == "numpy":
-        arrayfunc = numpy.asanyarray
+        arrayfunc = np.asanyarray
     elif arraytype == "cupy":   # pragma: no cover
         import cupy
         arrayfunc = cupy.asanyarray
 
     with pims.open(sfname) as imgs:
         shape = (len(imgs),) + imgs.frame_shape
-        dtype = numpy.dtype(imgs.pixel_type)
+        dtype = np.dtype(imgs.pixel_type)
 
     if nframes == -1:
         nframes = shape[0]
@@ -72,26 +65,25 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
             RuntimeWarning
         )
 
-    # place source filenames into dask array
-    filenames = sorted(glob.glob(sfname))  # pims also does this
+    # place source filenames into dask array after sorting
+    filenames = natural_sorted(glob.glob(sfname))
     if len(filenames) > 1:
-        ar = dask.array.from_array(filenames, chunks=(nframes,))
+        ar = da.from_array(filenames, chunks=(nframes,))
         multiple_files = True
     else:
-        ar = dask.array.from_array(filenames * shape[0], chunks=(nframes,))
+        ar = da.from_array(filenames * shape[0], chunks=(nframes,))
         multiple_files = False
 
     # read in data using encoded filenames
     a = ar.map_blocks(
         _map_read_frame,
-        chunks=dask.array.core.normalize_chunks(
+        chunks=da.core.normalize_chunks(
             (nframes,) + shape[1:], shape),
         multiple_files=multiple_files,
         new_axis=list(range(1, len(shape))),
         arrayfunc=arrayfunc,
         meta=arrayfunc([]).astype(dtype),  # meta overwrites `dtype` argument
     )
-
     return a
 
 
@@ -104,4 +96,9 @@ def _map_read_frame(x, multiple_files, block_info=None, **kwargs):
     else:
         i, j = block_info[None]['array-location'][0]
 
-    return _utils._read_frame(fn=fn, i=slice(i, j), **kwargs)
+    return _read_frame(fn=fn, i=slice(i, j), **kwargs)
+
+
+def _read_frame(fn, i, *, arrayfunc=np.asanyarray):
+    with pims.open(fn) as imgs:
+        return arrayfunc(imgs[i])

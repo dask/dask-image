@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 
-import scipy.ndimage.filters
+import scipy.ndimage
 
+from ..dispatch._dispatch_ndfilters import dispatch_uniform_filter
 from . import _utils
 from ._gaussian import gaussian_filter
-from ..dispatch._dispatch_ndfilters import dispatch_uniform_filter
 
 __all__ = [
     "uniform_filter",
@@ -14,7 +14,7 @@ __all__ = [
 gaussian_filter = gaussian_filter
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.uniform_filter)
+@_utils._update_wrapper(scipy.ndimage.uniform_filter)
 def uniform_filter(image,
                    size=3,
                    mode='reflect',

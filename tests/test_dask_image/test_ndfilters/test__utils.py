@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
 import inspect
 
 import pytest
-
-import numpy
+import numpy as np
 
 from dask_image.ndfilters import _utils
 
@@ -122,9 +118,9 @@ def test_errs__get_origin(err_type, size, origin):
     "err_type, ndim, size, footprint",
     [
         (RuntimeError, 1, None, None),
-        (RuntimeError, 1, [2], numpy.ones((2,), dtype=bool)),
-        (RuntimeError, 1, None, numpy.ones((1, 2), dtype=bool)),
-        (RuntimeError, 1, None, numpy.ones([0], dtype=bool)),
+        (RuntimeError, 1, [2], np.ones((2,), dtype=bool)),
+        (RuntimeError, 1, None, np.ones((1, 2), dtype=bool)),
+        (RuntimeError, 1, None, np.ones([0], dtype=bool)),
     ]
 )
 def test_errs__get_footprint(err_type, ndim, size, footprint):
@@ -185,8 +181,8 @@ def test__get_depth(expected, size, origin):
 @pytest.mark.parametrize(
     "expected, ndim, size, footprint",
     [
-        (numpy.ones((2,), dtype=bool), 1, 2, None),
-        (numpy.ones((2,), dtype=bool), 1, None, numpy.ones((2,), dtype=bool)),
+        (np.ones((2,), dtype=bool), 1, 2, None),
+        (np.ones((2,), dtype=bool), 1, None, np.ones((2,), dtype=bool)),
     ]
 )
 def test__get_footprint(expected, ndim, size, footprint):

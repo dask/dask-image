@@ -1,31 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
 import pytest
-
 import numpy as np
-import scipy.ndimage.filters as sp_ndf
+import scipy.ndimage
 
-import dask
 import dask.array as da
-import dask.array.utils as dau
 
-import dask_image.ndfilters as da_ndf
-
-
-assert dask
+import dask_image.ndfilters
 
 
 @pytest.mark.parametrize(
     "da_func, extra_kwargs",
     [
-        (da_ndf.minimum_filter, {}),
-        (da_ndf.median_filter, {}),
-        (da_ndf.maximum_filter, {}),
-        (da_ndf.rank_filter, {"rank": 0}),
-        (da_ndf.percentile_filter, {"percentile": 0}),
+        (dask_image.ndfilters.minimum_filter, {}),
+        (dask_image.ndfilters.median_filter, {}),
+        (dask_image.ndfilters.maximum_filter, {}),
+        (dask_image.ndfilters.rank_filter, {"rank": 0}),
+        (dask_image.ndfilters.percentile_filter, {"percentile": 0}),
     ]
 )
 @pytest.mark.parametrize(
@@ -67,11 +58,11 @@ def test_order_filter_params(da_func,
 @pytest.mark.parametrize(
     "da_func, extra_kwargs",
     [
-        (da_ndf.minimum_filter, {}),
-        (da_ndf.median_filter, {}),
-        (da_ndf.maximum_filter, {}),
-        (da_ndf.rank_filter, {"rank": 0}),
-        (da_ndf.percentile_filter, {"percentile": 0}),
+        (dask_image.ndfilters.minimum_filter, {}),
+        (dask_image.ndfilters.median_filter, {}),
+        (dask_image.ndfilters.maximum_filter, {}),
+        (dask_image.ndfilters.rank_filter, {"rank": 0}),
+        (dask_image.ndfilters.percentile_filter, {"percentile": 0}),
     ]
 )
 def test_ordered_filter_shape_type(da_func,
@@ -91,16 +82,15 @@ def test_ordered_filter_shape_type(da_func,
 @pytest.mark.parametrize(
     "sp_func, da_func, extra_kwargs",
     [
-        (sp_ndf.minimum_filter,
-         da_ndf.minimum_filter, {}),
-        (sp_ndf.median_filter,
-         da_ndf.median_filter, {}),
-        (sp_ndf.maximum_filter,
-         da_ndf.maximum_filter, {}),
-        (sp_ndf.rank_filter,
-         da_ndf.rank_filter, {"rank": 0}),
-        (sp_ndf.percentile_filter,
-         da_ndf.percentile_filter, {"percentile": 0}),
+        (scipy.ndimage.minimum_filter,
+         dask_image.ndfilters.minimum_filter, {}),
+        (scipy.ndimage.median_filter, dask_image.ndfilters.median_filter, {}),
+        (scipy.ndimage.maximum_filter,
+         dask_image.ndfilters.maximum_filter, {}),
+        (scipy.ndimage.rank_filter,
+         dask_image.ndfilters.rank_filter, {"rank": 0}),
+        (scipy.ndimage.percentile_filter,
+         dask_image.ndfilters.percentile_filter, {"percentile": 0}),
     ]
 )
 @pytest.mark.parametrize(
@@ -119,11 +109,11 @@ def test_ordered_filter_identity(sp_func,
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(
+    da.utils.assert_eq(
         d, da_func(d, size=size, footprint=footprint, **extra_kwargs)
     )
 
-    dau.assert_eq(
+    da.utils.assert_eq(
         sp_func(a, size=size, footprint=footprint, **extra_kwargs),
         da_func(d, size=size, footprint=footprint, **extra_kwargs)
     )
@@ -132,11 +122,11 @@ def test_ordered_filter_identity(sp_func,
 @pytest.mark.parametrize(
     "da_func, kwargs",
     [
-        (da_ndf.minimum_filter, {"size": 1}),
-        (da_ndf.median_filter, {"size": 1}),
-        (da_ndf.maximum_filter, {"size": 1}),
-        (da_ndf.rank_filter, {"size": 1, "rank": 0}),
-        (da_ndf.percentile_filter, {"size": 1, "percentile": 0}),
+        (dask_image.ndfilters.minimum_filter, {"size": 1}),
+        (dask_image.ndfilters.median_filter, {"size": 1}),
+        (dask_image.ndfilters.maximum_filter, {"size": 1}),
+        (dask_image.ndfilters.rank_filter, {"size": 1, "rank": 0}),
+        (dask_image.ndfilters.percentile_filter, {"size": 1, "percentile": 0}),
     ]
 )
 def test_order_comprehensions(da_func, kwargs):
@@ -148,23 +138,22 @@ def test_order_comprehensions(da_func, kwargs):
     l2s = [da_func(d[i], **kwargs) for i in range(len(d))]
     l2c = [da_func(d[i], **kwargs)[None] for i in range(len(d))]
 
-    dau.assert_eq(np.stack(l2s), da.stack(l2s))
-    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
+    da.utils.assert_eq(np.stack(l2s), da.stack(l2s))
+    da.utils.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
 
 
 @pytest.mark.parametrize(
     "sp_func, da_func, extra_kwargs",
     [
-        (sp_ndf.minimum_filter,
-         da_ndf.minimum_filter, {}),
-        (sp_ndf.median_filter,
-         da_ndf.median_filter, {}),
-        (sp_ndf.maximum_filter,
-         da_ndf.maximum_filter, {}),
-        (sp_ndf.rank_filter,
-         da_ndf.rank_filter, {"rank": 1}),
-        (sp_ndf.percentile_filter,
-         da_ndf.percentile_filter, {"percentile": 10}),
+        (scipy.ndimage.minimum_filter,
+         dask_image.ndfilters.minimum_filter, {}),
+        (scipy.ndimage.median_filter, dask_image.ndfilters.median_filter, {}),
+        (scipy.ndimage.maximum_filter,
+         dask_image.ndfilters.maximum_filter, {}),
+        (scipy.ndimage.rank_filter,
+         dask_image.ndfilters.rank_filter, {"rank": 1}),
+        (scipy.ndimage.percentile_filter,
+         dask_image.ndfilters.percentile_filter, {"percentile": 10}),
     ]
 )
 @pytest.mark.parametrize(
@@ -194,7 +183,7 @@ def test_ordered_filter_compare(sp_func,
     a = np.arange(140.0).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
 
-    dau.assert_eq(
+    da.utils.assert_eq(
         sp_func(
             a, size=size, footprint=footprint, origin=origin, **extra_kwargs
         ),

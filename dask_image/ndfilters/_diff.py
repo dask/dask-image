@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 
-import scipy.ndimage.filters
+import scipy.ndimage
 
-from . import _utils
 from ..dispatch._dispatch_ndfilters import dispatch_laplace
+from . import _utils
 
 __all__ = [
     "laplace",
 ]
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.laplace)
+@_utils._update_wrapper(scipy.ndimage.laplace)
 def laplace(image, mode='reflect', cval=0.0):
     result = image.map_overlap(
         dispatch_laplace(image),

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-
-from __future__ import absolute_import
-
 import numbers
 import pathlib
 
@@ -12,7 +8,7 @@ import pytest
 import numpy as np
 import tifffile
 
-import dask.array.utils as dau
+import dask.array as da
 import dask_image.imread
 
 
@@ -65,7 +61,7 @@ def test_errs_imread(err_type, nframes):
         False,
     ]
 )
-def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pathlib_Path):
+def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pathlib_Path):  # noqa: E501
     np.random.seed(seed)
 
     dirpth = tmpdir.mkdir("test_imread")
@@ -98,4 +94,12 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, runtime_warning, dtype, is_pa
     else:
         assert (shape[0] % nframes) == d.chunks[0][-1]
 
-    dau.assert_eq(a, d)
+    da.utils.assert_eq(a, d)
+
+
+def test_tiff_imread_glob_natural_sort(tmpdir):
+    dirpth = tmpdir.mkdir("test_imread")
+    tifffile.imwrite(dirpth.join("10.tif"), np.array([10]))
+    tifffile.imwrite(dirpth.join("9.tif"), np.array([9]))
+    actual = np.array(dask_image.imread.imread(dirpth.join("*.tif")))
+    assert np.all(actual == np.array([[9], [10]]))

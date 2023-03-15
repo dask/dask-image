@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import scipy.ndimage.filters
+import scipy.ndimage
 
-from . import _utils
 from ..dispatch._dispatch_ndfilters import dispatch_generic_filter
+from . import _utils
 
 __all__ = [
     "generic_filter",
 ]
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.generic_filter)
+@_utils._update_wrapper(scipy.ndimage.generic_filter)
 def generic_filter(image,
                    function,
                    size=None,

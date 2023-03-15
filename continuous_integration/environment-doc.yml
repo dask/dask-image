@@ -1,0 +1,19 @@
+name: dask_image_doc_env
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.8.*
+  - pip==22.3
+  - wheel==0.37.1
+  - sphinx==5.3.0
+  - jinja2<3.1
+  - dask==2021.10.0
+  - numpy==1.23.4
+  - scipy==1.9.2
+  - scikit-image==0.19.3
+  - pims==0.6.1
+  - slicerator==1.1.0
+  - pip:
+      - dask-sphinx-theme>=3.0.0

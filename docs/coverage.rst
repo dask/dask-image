@@ -70,7 +70,7 @@ This table shows which SciPy ndimage functions are supported by dask-image.
      - ✓
    * - ``find_objects``
      - ✓
-     -
+     - ✓
    * - ``fourier_ellipsoid``
      - ✓
      -
@@ -205,10 +205,10 @@ This table shows which SciPy ndimage functions are supported by dask-image.
      - ✓
    * - ``spline_filter``
      - ✓
-     -
+     - ✓
    * - ``spline_filter1d``
      - ✓
-     -
+     - ✓
    * - ``standard_deviation``
      - ✓
      - ✓

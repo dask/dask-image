@@ -5,7 +5,7 @@ import dask.array as da
 import numpy as np
 import pytest
 
-from dask_image import ndmorph
+import dask_image.ndmorph
 
 cupy = pytest.importorskip("cupy", minversion="7.7.0")
 
@@ -20,10 +20,10 @@ def array():
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func", [
-    ndmorph.binary_closing,
-    ndmorph.binary_dilation,
-    ndmorph.binary_erosion,
-    ndmorph.binary_opening,
+    dask_image.ndmorph.binary_closing,
+    dask_image.ndmorph.binary_dilation,
+    dask_image.ndmorph.binary_erosion,
+    dask_image.ndmorph.binary_opening,
 ])
 def test_cupy_ndmorph(array, func):
     """Test convolve & correlate filters with cupy input arrays."""

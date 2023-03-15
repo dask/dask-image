@@ -1,19 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
 import numpy as np
-import scipy.ndimage.filters as sp_ndf
+import scipy.ndimage
 
-import dask
 import dask.array as da
-import dask.array.utils as dau
 
-import dask_image.ndfilters as da_ndf
-
-
-assert dask
+import dask_image.ndfilters
 
 
 def test_laplace_comprehensions():
@@ -22,11 +14,11 @@ def test_laplace_comprehensions():
     a = np.random.random((3, 12, 14))
     d = da.from_array(a, chunks=(3, 6, 7))
 
-    l2s = [da_ndf.laplace(d[i]) for i in range(len(d))]
-    l2c = [da_ndf.laplace(d[i])[None] for i in range(len(d))]
+    l2s = [dask_image.ndfilters.laplace(d[i]) for i in range(len(d))]
+    l2c = [dask_image.ndfilters.laplace(d[i])[None] for i in range(len(d))]
 
-    dau.assert_eq(np.stack(l2s), da.stack(l2s))
-    dau.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
+    da.utils.assert_eq(np.stack(l2s), da.stack(l2s))
+    da.utils.assert_eq(np.concatenate(l2c), da.concatenate(l2c))
 
 
 def test_laplace_compare():
@@ -34,7 +26,6 @@ def test_laplace_compare():
     a = np.arange(float(np.prod(s))).reshape(s)
     d = da.from_array(a, chunks=(5, 5, 6))
 
-    dau.assert_eq(
-        sp_ndf.laplace(a),
-        da_ndf.laplace(d)
+    da.utils.assert_eq(
+        scipy.ndimage.laplace(a), dask_image.ndfilters.laplace(d)
     )
