@@ -134,6 +134,7 @@ other_pull_requests = {}
 for pull in tqdm(
     g.search_issues(
         f'repo:{GH_USER}/{GH_REPO} '
+        f'is:pull-request '
         f'merged:>{previous_tag_date.isoformat()} '
         'sort:created-asc'
     ),
