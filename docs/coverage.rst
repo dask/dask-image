@@ -283,6 +283,10 @@ This table shows which SciPy ndimage functions are supported by dask-image.
      - ✓
      - ✓
      -
+   * - ``threshold_local``
+     - scikit-image function
+     - ✓
+     - ✓
    * - ``uniform_filter``
      - ✓
      - ✓
