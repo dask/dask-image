@@ -30,7 +30,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = [
     "dask[array] >=2021.10.0",
-    "numpy >=1.11.3",
+    "numpy >=1.18",
     "scipy >=0.19.1",
     "pims >=0.4.1",
     "tifffile >=2018.10.18",
