@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dask-image"
+authors = [{name="dask-image contributors"}]
+description = "Distributed image processing"
+readme = "README.md"
+license = { file="LICENSE.txt" }
+dynamic = ["version"]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "dask[array] >=2021.10.0",
+    "numpy >=1.11.3",
+    "scipy >=0.19.1",
+    "pims >=0.4.1",
+    "tifffile >=2018.10.18",
+]
+
+[project.optional-dependencies]
+test = [
+    "flake8 >=3.4.1",
+    "Flake8-pyproject",
+    "pandas",
+    "pytest >=3.0.5",
+    "pytest-flake8>=1.0.5",
+    "pytest-timeout >=1.0.0",
+]
+
+[project.urls]
+"Homepage" = "https://image.dask.org"
+"Bug Tracker" = "https://github.com/dask/dask-image/issues"
+"Source Code" = "https://github.com/dask/dask-image"
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[tool.pytest]
+addopts = "--flake8"
+markers = "cupy"
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "dask_image/_version.py"
+versionfile_build = "dask_image/_version.py"
+tag_prefix = "v"
+parentdir_prefix = "dask-image"
