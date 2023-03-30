@@ -56,6 +56,9 @@ universal = true
 addopts = "--flake8"
 markers = "cupy"
 
+[tool.flake8]
+exclude = "docs/conf.py,versioneer.py"
+
 [tool.versioneer]
 VCS = "git"
 style = "pep440"
