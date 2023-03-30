@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "dask-image"
 authors = [{name="dask-image contributors"}]
 description = "Distributed image processing"
+keywords = ["dask-image", "dask", "image"]
 readme = "README.md"
 license = { file="LICENSE.txt" }
 dynamic = ["version"]
