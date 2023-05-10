@@ -18,3 +18,4 @@ dependencies:
   - scikit-image==0.19.3
   - pims==0.6.1
   - slicerator==1.1.0
+  - pandas==2.0.0

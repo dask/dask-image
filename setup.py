@@ -29,7 +29,8 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    "dask[array] >=2021.10.0",
+    "dask[array] >=2023.2.0",
+    "dask[dataframe] >=2023.2.0",
     "numpy >=1.18",
     "scipy >=0.19.1",
     "pims >=0.4.1",
@@ -70,7 +71,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
