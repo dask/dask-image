@@ -35,6 +35,7 @@ requirements = [
     "scipy >=0.19.1",
     "pims >=0.4.1",
     "tifffile >=2018.10.18",
+    "pandas >=2.0.0",
 ]
 
 test_requirements = [
