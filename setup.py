@@ -29,12 +29,12 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    "dask[array] >=2021.10.0",
+    "dask[array] >=2023.2.0",
+    "dask[dataframe] >=2023.2.0",
     "numpy >=1.18",
     "scipy >=0.19.1",
     "pims >=0.4.1",
     "tifffile >=2018.10.18",
-    "pandas",
 ]
 
 test_requirements = [
