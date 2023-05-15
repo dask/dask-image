@@ -33,15 +33,15 @@ env
 gpuci_logger "Check GPU usage"
 nvidia-smi
 
-gpuci_logger "Activate conda env"
+gpuci_logger "Update conda environment"
 . /opt/conda/etc/profile.d/conda.sh
+gpuci_mamba_retry update -n dask_image -f "$WORKSPACE/continuous_integration/environment-$PYTHON_VER.yml"
+
+gpuci_logger "Activate conda env"
 conda activate dask_image
 
 gpuci_logger "Install cupy"
 python -m pip install cupy-cuda112 -f https://pip.cupy.dev/pre
-
-# gpuci_logger "Install dask"
-# python -m pip install git+https://github.com/dask/dask
 
 gpuci_logger "Install dask-image"
 python setup.py install
