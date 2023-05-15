@@ -35,7 +35,7 @@ nvidia-smi
 
 gpuci_logger "Update conda environment"
 . /opt/conda/etc/profile.d/conda.sh
-gpuci_mamba_retry update -n dask_image -f "$WORKSPACE/continuous_integration/environment-$PYTHON_VER.yml"
+gpuci_mamba_retry env update -n dask_image -f "$WORKSPACE/continuous_integration/environment-$PYTHON_VER.yml"
 
 gpuci_logger "Activate conda env"
 conda activate dask_image
