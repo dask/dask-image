@@ -363,6 +363,36 @@ def test_label(seed, prob, shape, chunks, connectivity):
 
 
 @pytest.mark.parametrize(
+    "ndim", (2, 3, 4, 5)
+)
+def test_label_full_struct_element(ndim):
+
+    full_s = scipy.ndimage.generate_binary_structure(ndim, ndim)
+    orth_s = scipy.ndimage.generate_binary_structure(ndim, ndim - 1)
+
+    # create a mask that represents a single connected component
+    # under the full (highest rank) structuring element
+    # but several connected components under the orthogonal
+    # structuring element
+    mask = full_s ^ orth_s
+    mask[tuple([1] * ndim)] = True
+
+    # create dask array with chunk boundary
+    # that passes through the mask
+    mask_da = da.from_array(mask, chunks=[2] * ndim)
+
+    labels_ndi, N_ndi = scipy.ndimage.label(mask, structure=full_s)
+    labels_di_da, N_di_da = dask_image.ndmeasure.label(
+        mask_da, structure=full_s)
+    
+    assert N_ndi == N_di_da.compute()
+
+    _assert_equivalent_labeling(
+        labels_ndi,
+        labels_di_da.compute())
+
+
+@pytest.mark.parametrize(
     "shape, chunks, ind", [
         ((15, 16), (4, 5), None),
         ((5, 6, 4), (2, 3, 2), None),

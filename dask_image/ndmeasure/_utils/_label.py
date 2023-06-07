@@ -151,7 +151,7 @@ def label_adjacency_graph(labels, structure, nlabels):
         This matrix has value 1 at (i, j) if label i is connected to
         label j in the global volume, 0 everywhere else.
     """
-    faces = _chunk_faces(labels.chunks, labels.shape)
+    faces = _chunk_faces(labels.chunks, labels.shape, structure)
     all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
     for face_slice in faces:
         face = labels[face_slice]
@@ -163,7 +163,7 @@ def label_adjacency_graph(labels, structure, nlabels):
     return mat
 
 
-def _chunk_faces(chunks, shape):
+def _chunk_faces(chunks, shape, structure):
     """
     Return slices for two-pixel-wide boundaries between chunks.
 
@@ -173,6 +173,8 @@ def _chunk_faces(chunks, shape):
         The chunk specification of the array.
     shape : tuple of int
         The shape of the array.
+    structure: array of bool
+        Structuring element, shape (3,) * ndim.
 
     Returns
     -------
@@ -182,8 +184,10 @@ def _chunk_faces(chunks, shape):
     Examples
     --------
     >>> import dask.array as da
+    >>> import scipy.ndimage as ndi
     >>> a = da.arange(110, chunks=110).reshape((10, 11)).rechunk(5)
-    >>> chunk_faces(a.chunks, a.shape)
+    >>> structure = ndi.generate_binary_structure(2, 1)
+    >>> chunk_faces(a.chunks, a.shape, structure)
     [(slice(4, 6, None), slice(0, 5, None)),
      (slice(4, 6, None), slice(5, 10, None)),
      (slice(4, 6, None), slice(10, 11, None)),
@@ -192,16 +196,45 @@ def _chunk_faces(chunks, shape):
      (slice(5, 10, None), slice(4, 6, None)),
      (slice(5, 10, None), slice(9, 11, None))]
     """
-    slices = da.core.slices_from_chunks(chunks)
+
     ndim = len(shape)
+    numblocks = tuple(list(len(c) for c in chunks))
+    
+    slices = da.core.slices_from_chunks(chunks)
+    
+    # arrange block/chunk indices on grid
+    block_summary = np.arange(len(slices)).reshape(numblocks)
+    
     faces = []
-    for ax in range(ndim):
-        for sl in slices:
-            if sl[ax].stop == shape[ax]:
-                continue
-            slice_to_append = list(sl)
-            slice_to_append[ax] = slice(sl[ax].stop - 1, sl[ax].stop + 1)
-            faces.append(tuple(slice_to_append))
+    for ind_curr_block, curr_block in enumerate(np.ndindex(numblocks)):
+        
+        for pos_structure_coord in np.array(np.where(structure)).T:
+                        
+            # only consider forward neighbors
+            if min(pos_structure_coord) < 1 or \
+               max(pos_structure_coord) < 2: continue
+
+            neigh_block = [curr_block[dim] + pos_structure_coord[dim] - 1
+                           for dim in range(ndim)]
+
+            if max([neigh_block[dim] >= numblocks[dim] for dim in range(ndim)]): continue
+
+            # get neighbor slice index
+            ind_neigh_block = block_summary[tuple(neigh_block)]
+
+            curr_slice = []
+            for dim in range(ndim):
+                # keep slice if not on boundary
+                if slices[ind_curr_block][dim] == slices[ind_neigh_block][dim]:
+                    curr_slice.append(slices[ind_curr_block][dim])
+                # otherwise, add two-pixel-wide boundary
+                else:
+                    curr_slice.append(slice(
+                        slices[ind_curr_block][dim].stop - 1,
+                        slices[ind_curr_block][dim].stop + 1))
+                    
+            faces.append(tuple(curr_slice))
+            
     return faces
 
 
