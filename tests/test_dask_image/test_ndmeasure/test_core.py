@@ -337,6 +337,7 @@ def _assert_equivalent_labeling(labels0, labels1):
         (42, 0.4, (15, 16), (15, 16), 1),
         (42, 0.4, (15, 16), (4, 5), 1),
         (42, 0.4, (15, 16), (4, 5), 2),
+        (42, 0.4, (15, 16), (4, 5), None),
         (42, 0.4, (15, 16), (8, 5), 1),
         (42, 0.4, (15, 16), (8, 5), 2),
         (42, 0.3, (10, 8, 6), (5, 4, 3), 1),
@@ -350,7 +351,10 @@ def test_label(seed, prob, shape, chunks, connectivity):
     a = np.random.random(shape) < prob
     d = da.from_array(a, chunks=chunks)
 
-    s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
+    if connectivity is None:
+        s = None
+    else:
+        s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
 
     a_l, a_nl = scipy.ndimage.label(a, s)
     d_l, d_nl = dask_image.ndmeasure.label(d, s)

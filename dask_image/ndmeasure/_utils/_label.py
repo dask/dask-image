@@ -151,6 +151,10 @@ def label_adjacency_graph(labels, structure, nlabels):
         This matrix has value 1 at (i, j) if label i is connected to
         label j in the global volume, 0 everywhere else.
     """
+
+    if structure is None:
+        structure = scipy.ndimage.generate_binary_structure(labels.ndim, 1)
+
     faces = _chunk_faces(labels.chunks, labels.shape, structure)
     all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
     for face_slice in faces:
