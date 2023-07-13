@@ -58,7 +58,7 @@ def test_fourier_filter_err(funcname, err_type, s, n):
 )
 def test_fourier_filter_identity(funcname, s):
     da_func = getattr(dask_image.ndfourier, funcname)
-    sp_func = getattr(scipy.ndimage.fourier, funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
@@ -105,7 +105,7 @@ def test_fourier_filter_type(funcname, upcast_type, dtype):
     s = 1
 
     da_func = getattr(dask_image.ndfourier, funcname)
-    sp_func = getattr(scipy.ndimage.fourier, funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(dtype)
     d = da.from_array(a, chunks=(5, 7))
@@ -147,7 +147,7 @@ def test_fourier_filter_chunks(funcname, shape, chunks):
     s = 1
 
     da_func = getattr(dask_image.ndfourier, funcname)
-    sp_func = getattr(scipy.ndimage.fourier, funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
 
     a = np.arange(np.prod(shape)).reshape(shape).astype(dtype)
     d = da.from_array(a, chunks=chunks)
@@ -180,7 +180,7 @@ def test_fourier_filter_chunks(funcname, shape, chunks):
 )
 def test_fourier_filter_non_positive(funcname, s):
     da_func = getattr(dask_image.ndfourier, funcname)
-    sp_func = getattr(scipy.ndimage.fourier, funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
 
     a = np.arange(140.0).reshape(10, 14).astype(complex)
     d = da.from_array(a, chunks=(5, 7))
@@ -225,7 +225,7 @@ def test_fourier_filter_non_positive(funcname, s):
 )
 def test_fourier_filter(funcname, s, real_fft, axis):
     da_func = getattr(dask_image.ndfourier, funcname)
-    sp_func = getattr(scipy.ndimage.fourier, funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
 
     shape = (10, 14)
     n = 2 * shape[axis] - 1 if real_fft else -1
