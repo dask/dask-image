@@ -337,6 +337,7 @@ def _assert_equivalent_labeling(labels0, labels1):
         (42, 0.4, (15, 16), (15, 16), 1),
         (42, 0.4, (15, 16), (4, 5), 1),
         (42, 0.4, (15, 16), (4, 5), 2),
+        (42, 0.4, (15, 16), (4, 5), None),
         (42, 0.4, (15, 16), (8, 5), 1),
         (42, 0.4, (15, 16), (8, 5), 2),
         (42, 0.3, (10, 8, 6), (5, 4, 3), 1),
@@ -350,7 +351,10 @@ def test_label(seed, prob, shape, chunks, connectivity):
     a = np.random.random(shape) < prob
     d = da.from_array(a, chunks=chunks)
 
-    s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
+    if connectivity is None:
+        s = None
+    else:
+        s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
 
     a_l, a_nl = scipy.ndimage.label(a, s)
     d_l, d_nl = dask_image.ndmeasure.label(d, s)
@@ -360,6 +364,36 @@ def test_label(seed, prob, shape, chunks, connectivity):
     assert a_l.dtype == d_l.dtype
     assert a_l.shape == d_l.shape
     _assert_equivalent_labeling(a_l, d_l.compute())
+
+
+@pytest.mark.parametrize(
+    "ndim", (2, 3, 4, 5)
+)
+def test_label_full_struct_element(ndim):
+
+    full_s = scipy.ndimage.generate_binary_structure(ndim, ndim)
+    orth_s = scipy.ndimage.generate_binary_structure(ndim, ndim - 1)
+
+    # create a mask that represents a single connected component
+    # under the full (highest rank) structuring element
+    # but several connected components under the orthogonal
+    # structuring element
+    mask = full_s ^ orth_s
+    mask[tuple([1] * ndim)] = True
+
+    # create dask array with chunk boundary
+    # that passes through the mask
+    mask_da = da.from_array(mask, chunks=[2] * ndim)
+
+    labels_ndi, N_ndi = scipy.ndimage.label(mask, structure=full_s)
+    labels_di_da, N_di_da = dask_image.ndmeasure.label(
+        mask_da, structure=full_s)
+    
+    assert N_ndi == N_di_da.compute()
+
+    _assert_equivalent_labeling(
+        labels_ndi,
+        labels_di_da.compute())
 
 
 @pytest.mark.parametrize(
