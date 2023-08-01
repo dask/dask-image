@@ -155,7 +155,7 @@ def test_affine_transform_cupy(n,
                                interp_order,
                                input_output_chunksize_per_dim,
                                random_seed):
-    pytest.importorskip("cupy", minversion="6.0.0")
+    pytest.importorskip("cupy", minversion="5.0.0")
 
     kwargs = dict()
     kwargs['n'] = n
@@ -264,7 +264,7 @@ def test_affine_transform_type_consistency():
 @pytest.mark.cupy
 def test_affine_transform_type_consistency_gpu():
 
-    cupy = pytest.importorskip("cupy", minversion="6.0.0")
+    cupy = pytest.importorskip("cupy", minversion="5.0.0")
 
     image = da.ones((3, 3))
     image_t = dask_image.ndinterp.affine_transform(image, np.eye(2), [0, 0])
@@ -314,7 +314,7 @@ def test_affine_transform_large_input_small_output_gpu():
     """
     Make sure input array does not need to be computed entirely
     """
-    cupy = pytest.importorskip("cupy", minversion="6.0.0")
+    cupy = pytest.importorskip("cupy", minversion="5.0.0")
 
     # this array would occupy more than 24GB on a GPU
     image = da.random.random([2000] * 3, chunks=(50, 50, 50))

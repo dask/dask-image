@@ -7,7 +7,7 @@ import pytest
 
 from dask_image.ndfilters import threshold_local
 
-cupy = pytest.importorskip("cupy", minversion="7.7.0")
+cupy = pytest.importorskip("cupy", minversion="5.0.0")
 
 
 @pytest.mark.parametrize('block_size', [

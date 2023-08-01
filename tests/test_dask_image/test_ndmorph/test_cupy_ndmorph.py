@@ -7,7 +7,7 @@ import pytest
 
 import dask_image.ndmorph
 
-cupy = pytest.importorskip("cupy", minversion="7.7.0")
+cupy = pytest.importorskip("cupy", minversion="9.0.0")
 
 
 @pytest.fixture
