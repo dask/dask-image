@@ -24,9 +24,10 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "dask[array] >=2021.10.0",
+    "dask[array,dataframe] >=2023.2.0",
     "numpy >=1.11.3",
     "scipy >=0.19.1",
+    "pandas >=2.0.0",
     "pims >=0.4.1",
     "tifffile >=2018.10.18",
 ]
@@ -35,7 +36,6 @@ dependencies = [
 test = [
     "flake8 >=3.4.1",
     "Flake8-pyproject",
-    "pandas",
     "pytest >=3.0.5",
     "pytest-flake8>=1.0.5",
     "pytest-timeout >=1.0.0",
