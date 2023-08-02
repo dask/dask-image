@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=62.6", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -46,6 +46,9 @@ test = [
 "Bug Tracker" = "https://github.com/dask/dask-image/issues"
 "Source Code" = "https://github.com/dask/dask-image"
 
+[tool.setuptools_scm]
+root = "."
+
 [tool.setuptools.packages]
 find = {}
 
@@ -58,11 +61,3 @@ markers = "cupy"
 
 [tool.flake8]
 exclude = "docs/conf.py,versioneer.py"
-
-[tool.versioneer]
-VCS = "git"
-style = "pep440"
-versionfile_source = "dask_image/_version.py"
-versionfile_build = "dask_image/_version.py"
-tag_prefix = "v"
-parentdir_prefix = "dask-image"
