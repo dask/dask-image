@@ -40,6 +40,9 @@ test = [
     "pytest-flake8>=1.0.5",
     "pytest-timeout >=1.0.0",
 ]
+gpu = [
+    "cupy >=9.0.0",
+]
 
 [project.urls]
 "Homepage" = "https://image.dask.org"
