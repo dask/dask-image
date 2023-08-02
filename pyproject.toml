@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dask-image"
-authors = [{name="dask-image contributors"}]
+authors = [{name="dask-image contributors. see https://github.com/dask/dask-image/graphs/contributors"}]  # noqa: E501
 description = "Distributed image processing"
 keywords = ["dask-image", "dask", "image"]
 readme = "README.md"
