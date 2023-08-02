@@ -7,7 +7,7 @@ name = "dask-image"
 authors = [{name="dask-image contributors. see https://github.com/dask/dask-image/graphs/contributors"}]  # noqa: E501
 description = "Distributed image processing"
 keywords = ["dask-image", "dask", "image"]
-readme = "README.md"
+readme = "README.rst"
 license = { file="LICENSE.txt" }
 dynamic = ["version"]
 requires-python = ">=3.8"
