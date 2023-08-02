@@ -46,7 +46,7 @@ gpu = [
 
 [project.urls]
 "Homepage" = "https://image.dask.org"
-"Bug Tracker" = "https://github.com/dask/dask-image/issues"
+"Issue Tracker" = "https://github.com/dask/dask-image/issues"
 "Source Code" = "https://github.com/dask/dask-image"
 
 [tool.setuptools_scm]
