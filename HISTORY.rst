@@ -3,7 +3,7 @@ History
 =======
 
 2023.08.0 (2023-08-03)
-------------------
+----------------------
 
 We're pleased to announce the release of dask-image 2023.08.0!
 
