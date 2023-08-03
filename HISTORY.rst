@@ -2,6 +2,68 @@
 History
 =======
 
+2023.08.0 (2023-08-03)
+------------------
+
+We're pleased to announce the release of dask-image 2023.08.0!
+
+Highlights
+
+This version fixes bugs related to processing CuPy backed dask arrays
+and improves testing on GPU CI. It drops support for python 3.8 and
+adds pandas as a dependency. As a feature improvement, the dask-image
+equivalent of ``scipy.ndimage.label`` now supports arbitrary
+structuring elements.
+
+For full support of all GPU functionality in dask-image we recommend
+using CuPy version 9.0.0 or higher.
+
+Improvements
+
+* Generalised ndmeasure.label to arbitrary structuring elements (#321)
+
+Bug Fixes
+
+* Added missing cupy test mark and fixed cupy threshold (#329)
+* Moved functions from ndimage submodules to ndimage namespace (#325)
+
+Updated requirements
+
+* Drop Python 3.8, in accordance with NEP29 recommendation (#315)
+* Require NumPy 1.18+ (#304)
+* Add pandas requirement for find_objs function (#309)
+
+Build Tools
+
+* Continuous integration
+   * Update GPU conda environment before running tests (#318)
+   * Fix GitHub actions README badge (#323)
+* Releases
+   * Release notes for v2022.09.0 (#270)
+* Dependabot updates
+   * Bump coverallsapp/github-action from 2.0.0 to 2.1.2 (#313)
+   * Bump coverallsapp/github-action from 2.1.2 to 2.2.0 (#322)
+   * Bump coverallsapp/github-action from 2.2.0 to 2.2.1 (#326)
+
+
+6 authors added to this release (alphabetical)
+
+* `Charles Blackmon-Luca <https://github.com/dask/dask-image/commits?author=charlesbluca>`_ - @charlesbluca
+* `David Stansby <https://github.com/dask/dask-image/commits?author=dstansby>`_ - @dstansby
+* `dependabot[bot] <https://github.com/dask/dask-image/commits?author=dependabot[bot]>`_ - @dependabot[bot]
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+
+
+4 reviewers added to this release (alphabetical)
+
+* `Charles Blackmon-Luca <https://github.com/dask/dask-image/commits?author=charlesbluca>`_ - @charlesbluca
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Juan Nunez-Iglesias <https://github.com/dask/dask-image/commits?author=jni>`_ - @jni
+
+
 v2023.03.0 (2023-03-27)
 -----------------------
 
