@@ -38,8 +38,6 @@ Build Tools
 * Continuous integration
    * Update GPU conda environment before running tests (#318)
    * Fix GitHub actions README badge (#323)
-* Releases
-   * Release notes for v2022.09.0 (#270)
 * Dependabot updates
    * Bump coverallsapp/github-action from 2.0.0 to 2.1.2 (#313)
    * Bump coverallsapp/github-action from 2.1.2 to 2.2.0 (#322)
