@@ -2,6 +2,25 @@
 History
 =======
 
+2023.08.1 (2023-08-04)
+----------------------
+
+We're pleased to announce the release of dask-image 2023.08.1!
+
+This is a patch release to complete the dropping of python 3.8
+in the previous release.
+
+* Use `>=3.9` in `python_requires` in `setup.py` (#336)
+
+2 authors added to this release (alphabetical)
+
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+
+
+0 reviewers added to this release (alphabetical)
+
+
 2023.08.0 (2023-08-03)
 ----------------------
 
