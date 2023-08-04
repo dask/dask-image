@@ -52,6 +52,13 @@ gpu = [
 [tool.setuptools_scm]
 root = "."
 
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+license-files = [
+    "LICENSE.txt",
+]
+
 [tool.setuptools.packages]
 find = {}
 
