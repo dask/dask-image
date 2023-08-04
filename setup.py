@@ -61,7 +61,7 @@ setup(
     cmdclass=cmdclasses,
     packages=setuptools.find_packages(exclude=["tests*"]),
     include_package_data=True,
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     install_requires=requirements,
     license="BSD 3-Clause",
     zip_safe=False,
