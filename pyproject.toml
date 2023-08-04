@@ -59,8 +59,10 @@ license-files = [
     "LICENSE.txt",
 ]
 
-[tool.setuptools.packages]
-find = {}
+[tool.setuptools.packages.find]
+exclude = [
+    "tests*",
+]
 
 [tool.pytest]
 addopts = "--flake8"
