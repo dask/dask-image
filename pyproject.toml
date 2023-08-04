@@ -62,9 +62,6 @@ license-files = [
 [tool.setuptools.packages]
 find = {}
 
-[tool.distutils.bdist_wheel]
-universal = true
-
 [tool.pytest]
 addopts = "--flake8"
 markers = "cupy"
