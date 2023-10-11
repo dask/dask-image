@@ -123,7 +123,7 @@ def _to_csr_matrix(i, j, n):
     return mat.tocsr()
 
 
-def label_adjacency_graph(labels, structure, nlabels, wrap=False):
+def label_adjacency_graph(labels, structure, nlabels, wrap=None):
     """
     Adjacency graph of labels between chunks of ``labels``.
 
@@ -144,6 +144,11 @@ def label_adjacency_graph(labels, structure, nlabels, wrap=False):
     nlabels : delayed int
         The total number of labels in ``labels`` *before* correcting for
         global consistency.
+    wrap : str, optional
+        Should labels be wrapped across array boundaries, and if so which axis.
+        - `0` only wrap over the 0th axis.
+        - `1` only wrap over the 1th axis.
+        - `both`  wrap over both axis.
 
     Returns
     -------
@@ -155,26 +160,25 @@ def label_adjacency_graph(labels, structure, nlabels, wrap=False):
     if structure is None:
         structure = scipy.ndimage.generate_binary_structure(labels.ndim, 1)
 
-    if not wrap:
-        faces = _chunk_faces(labels.chunks, labels.shape, structure)
-        all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
-        for face_slice in faces:
-            face = labels[face_slice]
-            mapped = _across_block_label_grouping_delayed(face, structure)
-            all_mappings.append(mapped)
-        all_mappings = da.concatenate(all_mappings, axis=1)
-        i, j = all_mappings
-        mat = _to_csr_matrix(i, j, nlabels + 1)
-    else:
-        all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
-        faces = [da.hstack([labels[:, [-1]], labels[:, [0]]]),
-                 da.vstack([labels[[-1], :], labels[[0], :]])]
-        for face in faces:
-            mapped = _across_block_label_grouping_delayed(face, structure)
-            all_mappings.append(mapped)
-        all_mappings = da.concatenate(all_mappings, axis=1)
-        i, j = all_mappings
-        mat = _to_csr_matrix(i, j, nlabels + 1)
+    face_slices = _chunk_faces(labels.chunks, labels.shape, structure)
+    all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
+    faces = []
+
+    for face_slice in face_slices:
+        faces.append(labels[face_slice])
+
+    if wrap in ["0", "both"]:
+        faces.append(da.hstack([labels[:, [-1]], labels[:, [0]]]))
+    if wrap in ["1", "both"]:
+        faces.append(da.vstack([labels[[-1], :], labels[[0], :]]))
+
+    for face in faces:
+        mapped = _across_block_label_grouping_delayed(face, structure)
+        all_mappings.append(mapped)
+
+    all_mappings = da.concatenate(all_mappings, axis=1)
+    i, j = all_mappings
+    mat = _to_csr_matrix(i, j, nlabels + 1)
 
     return mat
 

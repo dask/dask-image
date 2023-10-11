@@ -324,9 +324,9 @@ def label(image, structure=None, wrap=False):
              [0,1,0]]
     wrap : str, optional
         Should labels be wrapped across array boundaries, and if so which axis.
-        - `0` only wrap along the 0th axis.
-        - `1` only wrap along the 1th axis.
-        - `both`  wrap along the 1th axis.
+        - `0` only wrap over the 0th axis.
+        - `1` only wrap over the 1th axis.
+        - `both`  wrap over both axis.
 
     Returns
     -------
@@ -368,18 +368,13 @@ def label(image, structure=None, wrap=False):
     # Now, build a label connectivity graph that groups labels across blocks.
     # We use this graph to find connected components and then relabel each
     # block according to those.
-    label_groups = _label.label_adjacency_graph(block_labeled, structure,
-                                                total)
+    label_groups = _label.label_adjacency_graph(
+        block_labeled, structure, total, wrap=wrap
+    )
     new_labeling = _label.connected_components_delayed(label_groups)
     relabeled = _label.relabel_blocks(block_labeled, new_labeling)
     n = da.max(relabeled)
 
-    if wrap:
-        label_groups = _label.label_adjacency_graph(relabeled, structure,
-                                                    total, wrap=True)
-        new_labeling = _label.connected_components_delayed(label_groups)
-        relabeled = _label.relabel_blocks(relabeled, new_labeling)
-        n = da.max(relabeled)
 
     return (relabeled, n)
 
