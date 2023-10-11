@@ -366,6 +366,49 @@ def test_label(seed, prob, shape, chunks, connectivity):
     _assert_equivalent_labeling(a_l, d_l.compute())
 
 
+def test_label_wrap():
+    a = np.array([
+        [0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+        [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+        [1, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+        [0, 1, 0, 0, 1, 0, 1, 1, 1, 0],
+        [0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+    ])
+    # Hard coded results for now, since there is no scipy equivalent.
+    a_res = np.array([
+        [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+        [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+        [1, 0, 0, 0, 2, 0, 1, 1, 1, 0],
+        [0, 1, 0, 0, 2, 0, 1, 1, 1, 0],
+        [0, 0, 1, 0, 2, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
+    ])
+    d = da.from_array(a, chunks=(5, 5))
+
+    s= [
+        [1, 1, 1],
+        [1, 1, 1],
+        [1, 1, 1],
+        ]
+
+    # a_l, a_nl = scipy.ndimage.label(a, s)
+    d_l, d_nl = dask_image.ndmeasure.label(d, s, wrap=True)
+
+    #assert a_nl == d_nl.compute()
+
+    # assert a_l.dtype == d_l.dtype
+    # assert a_l.shape == d_l.shape
+    _assert_equivalent_labeling(a_res, d_l.compute())
+
 @pytest.mark.parametrize(
     "ndim", (2, 3, 4, 5)
 )
@@ -388,7 +431,7 @@ def test_label_full_struct_element(ndim):
     labels_ndi, N_ndi = scipy.ndimage.label(mask, structure=full_s)
     labels_di_da, N_di_da = dask_image.ndmeasure.label(
         mask_da, structure=full_s)
-    
+
     assert N_ndi == N_di_da.compute()
 
     _assert_equivalent_labeling(

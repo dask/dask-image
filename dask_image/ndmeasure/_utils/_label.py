@@ -123,7 +123,7 @@ def _to_csr_matrix(i, j, n):
     return mat.tocsr()
 
 
-def label_adjacency_graph(labels, structure, nlabels):
+def label_adjacency_graph(labels, structure, nlabels, wrap=False):
     """
     Adjacency graph of labels between chunks of ``labels``.
 
@@ -155,15 +155,27 @@ def label_adjacency_graph(labels, structure, nlabels):
     if structure is None:
         structure = scipy.ndimage.generate_binary_structure(labels.ndim, 1)
 
-    faces = _chunk_faces(labels.chunks, labels.shape, structure)
-    all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
-    for face_slice in faces:
-        face = labels[face_slice]
-        mapped = _across_block_label_grouping_delayed(face, structure)
-        all_mappings.append(mapped)
-    all_mappings = da.concatenate(all_mappings, axis=1)
-    i, j = all_mappings
-    mat = _to_csr_matrix(i, j, nlabels + 1)
+    if not wrap:
+        faces = _chunk_faces(labels.chunks, labels.shape, structure)
+        all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
+        for face_slice in faces:
+            face = labels[face_slice]
+            mapped = _across_block_label_grouping_delayed(face, structure)
+            all_mappings.append(mapped)
+        all_mappings = da.concatenate(all_mappings, axis=1)
+        i, j = all_mappings
+        mat = _to_csr_matrix(i, j, nlabels + 1)
+    else:
+        all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
+        faces = [da.hstack([labels[:, [-1]], labels[:, [0]]]),
+                 da.vstack([labels[[-1], :], labels[[0], :]])]
+        for face in faces:
+            mapped = _across_block_label_grouping_delayed(face, structure)
+            all_mappings.append(mapped)
+        all_mappings = da.concatenate(all_mappings, axis=1)
+        i, j = all_mappings
+        mat = _to_csr_matrix(i, j, nlabels + 1)
+
     return mat
 
 
@@ -203,17 +215,17 @@ def _chunk_faces(chunks, shape, structure):
 
     ndim = len(shape)
     numblocks = tuple(list(len(c) for c in chunks))
-    
+
     slices = da.core.slices_from_chunks(chunks)
-    
+
     # arrange block/chunk indices on grid
     block_summary = np.arange(len(slices)).reshape(numblocks)
-    
+
     faces = []
     for ind_curr_block, curr_block in enumerate(np.ndindex(numblocks)):
-        
+
         for pos_structure_coord in np.array(np.where(structure)).T:
-                        
+
             # only consider forward neighbors
             if min(pos_structure_coord) < 1 or \
                max(pos_structure_coord) < 2: continue
@@ -236,9 +248,9 @@ def _chunk_faces(chunks, shape, structure):
                     curr_slice.append(slice(
                         slices[ind_curr_block][dim].stop - 1,
                         slices[ind_curr_block][dim].stop + 1))
-                    
+
             faces.append(tuple(curr_slice))
-            
+
     return faces
 
 
