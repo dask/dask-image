@@ -383,7 +383,7 @@ a = np.array(
 
 
 @pytest.mark.parametrize(
-    "a, a_res, wrap",
+    "a, a_res, wrap_axes",
     [
         (
             a,
@@ -401,7 +401,7 @@ a = np.array(
                     [0, 0, 4, 0, 0, 5, 5, 0, 0, 0],
                 ]
             ),
-            "0",
+            (0,),
         ),
         (
             a,
@@ -419,7 +419,7 @@ a = np.array(
                     [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
                 ]
             ),
-            "1",
+            (1,),
         ),
         (
             a,
@@ -437,26 +437,23 @@ a = np.array(
                     [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
                 ]
             ),
-            "both",
+            (0, 1),
+        ),
+        pytest.param(
+            np.array([[1, 0, 0], [0, 0, 0], [0, 0, 1]]),
+            np.array([[1, 0, 0], [0, 0, 0], [0, 0, 1]]),
+            (0, 1),
+            marks=pytest.mark.xfail(reason="Can't wrap corner labels"),
         ),
     ],
 )
-def test_label_wrap(a, a_res, wrap):
+def test_label_wrap(a, a_res, wrap_axes):
     d = da.from_array(a, chunks=(5, 5))
 
-    s = [
-        [1, 1, 1],
-        [1, 1, 1],
-        [1, 1, 1],
-    ]
+    s = np.ones((3, 3))
 
-    # a_l, a_nl = scipy.ndimage.label(a, s)
-    d_l, d_nl = dask_image.ndmeasure.label(d, s, wrap=wrap)
+    d_l, d_nl = dask_image.ndmeasure.label(d, s, wrap_axes=wrap_axes)
 
-    # assert a_nl == d_nl.compute()
-
-    # assert a_l.dtype == d_l.dtype
-    # assert a_l.shape == d_l.shape
     _assert_equivalent_labeling(a_res, d_l.compute())
 
 

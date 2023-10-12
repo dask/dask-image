@@ -123,7 +123,12 @@ def _to_csr_matrix(i, j, n):
     return mat.tocsr()
 
 
-def label_adjacency_graph(labels, structure, nlabels, wrap=None):
+def set_tup_value(tup, idx, value):
+    """Return a copy of `tup` with `value` at `idx`."""
+    return tuple((elem if i == idx else value) for i, elem in enumerate(tup))
+
+
+def label_adjacency_graph(labels, structure, nlabels, wrap_axes=None):
     """
     Adjacency graph of labels between chunks of ``labels``.
 
@@ -144,11 +149,11 @@ def label_adjacency_graph(labels, structure, nlabels, wrap=None):
     nlabels : delayed int
         The total number of labels in ``labels`` *before* correcting for
         global consistency.
-    wrap : str, optional
-        Should labels be wrapped across array boundaries, and if so which axis.
-        - `0` only wrap over the 0th axis.
-        - `1` only wrap over the 1th axis.
-        - `both`  wrap over both axis.
+    wrap_axes : tuple of int, optional
+        Should labels be wrapped across array boundaries, and if so which axes.
+        - (0) only wrap over the 0th axis.
+        - (0, 1) wrap over the 0th and 1st axis.
+        - (0, 1, 3)  wrap over 0th, 1st and 3rd axis.
 
     Returns
     -------
@@ -167,10 +172,14 @@ def label_adjacency_graph(labels, structure, nlabels, wrap=None):
     for face_slice in face_slices:
         faces.append(labels[face_slice])
 
-    if wrap in ["0", "both"]:
-        faces.append(da.hstack([labels[:, [-1]], labels[:, [0]]]))
-    if wrap in ["1", "both"]:
-        faces.append(da.vstack([labels[[-1], :], labels[[0], :]]))
+    if wrap_axes is not None:
+        for ax in wrap_axes:
+            none_slice = (slice(None),) * labels.ndim
+            sl_back = set_tup_value(none_slice, ax, [-1])
+            sl_front = set_tup_value(none_slice, ax, [0])
+            faces.append(
+                da.stack([labels[sl_back], labels[sl_front]], axis=ax).squeeze()
+            )
 
     for face in faces:
         mapped = _across_block_label_grouping_delayed(face, structure)

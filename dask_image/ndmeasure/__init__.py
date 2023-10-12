@@ -303,7 +303,7 @@ def histogram(image,
     return result
 
 
-def label(image, structure=None, wrap=False):
+def label(image, structure=None, wrap_axes=None):
     """
     Label features in an array.
 
@@ -322,11 +322,11 @@ def label(image, structure=None, wrap=False):
             [[0,1,0],
              [1,1,1],
              [0,1,0]]
-    wrap : str, optional
-        Should labels be wrapped across array boundaries, and if so which axis.
-        - `0` only wrap over the 0th axis.
-        - `1` only wrap over the 1th axis.
-        - `both`  wrap over both axis.
+    wrap_axes : tuple of int, optional
+        Should labels be wrapped across array boundaries, and if so which axes.
+        - (0) only wrap across the 0th axis.
+        - (0, 1) wrap across the 0th and 1st axis.
+        - (0, 1, 3)  wrap across 0th, 1st and 3rd axis.
 
     Returns
     -------
@@ -369,7 +369,7 @@ def label(image, structure=None, wrap=False):
     # We use this graph to find connected components and then relabel each
     # block according to those.
     label_groups = _label.label_adjacency_graph(
-        block_labeled, structure, total, wrap=wrap
+        block_labeled, structure, total, wrap_axes=wrap_axes
     )
     new_labeling = _label.connected_components_delayed(label_groups)
     relabeled = _label.relabel_blocks(block_labeled, new_labeling)
