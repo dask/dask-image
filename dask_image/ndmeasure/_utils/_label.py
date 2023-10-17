@@ -267,7 +267,7 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
             none_slice = (slice(None),) * ndim
             wrap_slice = set_tup_value(none_slice, ax, [0, -1])
             faces.append(wrap_slice)
-        # Stupidly hard code corners
+        # Add a slice for the corners.
         faces.append(tuple(slice(None, None, i - 1) for i in shape))
 
     return faces
