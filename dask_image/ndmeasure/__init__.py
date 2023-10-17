@@ -324,7 +324,7 @@ def label(image, structure=None, wrap_axes=None):
              [0,1,0]]
     wrap_axes : tuple of int, optional
         Should labels be wrapped across array boundaries, and if so which axes.
-        - (0) only wrap across the 0th axis.
+        - (0,) only wrap across the 0th axis.
         - (0, 1) wrap across the 0th and 1st axis.
         - (0, 1, 3)  wrap across 0th, 1st and 3rd axis.
 

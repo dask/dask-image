@@ -383,7 +383,7 @@ a = np.array(
 
 
 @pytest.mark.parametrize(
-    "a, a_res, wrap_axes",
+    "a, a_res, wrap_axes, connectivity",
     [
         (
             a,
@@ -402,6 +402,7 @@ a = np.array(
                 ]
             ),
             (0,),
+            2,
         ),
         (
             a,
@@ -420,6 +421,7 @@ a = np.array(
                 ]
             ),
             (1,),
+            2,
         ),
         (
             a,
@@ -438,21 +440,29 @@ a = np.array(
                 ]
             ),
             (0, 1),
+            2,
         ),
-        pytest.param(
-            np.array([[1, 0, 0], [0, 0, 0], [0, 0, 1]]),
-            np.array([[1, 0, 0], [0, 0, 0], [0, 0, 1]]),
+        (
+            np.array([[1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]),
+            np.array([[1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]),
             (0, 1),
-            marks=pytest.mark.xfail(reason="Can't wrap corner labels"),
+            2,
+        ),
+        (
+            np.array([[1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]),
+            # Corners should not be connected for lower connectivity.
+            np.array([[1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 2]]),
+            (0, 1),
+            1,
         ),
     ],
 )
-def test_label_wrap(a, a_res, wrap_axes):
+def test_label_wrap(a, a_res, wrap_axes, connectivity):
     d = da.from_array(a, chunks=(5, 5))
 
-    s = np.ones((3, 3))
+    s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
 
-    d_l, d_nl = dask_image.ndmeasure.label(d, s, wrap_axes=wrap_axes)
+    d_l, _ = dask_image.ndmeasure.label(d, s, wrap_axes=wrap_axes)
 
     _assert_equivalent_labeling(a_res, d_l.compute())
 

@@ -151,7 +151,7 @@ def label_adjacency_graph(labels, structure, nlabels, wrap_axes=None):
         global consistency.
     wrap_axes : tuple of int, optional
         Should labels be wrapped across array boundaries, and if so which axes.
-        - (0) only wrap over the 0th axis.
+        - (0,) only wrap over the 0th axis.
         - (0, 1) wrap over the 0th and 1st axis.
         - (0, 1, 3)  wrap over 0th, 1st and 3rd axis.
 
@@ -165,21 +165,14 @@ def label_adjacency_graph(labels, structure, nlabels, wrap_axes=None):
     if structure is None:
         structure = scipy.ndimage.generate_binary_structure(labels.ndim, 1)
 
-    face_slices = _chunk_faces(labels.chunks, labels.shape, structure)
+    face_slices = _chunk_faces(
+        labels.chunks, labels.shape, structure, wrap_axes=wrap_axes
+    )
     all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
     faces = []
 
     for face_slice in face_slices:
         faces.append(labels[face_slice])
-
-    if wrap_axes is not None:
-        for ax in wrap_axes:
-            none_slice = (slice(None),) * labels.ndim
-            sl_back = set_tup_value(none_slice, ax, [-1])
-            sl_front = set_tup_value(none_slice, ax, [0])
-            faces.append(
-                da.stack([labels[sl_back], labels[sl_front]], axis=ax).squeeze()
-            )
 
     for face in faces:
         mapped = _across_block_label_grouping_delayed(face, structure)
@@ -192,7 +185,7 @@ def label_adjacency_graph(labels, structure, nlabels, wrap_axes=None):
     return mat
 
 
-def _chunk_faces(chunks, shape, structure):
+def _chunk_faces(chunks, shape, structure, wrap_axes=None):
     """
     Return slices for two-pixel-wide boundaries between chunks.
 
@@ -204,6 +197,11 @@ def _chunk_faces(chunks, shape, structure):
         The shape of the array.
     structure: array of bool
         Structuring element, shape (3,) * ndim.
+    wrap_axes : tuple of int, optional
+        Should labels be wrapped across array boundaries, and if so which axes.
+        - (0,) only wrap over the 0th axis.
+        - (0, 1) wrap over the 0th and 1st axis.
+        - (0, 1, 3)  wrap over 0th, 1st and 3rd axis.
 
     Returns
     -------
@@ -263,6 +261,14 @@ def _chunk_faces(chunks, shape, structure):
                         slices[ind_curr_block][dim].stop + 1))
 
             faces.append(tuple(curr_slice))
+
+    if wrap_axes is not None:
+        for ax in wrap_axes:
+            none_slice = (slice(None),) * ndim
+            wrap_slice = set_tup_value(none_slice, ax, [0, -1])
+            faces.append(wrap_slice)
+        # Stupidly hard code corners
+        faces.append(tuple(slice(None, None, i - 1) for i in shape))
 
     return faces
 
