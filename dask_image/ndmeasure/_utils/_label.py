@@ -123,16 +123,6 @@ def _to_csr_matrix(i, j, n):
     return mat.tocsr()
 
 
-def get_slice_tuple(tup, idx, shape):
-    """Return a copy of `tup` with `value` at `idx`."""
-    slices = []
-    for i, elem in enumerate(tup):
-        slice_step = shape[i] - 1 if shape[i] > 1 else None
-        non_wrap_slice = slice(None, None, slice_step)
-        slices.append(elem if i not in idx else non_wrap_slice)
-    return tuple(slices)
-
-
 def label_adjacency_graph(labels, structure, nlabels, wrap_axes=None):
     """
     Adjacency graph of labels between chunks of ``labels``.
@@ -230,16 +220,31 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
     """
 
     ndim = len(shape)
-    numblocks = tuple(list(len(c) for c in chunks))
 
     slices = da.core.slices_from_chunks(chunks)
 
     # arrange block/chunk indices on grid
-    block_summary = np.arange(len(slices)).reshape(numblocks)
+    block_summary = np.arange(len(slices)).reshape(
+        [len(c) for c in chunks])
 
     faces = []
-    for ind_curr_block, curr_block in enumerate(np.ndindex(numblocks)):
 
+    # Iterate over all blocks and use the structuring element
+    # to determine which blocks should be connected.
+    # For wrappped axes, we need to consider the block
+    # before the current block with index -1 as well.
+    numblocks = [len(c) if wrap_axes is None or ax not in wrap_axes
+                 else len(c) + 1 for ax, c in enumerate(chunks)]
+    for curr_block in np.ndindex(tuple(numblocks)):
+
+        curr_block = list(curr_block)
+
+        if wrap_axes is not None:
+            # start at -1 indices for wrapped axes
+            for wrap_axis in wrap_axes:
+                curr_block[wrap_axis] = curr_block[wrap_axis] - 1
+
+        # iterate over neighbors of the current block
         for pos_structure_coord in np.array(np.where(structure)).T:
 
             # only consider forward neighbors
@@ -249,32 +254,27 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
             neigh_block = [curr_block[dim] + pos_structure_coord[dim] - 1
                            for dim in range(ndim)]
 
-            if max([neigh_block[dim] >= numblocks[dim] for dim in range(ndim)]): continue
+            if max([neigh_block[dim] >= block_summary.shape[dim]
+                    for dim in range(ndim)]): continue
 
             # get neighbor slice index
-            ind_neigh_block = block_summary[tuple(neigh_block)]
+            ind_curr_block = block_summary[tuple(curr_block)]
 
             curr_slice = []
             for dim in range(ndim):
                 # keep slice if not on boundary
-                if slices[ind_curr_block][dim] == slices[ind_neigh_block][dim]:
+                if neigh_block[dim] == curr_block[dim]:
                     curr_slice.append(slices[ind_curr_block][dim])
                 # otherwise, add two-pixel-wide boundary
                 else:
-                    curr_slice.append(slice(
-                        slices[ind_curr_block][dim].stop - 1,
-                        slices[ind_curr_block][dim].stop + 1))
+                    if slices[ind_curr_block][dim].stop == shape[dim]:
+                        curr_slice.append(slice(None, None, shape[dim] - 1))
+                    else:
+                        curr_slice.append(slice(
+                            slices[ind_curr_block][dim].stop - 1,
+                            slices[ind_curr_block][dim].stop + 1))
 
             faces.append(tuple(curr_slice))
-
-    if wrap_axes is not None:
-        for ax in wrap_axes:
-            none_slice = (slice(None),) * ndim
-            wrap_slice = get_slice_tuple(none_slice, (ax,), shape)
-            faces.append(wrap_slice)
-        # Should only add corners when wrapping more than one axis.
-        if len(wrap_axes) > 1:
-            faces.append(get_slice_tuple(none_slice, wrap_axes, shape))
 
     return faces
 
