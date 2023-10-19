@@ -164,12 +164,9 @@ def label_adjacency_graph(labels, structure, nlabels, wrap_axes=None):
         labels.chunks, labels.shape, structure, wrap_axes=wrap_axes
     )
     all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
-    faces = []
 
     for face_slice in face_slices:
-        faces.append(labels[face_slice])
-
-    for face in faces:
+        face = labels[face_slice]
         mapped = _across_block_label_grouping_delayed(face, structure)
         all_mappings.append(mapped)
 
