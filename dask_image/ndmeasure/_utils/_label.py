@@ -195,10 +195,10 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
         - (0, 1) wrap over the 0th and 1st axis.
         - (0, 1, 3)  wrap over 0th, 1st and 3rd axis.
 
-    Returns
+    Yields
     -------
-    faces : list of tuple of slices
-        Each element in this list indexes a face between two chunks.
+    tuple of slices
+        Each element indexes a face between two chunks.
 
     Examples
     --------
@@ -206,7 +206,7 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
     >>> import scipy.ndimage as ndi
     >>> a = da.arange(110, chunks=110).reshape((10, 11)).rechunk(5)
     >>> structure = ndi.generate_binary_structure(2, 1)
-    >>> chunk_faces(a.chunks, a.shape, structure)
+    >>> list(chunk_faces(a.chunks, a.shape, structure))
     [(slice(4, 6, None), slice(0, 5, None)),
      (slice(4, 6, None), slice(5, 10, None)),
      (slice(4, 6, None), slice(10, 11, None)),
@@ -223,8 +223,6 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
     # arrange block/chunk indices on grid
     block_summary = np.arange(len(slices)).reshape(
         [len(c) for c in chunks])
-
-    faces = []
 
     # Iterate over all blocks and use the structuring element
     # to determine which blocks should be connected.
@@ -271,9 +269,7 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
                             slices[ind_curr_block][dim].stop - 1,
                             slices[ind_curr_block][dim].stop + 1))
 
-            faces.append(tuple(curr_slice))
-
-    return faces
+            yield tuple(curr_slice)
 
 
 def block_ndi_label_delayed(block, structure):
