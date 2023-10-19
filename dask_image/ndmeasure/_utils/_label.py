@@ -123,9 +123,14 @@ def _to_csr_matrix(i, j, n):
     return mat.tocsr()
 
 
-def set_tup_value(tup, idx, value):
+def get_slice_tuple(tup, idx, shape):
     """Return a copy of `tup` with `value` at `idx`."""
-    return tuple((elem if i == idx else value) for i, elem in enumerate(tup))
+    slices = []
+    for i, elem in enumerate(tup):
+        slice_step = shape[i] - 1 if shape[i] > 1 else None
+        non_wrap_slice = slice(None, None, slice_step)
+        slices.append(elem if i not in idx else non_wrap_slice)
+    return tuple(slices)
 
 
 def label_adjacency_graph(labels, structure, nlabels, wrap_axes=None):
@@ -265,10 +270,11 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
     if wrap_axes is not None:
         for ax in wrap_axes:
             none_slice = (slice(None),) * ndim
-            wrap_slice = set_tup_value(none_slice, ax, [0, -1])
+            wrap_slice = get_slice_tuple(none_slice, (ax,), shape)
             faces.append(wrap_slice)
-        # Add a slice for the corners.
-        faces.append(tuple(slice(None, None, i - 1) for i in shape))
+        # Should only add corners when wrapping more than one axis.
+        if len(wrap_axes) > 1:
+            faces.append(get_slice_tuple(none_slice, wrap_axes, shape))
 
     return faces
 
