@@ -88,8 +88,8 @@ def test_convolutions_comprehensions(da_func):
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.convolve, dask_image.ndfilters.convolve),
-        (scipy.ndimage.filters.correlate, dask_image.ndfilters.correlate),
+        (scipy.ndimage.convolve, dask_image.ndfilters.convolve),
+        (scipy.ndimage.correlate, dask_image.ndfilters.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -117,8 +117,8 @@ def test_convolutions_identity(sp_func,
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.convolve, dask_image.ndfilters.convolve),
-        (scipy.ndimage.filters.correlate, dask_image.ndfilters.correlate),
+        (scipy.ndimage.convolve, dask_image.ndfilters.convolve),
+        (scipy.ndimage.correlate, dask_image.ndfilters.correlate),
     ]
 )
 @pytest.mark.parametrize(
@@ -157,8 +157,8 @@ def test_convolutions_compare(sp_func,
 @pytest.mark.parametrize(
     "sp_func, da_func",
     [
-        (scipy.ndimage.filters.convolve, dask_image.ndfilters.convolve),
-        (scipy.ndimage.filters.correlate, dask_image.ndfilters.correlate),
+        (scipy.ndimage.convolve, dask_image.ndfilters.convolve),
+        (scipy.ndimage.correlate, dask_image.ndfilters.correlate),
     ]
 )
 @pytest.mark.parametrize(

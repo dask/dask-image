@@ -72,7 +72,7 @@ def test_uniform_identity(size, origin):
     )
 
     da.utils.assert_eq(
-        scipy.ndimage.filters.uniform_filter(a, size, origin=origin),
+        scipy.ndimage.uniform_filter(a, size, origin=origin),
         dask_image.ndfilters.uniform_filter(d, size, origin=origin)
     )
 
@@ -94,6 +94,6 @@ def test_uniform_compare(size, origin):
     d = da.from_array(a, chunks=(50, 55))
 
     da.utils.assert_eq(
-        scipy.ndimage.filters.uniform_filter(a, size, origin=origin),
+        scipy.ndimage.uniform_filter(a, size, origin=origin),
         dask_image.ndfilters.uniform_filter(d, size, origin=origin)
     )

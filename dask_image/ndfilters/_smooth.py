@@ -14,7 +14,7 @@ __all__ = [
 gaussian_filter = gaussian_filter
 
 
-@_utils._update_wrapper(scipy.ndimage.filters.uniform_filter)
+@_utils._update_wrapper(scipy.ndimage.uniform_filter)
 def uniform_filter(image,
                    size=3,
                    mode='reflect',

@@ -66,8 +66,8 @@ def test_edge_comprehensions(da_func):
 @pytest.mark.parametrize(
     "da_func, sp_func",
     [
-        (dask_image.ndfilters.prewitt, scipy.ndimage.filters.prewitt),
-        (dask_image.ndfilters.sobel, scipy.ndimage.filters.sobel),
+        (dask_image.ndfilters.prewitt, scipy.ndimage.prewitt),
+        (dask_image.ndfilters.sobel, scipy.ndimage.sobel),
     ]
 )
 def test_edge_func_compare(da_func, sp_func, axis):

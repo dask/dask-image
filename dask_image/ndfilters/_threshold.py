@@ -80,7 +80,7 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
                                                mode=mode, cval=cval)
     elif method == 'gaussian':
         if param is None:
-            sigma = (da.asarray(block_size) - 1) / 6.0
+            sigma = (np.array(block_size).astype(float) - 1) / 6.0
         else:
             sigma = param
         thresh_image = _gaussian.gaussian_filter(image, sigma, mode=mode,

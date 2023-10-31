@@ -29,10 +29,13 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    "dask[array] >=0.16.1",
-    "numpy >=1.11.3",
+    "dask[array] >=2023.2.0",
+    "dask[dataframe] >=2023.2.0",
+    "numpy >=1.18",
     "scipy >=0.19.1",
     "pims >=0.4.1",
+    "tifffile >=2018.10.18",
+    "pandas >=2.0.0",
 ]
 
 test_requirements = [
@@ -40,7 +43,6 @@ test_requirements = [
     "pytest >=3.0.5",
     "pytest-flake8 >=0.8.1",
     "pytest-timeout >=1.0.0",
-    "tifffile >=2018.10.18",
 ]
 
 cmdclasses = {
@@ -59,7 +61,7 @@ setup(
     cmdclass=cmdclasses,
     packages=setuptools.find_packages(exclude=["tests*"]),
     include_package_data=True,
-    python_requires='>=3.6',
+    python_requires='>=3.9',
     install_requires=requirements,
     license="BSD 3-Clause",
     zip_safe=False,
@@ -70,10 +72,9 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     tests_require=test_requirements
 )

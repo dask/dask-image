@@ -1,0 +1,21 @@
+name: dask-image-testenv
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.9.*
+  - pip==22.0.2
+  - wheel==0.37.1
+  - coverage==6.3
+  - flake8==4.0.1
+  - pytest==6.2.5
+  - pytest-cov==4.0.0
+  - pytest-flake8==1.0.7
+  - dask==2023.2.1
+  - numpy==1.22.1
+  - scipy==1.7.3
+  - scikit-image==0.19.1
+  - pims==0.5
+  - slicerator==1.0.0
+  - pandas==2.0.0

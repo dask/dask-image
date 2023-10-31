@@ -47,7 +47,7 @@ conda environment for building the dask-image documentation:
 
 .. code-block:: console
 
-    $ conda env create -f environment_doc.yml
+    $ conda env create -f continuous_integration/environment-doc.yml
     $ conda activate dask_image_doc_env
 
 This conda environment contains dask-image and its dependencies, sphinx,
@@ -125,8 +125,11 @@ Before you submit a pull request, check that it meets these guidelines:
    and make sure that the tests pass for all supported Python versions
    and platforms.
 
+Testing
+-------
+
 Running tests locally
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 To setup a local testing environment that matches the test environments we use
 for our continuous integration services, you can use the ``.yml``
@@ -173,3 +176,36 @@ For local testing, please run ``pytest`` in the test environment::
 To run a subset of tests, for example all the tests for ndfourier::
 
     $ pytest tests/test_dask_image/test_ndfourier
+
+Continuous integration tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creating a pull request will automatically run the continuous integration
+tests with Github Actions.
+
+Results from the continuous integration (CI) checks are shown linked at the bottom 
+of your pull request, and also in the dask-image GitHub Actions tab:
+https://github.com/dask/dask-image/actions
+
+To edit the CI checks, see the workflow scripts in the repository located in 
+``dask-image/.github/workflows``
+
+GPU continuous integration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We also have continuous integration to test GPU features!
+
+This will run automatically, after a maintainer has approved it.
+Maintainers approve the GPU CI to run by replying to the gpuCI bot on the
+pull request, leaving a comment that says either *"ok to test"* or 
+*"add to allowlist"*.
+
+The gpuCI bot `@GPUtester <https://github.com/GPUtester>`_
+comment looks like this:
+
+    *Can one of the admins verify this patch?*
+    
+    *Admins can comment ok to test to allow this one PR to run or add to allowlist to allow all future PRs from the same author to run.*
+
+For more information about the GPU continuous integration provided by NVIIDIA, 
+`see the main Dask docs GPU CI section <https://docs.dask.org/en/stable/develop.html#gpu-ci>`_

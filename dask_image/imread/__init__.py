@@ -6,8 +6,7 @@ import warnings
 import dask.array as da
 import numpy as np
 import pims
-
-from . import _utils
+from tifffile import natural_sorted
 
 
 def imread(fname, nframes=1, *, arraytype="numpy"):
@@ -21,6 +20,8 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
     ----------
     fname : str or pathlib.Path
         A glob like string that may match one or multiple filenames.
+        Where multiple filenames match, they are sorted using
+        natural (as opposed to alphabetical) sort.
     nframes : int, optional
         Number of the frames to include in each chunk (default: 1).
     arraytype : str, optional
@@ -64,8 +65,8 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
             RuntimeWarning
         )
 
-    # place source filenames into dask array
-    filenames = sorted(glob.glob(sfname))  # pims also does this
+    # place source filenames into dask array after sorting
+    filenames = natural_sorted(glob.glob(sfname))
     if len(filenames) > 1:
         ar = da.from_array(filenames, chunks=(nframes,))
         multiple_files = True
@@ -83,7 +84,6 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
         arrayfunc=arrayfunc,
         meta=arrayfunc([]).astype(dtype),  # meta overwrites `dtype` argument
     )
-
     return a
 
 
@@ -96,4 +96,9 @@ def _map_read_frame(x, multiple_files, block_info=None, **kwargs):
     else:
         i, j = block_info[None]['array-location'][0]
 
-    return _utils._read_frame(fn=fn, i=slice(i, j), **kwargs)
+    return _read_frame(fn=fn, i=slice(i, j), **kwargs)
+
+
+def _read_frame(fn, i, *, arrayfunc=np.asanyarray):
+    with pims.open(fn) as imgs:
+        return arrayfunc(imgs[i])

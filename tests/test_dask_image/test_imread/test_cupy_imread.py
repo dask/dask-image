@@ -4,7 +4,7 @@ import pytest
 
 import dask_image.imread
 
-cupy = pytest.importorskip("cupy", minversion="7.7.0")
+cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
 
 @pytest.mark.cupy

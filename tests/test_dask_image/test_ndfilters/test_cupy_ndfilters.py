@@ -7,7 +7,7 @@ import pytest
 
 import dask_image.ndfilters
 
-cupy = pytest.importorskip("cupy", minversion="7.7.0")
+cupy = pytest.importorskip("cupy", minversion="8.0.0")
 
 
 @pytest.fixture
@@ -51,6 +51,7 @@ def test_cupy_edge(array, func):
 
 @pytest.mark.cupy
 @pytest.mark.parametrize("func", [
+    dask_image.ndfilters.gaussian,
     dask_image.ndfilters.gaussian_filter,
     dask_image.ndfilters.gaussian_gradient_magnitude,
     dask_image.ndfilters.gaussian_laplace,

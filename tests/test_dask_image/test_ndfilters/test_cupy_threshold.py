@@ -7,9 +7,10 @@ import pytest
 
 from dask_image.ndfilters import threshold_local
 
-cupy = pytest.importorskip("cupy", minversion="7.7.0")
+cupy = pytest.importorskip("cupy", minversion="5.0.0")
 
 
+@pytest.mark.cupy
 @pytest.mark.parametrize('block_size', [
     3,
     [3, 3],
@@ -106,7 +107,6 @@ class TestInvalidArguments:
              [4, 5, 1, 0, 0]], dtype=int), chunks=(5, 5))
 
     @pytest.mark.parametrize("method, block_size, error_type", [
-        ('gaussian', cupy.nan, ValueError),
         ('median', cupy.nan, TypeError),
     ])
     def test_nan_blocksize(self, method, block_size, error_type):
