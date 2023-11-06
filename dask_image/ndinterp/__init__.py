@@ -323,6 +323,9 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     if not type(input_arr) == da.core.Array:
         input_arr = da.from_array(input_arr)
 
+    if output_chunks is None:
+        output_chunks = input_arr.chunksize
+
     if output_shape is None:
         output_shape = input_arr.shape
 
