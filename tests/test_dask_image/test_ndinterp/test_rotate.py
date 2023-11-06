@@ -10,7 +10,7 @@ import dask.array as da
 from scipy import ndimage
 
 
-def validate_rotate(n=2,                    
+def validate_rotate(n=2,
                     axes=(0,1),
                     reshape=False,
                     input_output_shape_per_dim=(16,16),
@@ -33,10 +33,10 @@ def validate_rotate(n=2,
 
     # define test image
     a = input_output_shape_per_dim[0]
-    
+
     np.random.seed(random_seed)
     image = np.random.random([a] * n)
-    
+
     angle = np.random.random() * 360 - 180
 
     # transform into dask array
@@ -217,7 +217,7 @@ def test_rotate_prefilter_warning():
 
     with pytest.warns(UserWarning):
         da_ndinterp.rotate(da.ones((3, 3)), 0,
-                           order=3, prefilter=True)
+                           order=1, prefilter=True)
 
 
 @pytest.mark.timeout(15)
@@ -252,7 +252,7 @@ def test_rotate_large_input_small_output_gpu():
     image_t = da_ndinterp.rotate(image, 0,
                                  output_shape=[1, 1, 1],
                                  output_chunks=[1, 1, 1])
-    
+
     # if more than the needed chunks should be computed,
     # this would take long and eventually raise a MemoryError
     image_t[0, 0, 0].compute()
