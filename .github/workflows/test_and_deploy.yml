@@ -16,11 +16,11 @@ jobs:
       fail-fast: true
       matrix:
         os: ["windows-latest", "ubuntu-latest", "macos-latest"]
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Conda Environment
         uses: conda-incubator/setup-miniconda@v2
@@ -44,7 +44,7 @@ jobs:
         run: pytest -v --cov=dask_image --cov-report lcov
 
       - name: Coveralls Parallel
-        uses: coverallsapp/github-action@v1.2.4
+        uses: coverallsapp/github-action@v2.2.3
         with:
           github-token: ${{ secrets.github_token }}
           flag-name: run-${{ matrix.test_number }}
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
-      uses: coverallsapp/github-action@v1.2.4
+      uses: coverallsapp/github-action@v2.2.3
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.ref, 'tags')
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:

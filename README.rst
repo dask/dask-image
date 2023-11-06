@@ -11,8 +11,8 @@ dask-image
         :target: https://anaconda.org/conda-forge/dask-image
         :alt: conda-forge
 
-.. image:: https://github.com/dask/dask-image/workflows/CI/badge.svg
-        :target: https://github.com/dask/dask-image/actions
+.. image:: https://github.com/dask/dask-image/actions/workflows/test_and_deploy.yml/badge.svg
+        :target: https://github.com/dask/dask-image/actions/workflows/test_and_deploy.yml
         :alt: GitHub Actions CI
 
 .. image:: https://readthedocs.org/projects/dask-image/badge/?version=latest
