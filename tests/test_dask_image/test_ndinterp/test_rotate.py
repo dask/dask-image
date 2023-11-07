@@ -27,7 +27,7 @@ def validate_rotate(n=2,
     Notes
     -----
         Currently, prefilter is disabled and therefore the output
-        of `dask_image.ndinterp.rotateation` is compared
+        of `dask_image.ndinterp.rotate` is compared
         to `prefilter=False`.
     """
 
@@ -50,15 +50,6 @@ def validate_rotate(n=2,
     # define resampling options
     output_chunks = [input_output_chunksize_per_dim[1]] * n
 
-    # transform with scipy
-    image_t_scipy = ndimage.rotate(
-        image, angle,
-        axes=axes,
-        reshape=reshape,
-        order=interp_order,
-        mode=interp_mode,
-        prefilter=False)
-
     # transform with dask-image
     image_t_dask = da_ndinterp.rotate(
         image, angle,
@@ -69,7 +60,17 @@ def validate_rotate(n=2,
         prefilter=False,
         # output_chunks = output_chunks
         )
+
     image_t_dask_computed = image_t_dask.compute()
+
+    # transform with scipy
+    image_t_scipy = ndimage.rotate(
+        image, angle,
+        axes=axes,
+        reshape=reshape,
+        order=interp_order,
+        mode=interp_mode,
+        prefilter=False)
 
     assert np.allclose(image_t_scipy, image_t_dask_computed)
 
@@ -85,10 +86,10 @@ def validate_rotate(n=2,
 @pytest.mark.parametrize("random_seed",
                          [0, 1, 2])
 def test_rotate_general(n,
-                                  input_output_shape_per_dim,
-                                  interp_order,
-                                  input_output_chunksize_per_dim,
-                                  random_seed):
+                        input_output_shape_per_dim,
+                        interp_order,
+                        input_output_chunksize_per_dim,
+                        random_seed):
 
     kwargs = dict()
     kwargs['n'] = n
@@ -112,10 +113,10 @@ def test_rotate_general(n,
 @pytest.mark.parametrize("random_seed",
                          [0])
 def test_rotate_cupy(n,
-                               input_output_shape_per_dim,
-                               interp_order,
-                               input_output_chunksize_per_dim,
-                               random_seed):
+                     input_output_shape_per_dim,
+                     interp_order,
+                     input_output_chunksize_per_dim,
+                     random_seed):
     cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
     kwargs = dict()
@@ -138,10 +139,10 @@ def test_rotate_cupy(n,
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
                          [(15, 10)])
 def test_rotate_modes(n,
-                                interp_mode,
-                                input_output_shape_per_dim,
-                                input_output_chunksize_per_dim,
-                                ):
+                      interp_mode,
+                      input_output_shape_per_dim,
+                      input_output_chunksize_per_dim,
+                      ):
 
     kwargs = dict()
     kwargs['n'] = n
@@ -163,6 +164,22 @@ def test_rotate_unsupported_modes(interp_mode):
     with pytest.raises(NotImplementedError):
         validate_rotate(**kwargs)
 
+
+def test_rotate_dimensions():
+    with pytest.raises(ValueError):
+        validate_rotate(n=1)
+
+
+@pytest.mark.parametrize("axes",
+                         [[1], [1, 2, 3],
+                          [1, 2.2], [1, 'a'], [[0, 1], 1], [(0, 1), 1], [0, {}],
+                          [-3, 0], [0, -3], [0, 3], [2, 0]])
+def test_rotate_axisdimensions(axes):
+    kwargs = dict()
+    kwargs['axes'] = axes
+
+    with pytest.raises(ValueError):
+        validate_rotate(**kwargs)
 
 def test_rotate_numpy_input():
 
