@@ -172,13 +172,22 @@ def test_rotate_dimensions():
 
 @pytest.mark.parametrize("axes",
                          [[1], [1, 2, 3],
-                          [1, 2.2], [1, 'a'], [[0, 1], 1], [(0, 1), 1], [0, {}],
                           [-3, 0], [0, -3], [0, 3], [2, 0]])
 def test_rotate_axisdimensions(axes):
     kwargs = dict()
     kwargs['axes'] = axes
 
     with pytest.raises(ValueError):
+        validate_rotate(**kwargs)
+
+
+@pytest.mark.parametrize("axes",
+                         [[1, 2.2], [1, 'a'], [[0, 1], 1], [(0, 1), 1], [0, {}]])
+def test_rotate_axistypes(axes):
+    kwargs = dict()
+    kwargs['axes'] = axes
+
+    with pytest.raises(TypeError):
         validate_rotate(**kwargs)
 
 def test_rotate_numpy_input():

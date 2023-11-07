@@ -3,6 +3,7 @@
 import functools
 import math
 from itertools import product
+from numbers import Number
 import warnings
 
 import dask.array as da
@@ -344,8 +345,10 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     if len(axes) != 2:
         raise ValueError('axes should contain exactly two values')
 
-    if not all([float(ax).is_integer() for ax in axes]):
-        raise ValueError('axes should contain only integer values')
+    if not all([isinstance(ax, Number) for ax in axes]):
+        raise TypeError('axes should contain only integer values')
+    elif not all([float(ax).is_integer() for ax in axes]):
+        raise TypeError('axes should contain only integer values')
 
     if axes[0] < 0:
         axes[0] += ndim
