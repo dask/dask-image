@@ -86,6 +86,9 @@ def affine_transform(
     if not type(image) == da.core.Array:
         image = da.from_array(image)
 
+    if output_shape is None:
+        output_shape = image.shape
+
     if output_chunks is None:
         output_chunks = image.shape
 
@@ -344,15 +347,14 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     if output_chunks is None:
         output_chunks = input_arr.chunksize
 
-    if output_shape is None:
-        output_shape = input_arr.shape
-
-    ndim = input_arr.ndim
-
     if reshape & (output_shape is not None):
         warnings.warn('Both reshaping desired and output_shape provided.'
                       'Will use the explicit output_shape.', UserWarning)
 
+    if output_shape is None:
+        output_shape = np.asarray(input_arr.shape)
+
+    ndim = input_arr.ndim
 
     if ndim < 2:
         raise ValueError('input array should be at least 2D')
@@ -405,12 +407,10 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     else:
         out_plane_shape = img_shape[axes]
 
-    if output_shape is None:
-        output_shape = img_shape
+    if output_shape == img_shape:
         output_shape[axes] = out_plane_shape
     else:
         out_plane_shape = np.asarray(output_shape)[axes]
-
 
     out_center = rot_matrix @ ((out_plane_shape - 1) / 2)
     in_center = (in_plane_shape - 1) / 2
@@ -418,11 +418,10 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     output_shape = tuple(output_shape)
 
 
-
     if ndim <= 2:
 
         output = affine_transform(input_arr, rot_matrix,
-                                  offset=offset, output_shape=tuple(output_shape),
+                                  offset=offset, output_shape=output_shape,
                                   order=order, mode=mode, cval=cval,
                                   prefilter=prefilter,output_chunks=output_chunks)
 
@@ -440,13 +439,13 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
 
         output = affine_transform(input_arr, rotmat_nd,
-                                  offset=offset_nd, output_shape=tuple(output_shape),
+                                  offset=offset_nd, output_shape=output_shape,
                                   order=order, mode=mode, cval=cval,
                                   prefilter=prefilter,output_chunks=output_chunks)
 
-    output = output.astype(dtype)
+    result = output.astype(dtype)
 
-    return output
+    return result
 
 
 # magnitude of the maximum filter pole for each order
