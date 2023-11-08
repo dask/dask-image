@@ -253,11 +253,15 @@ def test_rotate_no_output_shape_or_chunks_specified():
 
 
 def test_rotate_prefilter_warning():
-
     with pytest.warns(UserWarning):
         da_ndinterp.rotate(da.ones((3, 3)), 0,
-                           order=1, prefilter=True)
+                           reshape=False, prefilter=True)
 
+
+def test_rotate_shape_warning():
+    with pytest.warns(UserWarning):
+        da_ndinterp.rotate(da.ones((3, 3)), 0,
+                           reshape=True, output_shape=(5,5), prefilter=False)
 
 @pytest.mark.timeout(15)
 def test_rotate_large_input_small_output_cpu():

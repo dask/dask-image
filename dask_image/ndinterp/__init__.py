@@ -351,6 +351,9 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
         warnings.warn('Both reshaping desired and output_shape provided.'
                       'Will use the explicit output_shape.', UserWarning)
 
+    if prefilter:
+        warnings.warn('Prefilter currently unsupported.', UserWarning)
+
     if output_shape is None:
         output_shape = np.asarray(input_arr.shape)
 
