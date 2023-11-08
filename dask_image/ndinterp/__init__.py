@@ -86,9 +86,6 @@ def affine_transform(
     if not type(image) == da.core.Array:
         image = da.from_array(image)
 
-    if output_shape is None:
-        output_shape = image.shape
-
     if output_chunks is None:
         output_chunks = image.shape
 
