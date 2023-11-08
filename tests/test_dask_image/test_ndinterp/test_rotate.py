@@ -190,6 +190,19 @@ def test_rotate_axistypes(axes):
     with pytest.raises(TypeError):
         validate_rotate(**kwargs)
 
+
+@pytest.mark.parametrize("image",
+                         [np.ones((3, 3)), np.ones((3, 3)).astype(int), np.ones((3, 3)).astype(complex)])
+@pytest.mark.parametrize("dtype",
+                         [float, int, complex])
+def test_rotate_dtype(image, dtype):
+    image_t = da_ndinterp.rotate(image, 0, reshape=False)
+    assert image_t.dtype == image.dtype
+
+    image_t1 = da_ndinterp.rotate(image, 0, output=dtype, reshape=False)
+    assert image_t1.dtype == dtype
+
+
 def test_rotate_numpy_input():
 
     image = np.ones((3, 3))

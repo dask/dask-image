@@ -251,7 +251,7 @@ def affine_transform(
 
 
 def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
-           mode='constant', cval=0.0, prefilter=False,output_chunks=None,output_shape=None):
+           mode='constant', cval=0.0, prefilter=False, output_chunks=None, output_shape=None):
     """Rotate an array using Dask.
 
     The array is rotated in the plane defined by the two axes given by the
@@ -260,7 +260,8 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
     Parameters
     ----------
-    %(input)s
+    input_arr : array_like (Numpy Array, Cupy Array, Dask Array...)
+        The image array.
     angle : float
         The rotation angle in degrees.
     axes : tuple of 2 ints, optional
@@ -269,18 +270,38 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     reshape : bool, optional
         If `reshape` is true, the output shape is adapted so that the input
         array is contained completely in the output. Default is True.
-    %(output)s
+    output : dtype, optional
+        The dtype of the returned array.
+        By default, an array of the same dtype as input will be created.
+
     order : int, optional
-        The order of the spline interpolation, default is 3.
-        The order has to be in the range 0-5.
-    %(mode_interp_constant)s
-    %(cval)s
-    %(prefilter)s
+        The order of the spline interpolation, default is 1.
+        The order has to be in the range 0-5. Note that for order>1
+        scipy's affine_transform applies prefiltering, which is not
+        yet supported and skipped in this implementation.
+    mode : {‘constant’, ‘grid-constant’, ‘nearest’}, optional
+        The mode parameter determines how the input array is extended beyond its boundaries.
+        Default is ‘constant’. Behavior for each valid value is as follows (see additional plots and details on boundary modes):
+
+        ‘constant’ (k k k k | a b c d | k k k k)
+            The input is extended by filling all values beyond the edge with the same constant value, defined by the cval parameter. No interpolation is performed beyond the edges of the input.
+        ‘grid-constant’ (k k k k | a b c d | k k k k)
+            The input is extended by filling all values beyond the edge with the same constant value, defined by the cval parameter. Interpolation occurs for samples outside the input’s extent as well.
+        ‘nearest’ (a a a a | a b c d | d d d d)
+            The input is extended by replicating the last pixel.
+    cval : scalar, optional
+        Value to fill past edges of input if mode is ‘constant’. Default is 0.0.
+    prefilter : bool, optional
+        currently not supported
+    output_shape : tuple of ints, optional
+        The shape of the array to be returned.
+    output_chunks : tuple of ints, optional
+        The shape of the chunks of the output Dask Array.
 
     Returns
     -------
-    rotate : ndarray
-        The rotated input.
+    rotate : Dask Array
+        A dask array representing the rotated input.
 
     Notes
     -----
@@ -289,11 +310,10 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
           (affecting the output in case of interpolation `order > 1`)
         - default order is 1
         - modes 'reflect', 'mirror' and 'wrap' are not supported
+        - passing array to `output` is not currently supported.
 
         Arguments equal to `ndimage.affine_rotate`,
-        except for `output_chunks`.
-
-    .. versionadded:: 1.6.0
+        except for `output_chunks`, `output_shape`.
 
     Examples
     --------
@@ -332,7 +352,7 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
 
     ndim = input_arr.ndim
 
-    if reshape & (output_shape != None):
+    if reshape & (output_shape is not None):
         warnings.warn('Both reshaping desired and output_shape provided.'
                       'Will use the explicit output_shape.', UserWarning)
 
@@ -356,6 +376,17 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
         axes[1] += ndim
     if axes[0] < 0 or axes[1] < 0 or axes[0] >= ndim or axes[1] >= ndim:
         raise ValueError('invalid rotation plane specified')
+
+    if output is not None:
+        try:
+            dtype = np.dtype(output)
+        except TypeError:     # pragma: no cover
+            raise TypeError(  # pragma: no cover
+                "Could not coerce the provided output to a dtype. "
+                "Passing array to output is not currently supported."
+            )
+    else:
+        dtype = input_arr.dtype
 
     axes.sort()
 
@@ -416,7 +447,7 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
                                   order=order, mode=mode, cval=cval,
                                   prefilter=prefilter,output_chunks=output_chunks)
 
-
+    output = output.astype(dtype)
 
     return output
 
