@@ -407,7 +407,7 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     else:
         out_plane_shape = img_shape[axes]
 
-    if output_shape == img_shape:
+    if (output_shape == img_shape).all():
         output_shape[axes] = out_plane_shape
     else:
         out_plane_shape = np.asarray(output_shape)[axes]
