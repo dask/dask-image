@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numbers
-from distutils.version import LooseVersion
 
 import pytest
 import numpy as np
@@ -92,7 +91,6 @@ def test_fourier_filter_identity(funcname, s):
 )
 def test_fourier_filter_type(funcname, upcast_type, dtype):
     if (
-            LooseVersion(sp.__version__) >= "1.0.0" and
             dtype in [np.int64, np.float64] and
             funcname in ["fourier_gaussian", "fourier_uniform"]
        ):
