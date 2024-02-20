@@ -250,8 +250,19 @@ def affine_transform(
     return transformed
 
 
-def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
-           mode='constant', cval=0.0, prefilter=False, output_chunks=None, output_shape=None):
+def rotate(
+        input_arr,
+        angle,
+        axes=(1, 0),
+        reshape=True,
+        output=None,
+        order=1,
+        mode='constant',
+        cval=0.0,
+        prefilter=False,
+        output_chunks=None,
+        output_shape=None
+        ):
     """Rotate an array using Dask.
 
     The array is rotated in the plane defined by the two axes given by the
@@ -279,15 +290,20 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
         The order has to be in the range 0-5. Note that for order>1
         scipy's affine_transform applies prefiltering, which is not
         yet supported and skipped in this implementation.
-    mode : {‘constant’, ‘grid-constant’, ‘nearest’}, optional
-        The mode parameter determines how the input array is extended beyond its boundaries.
-        Default is ‘constant’. Behavior for each valid value is as follows (see additional plots and details on boundary modes):
-
-        ‘constant’ (k k k k | a b c d | k k k k)
-            The input is extended by filling all values beyond the edge with the same constant value, defined by the cval parameter. No interpolation is performed beyond the edges of the input.
-        ‘grid-constant’ (k k k k | a b c d | k k k k)
-            The input is extended by filling all values beyond the edge with the same constant value, defined by the cval parameter. Interpolation occurs for samples outside the input’s extent as well.
-        ‘nearest’ (a a a a | a b c d | d d d d)
+    mode : {'constant', 'grid-constant', 'nearest'}, optional
+        The mode parameter determines how the input array is extended
+        beyond its boundaries.
+        Default is 'constant'. Behavior for each valid value is as follows
+        (see additional plots and details on boundary modes):
+        'constant' (k k k k | a b c d | k k k k)
+            The input is extended by filling all values beyond the edge
+            with the same constant value, defined by the cval parameter.
+            No interpolation is performed beyond the edges of the input.
+        'grid-constant' (k k k k | a b c d | k k k k)
+            The input is extended by filling all values beyond the edge
+            with the same constant value, defined by the cval parameter.
+            Interpolation occurs for samples outside the input's extent as well.
+        'nearest' (a a a a | a b c d | d d d d)
             The input is extended by replicating the last pixel.
     cval : scalar, optional
         Value to fill past edges of input if mode is ‘constant’. Default is 0.0.
@@ -367,10 +383,8 @@ def rotate(input_arr, angle, axes=(1, 0), reshape=True, output=None, order=1,
     if len(axes) != 2:
         raise ValueError('axes should contain exactly two values')
 
-    if not all([isinstance(ax, Number) for ax in axes]):
-        raise TypeError('axes should contain only integer values')
-    elif not all([float(ax).is_integer() for ax in axes]):
-        raise TypeError('axes should contain only integer values')
+    if not all([float(ax).is_integer() for ax in axes]):
+        raise ValueError('axes should contain only integer values')
 
     if axes[0] < 0:
         axes[0] += ndim

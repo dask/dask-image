@@ -187,7 +187,7 @@ def test_rotate_axistypes(axes):
     kwargs = dict()
     kwargs['axes'] = axes
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         validate_rotate(**kwargs)
 
 
