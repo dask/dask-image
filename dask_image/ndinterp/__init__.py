@@ -255,13 +255,11 @@ def rotate(
         angle,
         axes=(1, 0),
         reshape=True,
-        output=None,
         order=1,
         mode='constant',
         cval=0.0,
         prefilter=False,
         output_chunks=None,
-        output_shape=None
         ):
     """Rotate an array using Dask.
 
@@ -281,10 +279,6 @@ def rotate(
     reshape : bool, optional
         If `reshape` is true, the output shape is adapted so that the input
         array is contained completely in the output. Default is True.
-    output : dtype, optional
-        The dtype of the returned array.
-        By default, an array of the same dtype as input will be created.
-
     order : int, optional
         The order of the spline interpolation, default is 1.
         The order has to be in the range 0-5. Note that for order>1
@@ -309,8 +303,6 @@ def rotate(
         Value to fill past edges of input if mode is ‘constant’. Default is 0.0.
     prefilter : bool, optional
         currently not supported
-    output_shape : tuple of ints, optional
-        The shape of the array to be returned.
     output_chunks : tuple of ints, optional
         The shape of the chunks of the output Dask Array.
 
@@ -321,15 +313,12 @@ def rotate(
 
     Notes
     -----
-        Differences to `ndimage.affine_transformation`:
-        - currently, prefiltering is not supported
-          (affecting the output in case of interpolation `order > 1`)
-        - default order is 1
-        - modes 'reflect', 'mirror' and 'wrap' are not supported
-        - passing array to `output` is not currently supported.
-
-        Arguments equal to `ndimage.affine_rotate`,
-        except for `output_chunks`, `output_shape`.
+        - Differences to `ndimage.affine_transform`:
+            - currently, prefiltering is not supported
+              (affecting the output in case of interpolation `order > 1`)
+            - default order is 1
+            - modes 'reflect', 'mirror' and 'wrap' are not supported
+        - Arguments equal to `ndimage.affine_rotate`, except for `output_chunks`.
 
     Examples
     --------
@@ -363,15 +352,8 @@ def rotate(
     if output_chunks is None:
         output_chunks = input_arr.chunksize
 
-    if reshape & (output_shape is not None):
-        warnings.warn('Both reshaping desired and output_shape provided.'
-                      'Will use the explicit output_shape.', UserWarning)
-
     if prefilter:
         warnings.warn('Prefilter currently unsupported.', UserWarning)
-
-    if output_shape is None:
-        output_shape = np.asarray(input_arr.shape)
 
     ndim = input_arr.ndim
 
@@ -393,17 +375,6 @@ def rotate(
     if axes[0] < 0 or axes[1] < 0 or axes[0] >= ndim or axes[1] >= ndim:
         raise ValueError('invalid rotation plane specified')
 
-    if output is not None:
-        try:
-            dtype = np.dtype(output)
-        except TypeError:     # pragma: no cover
-            raise TypeError(  # pragma: no cover
-                "Could not coerce the provided output to a dtype. "
-                "Passing array to output is not currently supported."
-            )
-    else:
-        dtype = input_arr.dtype
-
     axes.sort()
 
     c, s = special.cosdg(angle), special.sindg(angle)
@@ -424,45 +395,37 @@ def rotate(
     else:
         out_plane_shape = img_shape[axes]
 
-    if (output_shape == img_shape).all():
-        output_shape[axes] = out_plane_shape
-    else:
-        out_plane_shape = np.asarray(output_shape)[axes]
+    output_shape = np.array(img_shape)
+    output_shape[axes] = out_plane_shape
+    output_shape = tuple(output_shape)
 
     out_center = rot_matrix @ ((out_plane_shape - 1) / 2)
     in_center = (in_plane_shape - 1) / 2
     offset = in_center - out_center
-    output_shape = tuple(output_shape)
 
+    matrix_nd = np.eye(ndim)
+    offset_nd = np.zeros(ndim)
 
-    if ndim <= 2:
+    for o_x,idx in enumerate(axes):
 
-        output = affine_transform(input_arr, rot_matrix,
-                                  offset=offset, output_shape=output_shape,
-                                  order=order, mode=mode, cval=cval,
-                                  prefilter=prefilter,output_chunks=output_chunks)
+        matrix_nd[idx,axes[0]] = rot_matrix[o_x,0]
+        matrix_nd[idx,axes[1]] = rot_matrix[o_x,1]
 
+        offset_nd[idx] = offset[o_x]
 
-    elif ndim >= 3:
-        rotmat_nd = np.eye(ndim)
-        offset_nd = np.zeros(ndim)
+    output = affine_transform(
+        input_arr,
+        matrix=matrix_nd,
+        offset=offset_nd,
+        output_shape=output_shape,
+        order=order,
+        mode=mode,
+        cval=cval,
+        prefilter=prefilter,
+        output_chunks=output_chunks
+        )
 
-        for o_x,idx in enumerate(axes):
-
-            rotmat_nd[idx,axes[0]] = rot_matrix[o_x,0]
-            rotmat_nd[idx,axes[1]] = rot_matrix[o_x,1]
-
-            offset_nd[idx] = offset[o_x]
-
-
-        output = affine_transform(input_arr, rotmat_nd,
-                                  offset=offset_nd, output_shape=output_shape,
-                                  order=order, mode=mode, cval=cval,
-                                  prefilter=prefilter,output_chunks=output_chunks)
-
-    result = output.astype(dtype)
-
-    return result
+    return output
 
 
 # magnitude of the maximum filter pole for each order

@@ -13,7 +13,7 @@ from scipy import ndimage
 def validate_rotate(n=2,
                     axes=(0,1),
                     reshape=False,
-                    input_output_shape_per_dim=(16,16),
+                    input_shape_per_dim=16,
                     interp_order=1,
                     interp_mode='constant',
                     input_output_chunksize_per_dim=(6,6),
@@ -32,10 +32,8 @@ def validate_rotate(n=2,
     """
 
     # define test image
-    a = input_output_shape_per_dim[0]
-
     np.random.seed(random_seed)
-    image = np.random.random([a] * n)
+    image = np.random.random([input_shape_per_dim] * n)
 
     angle = np.random.random() * 360 - 180
 
@@ -58,7 +56,7 @@ def validate_rotate(n=2,
         order=interp_order,
         mode=interp_mode,
         prefilter=False,
-        # output_chunks = output_chunks
+        output_chunks=output_chunks
         )
 
     image_t_dask_computed = image_t_dask.compute()
@@ -192,7 +190,9 @@ def test_rotate_axistypes(axes):
 
 
 @pytest.mark.parametrize("image",
-                         [np.ones((3, 3)), np.ones((3, 3)).astype(int), np.ones((3, 3)).astype(complex)])
+                         [np.ones((3, 3)),
+                          np.ones((3, 3)).astype(int),
+                          np.ones((3, 3)).astype(complex)])
 @pytest.mark.parametrize("dtype",
                          [float, int, complex])
 def test_rotate_dtype(image, dtype):
@@ -243,7 +243,7 @@ def test_rotate_type_consistency_gpu():
     assert isinstance(image[0, 0].compute(), type(image_t[0, 0].compute()))
 
 
-def test_rotate_no_output_shape_or_chunks_specified():
+def test_rotate_no_chunks_specified():
 
     image = da.ones((3, 3))
     image_t = da_ndinterp.rotate(image, 0)
@@ -256,47 +256,3 @@ def test_rotate_prefilter_warning():
     with pytest.warns(UserWarning):
         da_ndinterp.rotate(da.ones((3, 3)), 0,
                            reshape=False, prefilter=True)
-
-
-def test_rotate_shape_warning():
-    with pytest.warns(UserWarning):
-        da_ndinterp.rotate(da.ones((3, 3)), 0,
-                           reshape=True, output_shape=(5,5), prefilter=False)
-
-@pytest.mark.timeout(15)
-def test_rotate_large_input_small_output_cpu():
-    """
-    Make sure input array does not need to be computed entirely
-    """
-
-    # fully computed, this array would occupy 8TB
-    image = da.random.random([10000] * 3, chunks=(200, 200, 200))
-    image_t = da_ndinterp.rotate(image, 0,
-                                 output_shape=[1, 1, 1],
-                                 output_chunks=[1, 1, 1])
-
-    # if more than the needed chunks should be computed,
-    # this would take long and eventually raise a MemoryError
-    image_t[0, 0, 0].compute()
-
-
-@pytest.mark.cupy
-@pytest.mark.timeout(15)
-def test_rotate_large_input_small_output_gpu():
-    """
-    Make sure input array does not need to be computed entirely
-    """
-    cupy = pytest.importorskip("cupy", minversion="6.0.0")
-
-    # this array would occupy more than 24GB on a GPU
-    image = da.random.random([2000] * 3, chunks=(50, 50, 50))
-    image.map_blocks(cupy.asarray)
-
-    image_t = da_ndinterp.rotate(image, 0,
-                                 output_shape=[1, 1, 1],
-                                 output_chunks=[1, 1, 1])
-
-    # if more than the needed chunks should be computed,
-    # this would take long and eventually raise a MemoryError
-    image_t[0, 0, 0].compute()
-
