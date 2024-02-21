@@ -3,8 +3,6 @@
 import functools
 import math
 from itertools import product
-from numbers import Number
-import warnings
 
 import dask.array as da
 import numpy as np
@@ -12,7 +10,7 @@ from dask.base import tokenize
 from dask.highlevelgraph import HighLevelGraph
 import scipy
 from scipy.ndimage import affine_transform as ndimage_affine_transform
-from scipy import special
+from scipy.special import sindg, cosdg
 
 from ..dispatch._dispatch_ndinterp import (
     dispatch_affine_transform,
@@ -27,7 +25,9 @@ from ..dispatch._dispatch_ndinterp import (dispatch_affine_transform,
 
 __all__ = [
     "affine_transform",
-    "rotate"
+    "rotate",
+    "spline_filter",
+    "spline_filter1d",
 ]
 
 
@@ -356,7 +356,7 @@ def rotate(
 
     axes.sort()
 
-    c, s = special.cosdg(angle), special.sindg(angle)
+    c, s = cosdg(angle), sindg(angle)
 
     rot_matrix = np.array([[c, s],
                            [-s, c]])
