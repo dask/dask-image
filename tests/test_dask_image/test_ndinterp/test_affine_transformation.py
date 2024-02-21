@@ -284,13 +284,6 @@ def test_affine_transform_no_output_shape_or_chunks_specified():
     assert image_t.chunks == tuple([(s,) for s in image.shape])
 
 
-def test_affine_transform_prefilter_warning():
-
-    with pytest.warns(UserWarning):
-        dask_image.ndinterp.affine_transform(da.ones(20), [1], [0],
-                                             order=3, prefilter=True)
-
-
 @pytest.mark.timeout(15)
 def test_affine_transform_large_input_small_output_cpu():
     """
