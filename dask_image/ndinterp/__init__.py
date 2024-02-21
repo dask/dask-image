@@ -255,17 +255,29 @@ def rotate(
         angle,
         axes=(1, 0),
         reshape=True,
-        order=1,
-        mode='constant',
-        cval=0.0,
-        prefilter=False,
         output_chunks=None,
+        **kwargs,
         ):
     """Rotate an array using Dask.
 
     The array is rotated in the plane defined by the two axes given by the
     `axes` parameter using spline interpolation of the requested order.
-    Chunkwise processing is performed using dask_image.ndinterp.affine_transform.
+
+    Chunkwise processing is performed using `dask_image.ndinterp.affine_transform`,
+    for which further parameters supported by the ndimage functions can be
+    passed as keyword arguments.
+
+    Notes
+    -----
+        Differences to `ndimage.rotate`:
+        - currently, prefiltering is not supported
+          (affecting the output in case of interpolation `order > 1`)
+        - default order is 1
+        - modes 'reflect', 'mirror' and 'wrap' are not supported
+
+        Arguments are equal to `ndimage.rotate` except for
+        - `output` (not present here)
+        - `output_chunks` (relevant in the dask array context)
 
     Parameters
     ----------
@@ -279,46 +291,16 @@ def rotate(
     reshape : bool, optional
         If `reshape` is true, the output shape is adapted so that the input
         array is contained completely in the output. Default is True.
-    order : int, optional
-        The order of the spline interpolation, default is 1.
-        The order has to be in the range 0-5. Note that for order>1
-        scipy's affine_transform applies prefiltering, which is not
-        yet supported and skipped in this implementation.
-    mode : {'constant', 'grid-constant', 'nearest'}, optional
-        The mode parameter determines how the input array is extended
-        beyond its boundaries.
-        Default is 'constant'. Behavior for each valid value is as follows
-        (see additional plots and details on boundary modes):
-        'constant' (k k k k | a b c d | k k k k)
-            The input is extended by filling all values beyond the edge
-            with the same constant value, defined by the cval parameter.
-            No interpolation is performed beyond the edges of the input.
-        'grid-constant' (k k k k | a b c d | k k k k)
-            The input is extended by filling all values beyond the edge
-            with the same constant value, defined by the cval parameter.
-            Interpolation occurs for samples outside the input's extent as well.
-        'nearest' (a a a a | a b c d | d d d d)
-            The input is extended by replicating the last pixel.
-    cval : scalar, optional
-        Value to fill past edges of input if mode is ‘constant’. Default is 0.0.
-    prefilter : bool, optional
-        currently not supported
     output_chunks : tuple of ints, optional
         The shape of the chunks of the output Dask Array.
+    **kwargs : dict, optional
+        Additional keyword arguments are passed to
+        `dask_image.ndinterp.affine_transform`.
 
     Returns
     -------
     rotate : Dask Array
         A dask array representing the rotated input.
-
-    Notes
-    -----
-        - Differences to `ndimage.affine_transform`:
-            - currently, prefiltering is not supported
-              (affecting the output in case of interpolation `order > 1`)
-            - default order is 1
-            - modes 'reflect', 'mirror' and 'wrap' are not supported
-        - Arguments equal to `ndimage.affine_rotate`, except for `output_chunks`.
 
     Examples
     --------
@@ -351,9 +333,6 @@ def rotate(
 
     if output_chunks is None:
         output_chunks = input_arr.chunksize
-
-    if prefilter:
-        warnings.warn('Prefilter currently unsupported.', UserWarning)
 
     ndim = input_arr.ndim
 
@@ -418,11 +397,8 @@ def rotate(
         matrix=matrix_nd,
         offset=offset_nd,
         output_shape=output_shape,
-        order=order,
-        mode=mode,
-        cval=cval,
-        prefilter=prefilter,
-        output_chunks=output_chunks
+        output_chunks=output_chunks,
+        **kwargs,
         )
 
     return output

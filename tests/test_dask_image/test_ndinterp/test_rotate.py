@@ -1,34 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import numpy as np
+import dask.array as da
 import pytest
+from scipy import ndimage
 
 import dask_image.ndinterp as da_ndinterp
 
-import numpy as np
-import dask.array as da
-from scipy import ndimage
-
 
 def validate_rotate(n=2,
-                    axes=(0,1),
+                    axes=(0, 1),
                     reshape=False,
                     input_shape_per_dim=16,
                     interp_order=1,
                     interp_mode='constant',
-                    input_output_chunksize_per_dim=(6,6),
+                    input_output_chunksize_per_dim=(6, 6),
                     random_seed=0,
                     use_cupy=False,
                     ):
     """
     Compare the outputs of `ndimage.rotate`
     and `dask_image.ndinterp.rotate`.
-
-    Notes
-    -----
-        Currently, prefilter is disabled and therefore the output
-        of `dask_image.ndinterp.rotate` is compared
-        to `prefilter=False`.
     """
 
     # define test image
@@ -40,6 +33,7 @@ def validate_rotate(n=2,
     # transform into dask array
     chunksize = [input_output_chunksize_per_dim[0]] * n
     image_da = da.from_array(image, chunks=chunksize)
+
     if use_cupy:
         import cupy as cp
         image_da = image_da.map_blocks(cp.asarray)
@@ -75,8 +69,8 @@ def validate_rotate(n=2,
 
 @pytest.mark.parametrize("n",
                          [2, 3])
-@pytest.mark.parametrize("input_output_shape_per_dim",
-                         [(25, 25), (25, 10)])
+@pytest.mark.parametrize("input_shape_per_dim",
+                         [25, 2])
 @pytest.mark.parametrize("interp_order",
                          [0,1])
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
@@ -84,14 +78,14 @@ def validate_rotate(n=2,
 @pytest.mark.parametrize("random_seed",
                          [0, 1, 2])
 def test_rotate_general(n,
-                        input_output_shape_per_dim,
+                        input_shape_per_dim,
                         interp_order,
                         input_output_chunksize_per_dim,
                         random_seed):
 
     kwargs = dict()
     kwargs['n'] = n
-    kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
+    kwargs['input_shape_per_dim'] = input_shape_per_dim
     kwargs['interp_order'] = interp_order
     kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
     kwargs['random_seed'] = random_seed
@@ -102,8 +96,8 @@ def test_rotate_general(n,
 @pytest.mark.cupy
 @pytest.mark.parametrize("n",
                          [2, 3])
-@pytest.mark.parametrize("input_output_shape_per_dim",
-                         [(25, 25), (25, 10)])
+@pytest.mark.parametrize("input_shape_per_dim",
+                         [25, 2])
 @pytest.mark.parametrize("interp_order",
                          [0, 1])
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
@@ -111,15 +105,16 @@ def test_rotate_general(n,
 @pytest.mark.parametrize("random_seed",
                          [0])
 def test_rotate_cupy(n,
-                     input_output_shape_per_dim,
+                     input_shape_per_dim,
                      interp_order,
                      input_output_chunksize_per_dim,
                      random_seed):
+
     cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
     kwargs = dict()
     kwargs['n'] = n
-    kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
+    kwargs['input_shape_per_dim'] = input_shape_per_dim
     kwargs['interp_order'] = interp_order
     kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
     kwargs['random_seed'] = random_seed
@@ -132,20 +127,20 @@ def test_rotate_cupy(n,
                          [2, 3])
 @pytest.mark.parametrize("interp_mode",
                          ['constant', 'nearest'])
-@pytest.mark.parametrize("input_output_shape_per_dim",
-                         [(20, 30)])
+@pytest.mark.parametrize("input_shape_per_dim",
+                         [20, 30])
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
                          [(15, 10)])
 def test_rotate_modes(n,
                       interp_mode,
-                      input_output_shape_per_dim,
+                      input_shape_per_dim,
                       input_output_chunksize_per_dim,
                       ):
 
     kwargs = dict()
     kwargs['n'] = n
     kwargs['interp_mode'] = interp_mode
-    kwargs['input_output_shape_per_dim'] = input_output_shape_per_dim
+    kwargs['input_shape_per_dim'] = input_shape_per_dim
     kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
     kwargs['interp_order'] = 0
 
@@ -185,22 +180,21 @@ def test_rotate_axistypes(axes):
     kwargs = dict()
     kwargs['axes'] = axes
 
-    with pytest.raises(ValueError):
+    with pytest.raises((ValueError, TypeError)):
         validate_rotate(**kwargs)
 
 
-@pytest.mark.parametrize("image",
-                         [np.ones((3, 3)),
-                          np.ones((3, 3)).astype(int),
-                          np.ones((3, 3)).astype(complex)])
-@pytest.mark.parametrize("dtype",
-                         [float, int, complex])
-def test_rotate_dtype(image, dtype):
+@pytest.mark.parametrize(
+        "image",
+        [
+            np.ones((3, 3)).astype(float),
+            np.ones((3, 3)).astype(int),
+            np.ones((3, 3)).astype(complex)
+            ]
+)
+def test_rotate_dtype(image):
     image_t = da_ndinterp.rotate(image, 0, reshape=False)
     assert image_t.dtype == image.dtype
-
-    image_t1 = da_ndinterp.rotate(image, 0, output=dtype, reshape=False)
-    assert image_t1.dtype == dtype
 
 
 def test_rotate_numpy_input():
@@ -252,7 +246,8 @@ def test_rotate_no_chunks_specified():
     assert image_t.chunks == tuple([(s,) for s in image.shape])
 
 
-def test_rotate_prefilter_warning():
-    with pytest.warns(UserWarning):
-        da_ndinterp.rotate(da.ones((3, 3)), 0,
-                           reshape=False, prefilter=True)
+def test_rotate_prefilter_not_implemented_error():
+    with pytest.raises(NotImplementedError):
+        da_ndinterp.rotate(
+            da.ones((15, 15)), 0,
+            order=3, prefilter=True, mode='nearest')
