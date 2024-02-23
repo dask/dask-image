@@ -252,7 +252,7 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
             if max([neigh_block[dim] >= block_summary.shape[dim]
                     for dim in range(ndim)]): continue
 
-            # get neighbor slice index
+            # get current slice index
             ind_curr_block = block_summary[tuple(curr_block)]
 
             curr_slice = []
