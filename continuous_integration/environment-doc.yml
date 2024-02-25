@@ -16,12 +16,12 @@ dependencies:
   - slicerator==1.1.0
   - pandas==2.0.0
   - pip:
-    - sphinx>=4.0.0
-    - dask-sphinx-theme>=3.0.0
     # FIXME: This workaround is required until we have sphinx>=5, as enabled by
     #        dask-sphinx-theme no longer pinning sphinx-book-theme==0.2.0. This is
     #        tracked in https://github.com/dask/dask-sphinx-theme/issues/68.
     #        Once sphinx>=5 is available, we can remove this workaround.
+    - dask-sphinx-theme>=3.0.0
+    - sphinx>=4.0.0
     - sphinxcontrib-applehelp>=1.0.0,<1.0.7
     - sphinxcontrib-devhelp>=1.0.0,<1.0.6
     - sphinxcontrib-htmlhelp>=2.0.0,<2.0.5
