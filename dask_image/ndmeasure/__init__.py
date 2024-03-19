@@ -303,7 +303,7 @@ def histogram(image,
     return result
 
 
-def label(image, structure=None):
+def label(image, structure=None, wrap_axes=None):
     """
     Label features in an array.
 
@@ -322,6 +322,14 @@ def label(image, structure=None):
             [[0,1,0],
              [1,1,1],
              [0,1,0]]
+
+    wrap_axes : tuple of int, optional
+        Whether labels should be wrapped across array boundaries, and if so which axes.
+        This feature is not present in `ndimage.label`.
+        Examples:
+        - (0,) only wrap across the 0th axis.
+        - (0, 1) wrap across the 0th and 1st axis.
+        - (0, 1, 3)  wrap across 0th, 1st and 3rd axis.
 
     Returns
     -------
@@ -363,11 +371,13 @@ def label(image, structure=None):
     # Now, build a label connectivity graph that groups labels across blocks.
     # We use this graph to find connected components and then relabel each
     # block according to those.
-    label_groups = _label.label_adjacency_graph(block_labeled, structure,
-                                                total)
+    label_groups = _label.label_adjacency_graph(
+        block_labeled, structure, total, wrap_axes=wrap_axes
+    )
     new_labeling = _label.connected_components_delayed(label_groups)
     relabeled = _label.relabel_blocks(block_labeled, new_labeling)
     n = da.max(relabeled)
+
 
     return (relabeled, n)
 

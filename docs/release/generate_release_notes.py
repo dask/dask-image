@@ -163,8 +163,8 @@ highlights['Other Pull Requests'] = other_pull_requests
 
 
 # Now generate the release notes
-title = (f'{args.version} ({datetime.today().strftime("%Y-%m-%d")})'
-         '\n------------------')
+title = (f'{args.version} ({datetime.today().strftime("%Y-%m-%d")})')
+title += f'\n' + f'-' * len(title) #title underline of same length as title
 print(title)
 
 print(

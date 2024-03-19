@@ -143,7 +143,7 @@ def test_spline_filter_cupy(
     input_as_non_dask_array,
 ):
 
-    pytest.importorskip("cupy", minversion="6.0.0")
+    pytest.importorskip("cupy", minversion="9.0.0")
 
     validate_spline_filter(
         n=n,
