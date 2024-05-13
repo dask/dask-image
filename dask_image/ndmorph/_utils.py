@@ -26,7 +26,7 @@ def _get_structure(image, structure):
             raise RuntimeError(
                 "`structure` must have the same rank as `image`."
             )
-        if not issubclass(structure.dtype.type, np.bool8):
+        if not issubclass(structure.dtype.type, np.bool_):
             structure = (structure != 0)
     else:
         raise TypeError("`structure` must be an array.")
@@ -59,9 +59,9 @@ def _get_mask(image, mask):
     if isinstance(mask, (np.ndarray, da.Array)):
         if mask.shape != image.shape:
             raise RuntimeError("`mask` must have the same shape as `image`.")
-        if not issubclass(mask_type, np.bool8):
+        if not issubclass(mask_type, np.bool_):
             mask = (mask != 0)
-    elif issubclass(mask_type, np.bool8):
+    elif issubclass(mask_type, np.bool_):
         mask = bool(mask)
     else:
         raise TypeError("`mask` must be a Boolean or an array.")

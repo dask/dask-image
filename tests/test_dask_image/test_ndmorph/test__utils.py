@@ -129,7 +129,7 @@ def test__get_iterations(expected, iterations):
 @pytest.mark.parametrize(
     "expected, a",
     [
-        (np.bool8, False),
+        (np.bool_, False),
         (np.int_, 2),
         (np.float64, 3.1),
         (np.complex128, 1 + 2j),
@@ -150,12 +150,12 @@ def test__get_dtype(expected, a):
         (
             True,
             da.arange(2, dtype=bool, chunks=(2,)),
-            np.bool8(True)
+            np.bool_(True)
         ),
         (
             False,
             da.arange(2, dtype=bool, chunks=(2,)),
-            np.bool8(False)
+            np.bool_(False)
         ),
         (
             np.arange(2, dtype=bool),
