@@ -83,7 +83,7 @@ def affine_transform(
 
     """
 
-    if not type(image) == da.core.Array:
+    if not isinstance(image, da.core.Array):
         image = da.from_array(image)
 
     if output_shape is None:
@@ -328,7 +328,7 @@ def rotate(
     (724, 724)
 
     """
-    if not type(input_arr) == da.core.Array:
+    if not isinstance(input_arr, da.core.Array):
         input_arr = da.from_array(input_arr)
 
     if output_chunks is None:
@@ -434,7 +434,7 @@ def spline_filter(
         **kwargs
 ):
 
-    if not type(image) == da.core.Array:
+    if not isinstance(image, da.core.Array):
         image = da.from_array(image)
 
     # use dispatching mechanism to determine backend
@@ -492,7 +492,7 @@ def spline_filter1d(
         **kwargs
 ):
 
-    if not type(image) == da.core.Array:
+    if not isinstance(image, da.core.Array):
         image = da.from_array(image)
 
     # use dispatching mechanism to determine backend
