@@ -29,8 +29,8 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    "dask[array] >=2023.2.0",
-    "dask[dataframe] >=2023.2.0",
+    "dask[array] >=2024.4.1",
+    "dask[dataframe] >=2024.4.1",
     "numpy >=1.18",
     "scipy >=1.7.0",
     "pims >=0.4.1",
