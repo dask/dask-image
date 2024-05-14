@@ -13,7 +13,7 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      # fail-fast: true
       matrix:
         os: ["windows-latest", "ubuntu-latest", "macos-latest"]
         python-version: ["3.9", "3.10", "3.11"]
