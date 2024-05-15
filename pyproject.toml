@@ -24,21 +24,26 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "dask[array,dataframe] >=2023.2.0",
+    "dask[array,dataframe] >=2024.4.1",
     "numpy >=1.11.3",
+    "scikit-image >=0.19.3",
     "scipy >=0.19.1",
     "pandas >=2.0.0",
     "pims >=0.4.1",
+    "slicerator >= 1.1.0",
     "tifffile >=2018.10.18",
 ]
 
 [project.optional-dependencies]
 test = [
-    "flake8 >=3.4.1",
+    "build >=1.2.1",
+    "coverage >=7.2.1",
+    "flake8 >=6.0.0",
     "Flake8-pyproject",
-    "pytest >=3.0.5",
-    "pytest-flake8>=1.0.5",
-    "pytest-timeout >=1.0.0",
+    "pytest >=7.2.2",
+    "pytest-cov >=4.0.0",
+    "pytest-flake8 >=1.1.1",
+    "pytest-timeout >=2.3.1",
 ]
 gpu = [
     "cupy >=9.0.0",
