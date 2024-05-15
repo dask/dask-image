@@ -98,6 +98,7 @@ def test_threshold_local_generic(simple_test_image):
     assert np.allclose(unchanged.compute(), simple_test_image.compute())
     assert np.allclose(out.compute(), ref)
 
+
 def test_threshold_local_generic_invalid(simple_test_image):
     expected_error_message = "Must include a valid function to use as "
     "the 'param' keyword argument."
@@ -116,6 +117,7 @@ def test_threshold_local_generic_invalid(simple_test_image):
 def test_nan_blocksize(simple_test_image, method, block_size, error_type):
     with pytest.raises(error_type):
         threshold_local(simple_test_image, block_size, method=method)
+
 
 def test_invalid_threshold_method(simple_test_image):
     with pytest.raises(ValueError):
