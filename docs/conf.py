@@ -15,7 +15,8 @@
 
 import sys
 import os
-from pkg_resources import get_distribution
+
+import dask_image._version
 
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
@@ -67,7 +68,7 @@ copyright = u"2018, John Kirkham"
 # the built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = get_distribution('dask_image').version
+release = dask_image._version.__version__
 # The short X.Y.Z version.
 version = '.'.join(release.split('.')[:3])
 

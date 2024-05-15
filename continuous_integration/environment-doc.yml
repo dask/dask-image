@@ -16,6 +16,7 @@ dependencies:
   - pandas==2.0.0
   - pip:
     - build==1.2.1
+    - ..  # install dask_image from this repository source
     # FIXME: This workaround is required until we have sphinx>=5, as enabled by
     #        dask-sphinx-theme no longer pinning sphinx-book-theme==0.2.0. This is
     #        tracked in https://github.com/dask/dask-sphinx-theme/issues/68.
