@@ -6,7 +6,6 @@ channels:
 dependencies:
   - python=3.12.*
   - pip==24.0
-  - build==1.2.1
   - coverage==7.5.1
   - flake8==7.0.0
   - pytest==8.2.0
@@ -19,3 +18,5 @@ dependencies:
   - pims==0.6.1
   - slicerator==1.1.0
   - pandas==2.2.2
+  - pip:
+    - build==1.2.1
