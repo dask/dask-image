@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=62.6", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -50,7 +50,7 @@ gpu = [
 "Source Code" = "https://github.com/dask/dask-image"
 
 [tool.setuptools_scm]
-root = "."
+version_file = "dask_image/_version.py"
 
 [tool.setuptools]
 include-package-data = true
@@ -67,6 +67,3 @@ exclude = [
 [tool.pytest]
 addopts = "--flake8"
 markers = "cupy"
-
-[tool.flake8]
-exclude = "docs/conf.py,versioneer.py"

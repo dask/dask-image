@@ -22,7 +22,6 @@ omit =
     */eggs/*
     */.eggs/*
     *tests/*
-    */versioneer.py
     */_version.py
     */_vendor/*
     */dispatch/*

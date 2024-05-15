@@ -42,7 +42,7 @@ for `dask-image`. This means version numbers have the format
 and X is an integer counter beginning at zero (to distinguish
 between cases where multiple releases were made in the same month).
 
-`Versioneer <https://github.com/warner/python-versioneer>`_
+`setuptools-scm <https://setuptools-scm.readthedocs.io/en/stable/>`_
 then determines the exact version from the latest
 `git tag <https://git-scm.com/book/en/v2/Git-Basics-Tagging>`_
 beginning with `v`. So our git tags will have the format `vYYYY.MM.X`.
