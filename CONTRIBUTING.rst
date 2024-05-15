@@ -84,12 +84,13 @@ Ready to contribute? Here's how to set up `dask-image` for local development.
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/dask-image.git
+    $ cd dask-image
 
 3. Install your local copy into an environment. Assuming you have conda installed, this is how you set up your fork for local development (on Windows drop `source`). Replace `"<some version>"` with the Python version used for testing.::
 
     $ conda create -n dask-image-env python="<some version>"
     $ source activate dask-image-env
-    $ python setup.py develop
+    $ python -m pip install -e .
 
 4. Create a branch for local development::
 
@@ -100,7 +101,7 @@ Ready to contribute? Here's how to set up `dask-image` for local development.
 5. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions::
 
     $ flake8 dask_image tests
-    $ python setup.py test or py.test
+    $ pytest
 
    To get flake8, just conda install it into your environment.
 
@@ -164,7 +165,7 @@ Finally, install the development version of dask-image::
 
 .. code-block:: console
 
-    $ pip install -e .
+    $ pip install -e ".[test]""
 
 For local testing, please run ``pytest`` in the test environment::
 
