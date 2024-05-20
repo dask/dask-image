@@ -41,7 +41,7 @@ rapids-logger "Activate conda env"
 conda activate dask_image
 
 rapids-logger "Install cupy"
-python -m pip install cupy-cuda112 -f https://pip.cupy.dev/pre
+python -m pip install cupy-cuda11x -f https://pip.cupy.dev/pre
 
 rapids-logger "Install dask-image"
 python -m pip install .
