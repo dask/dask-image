@@ -26,11 +26,9 @@ classifiers = [
 dependencies = [
     "dask[array,dataframe] >=2024.4.1",
     "numpy >=1.18",
-    "scikit-image >=0.19.3",
     "scipy >=1.7.0",
     "pandas >=2.0.0",
     "pims >=0.4.1",
-    "slicerator >=1.1.0",
     "tifffile >=2018.10.18",
 ]
 
