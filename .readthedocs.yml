@@ -1,9 +1,19 @@
 version: 2
 
 build:
-  os: ubuntu-22.04
+  os: "ubuntu-22.04"
   tools:
     python: "mambaforge-4.10"
+  jobs:
+    pre_install:
+      # Avoid `git` treating the directory is dirty due to RTD changes.
+      # ref: https://docs.readthedocs.io/en/stable/build-customization.html#avoid-having-a-dirty-git-index
+      - >-
+        git update-index --assume-unchanged
+        continuous_integration/environment-doc.yml
+        docs/conf.py
+      # If we missed any, error and list the changed files.
+      - git diff --stat --exit-code
 
 sphinx:
   configuration: docs/conf.py
