@@ -54,6 +54,7 @@ gpu = [
 "Source Code" = "https://github.com/dask/dask-image"
 
 [tool.setuptools_scm]
+version_scheme = "no-guess-dev"
 version_file = "dask_image/_version.py"
 
 [tool.setuptools]
