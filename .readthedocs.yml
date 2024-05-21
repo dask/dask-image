@@ -10,3 +10,8 @@ sphinx:
 
 conda:
   environment: continuous_integration/environment-doc.yml
+
+python:
+  install:
+    - method: pip
+      path: .
