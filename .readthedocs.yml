@@ -9,6 +9,7 @@ build:
       # Avoid `git` treating the directory is dirty due to RTD changes.
       # ref: https://docs.readthedocs.io/en/stable/build-customization.html#avoid-having-a-dirty-git-index
       - git update-index --assume-unchanged continuous_integration/environment-doc.yml docs/conf.py
+      - git status
 
 sphinx:
   configuration: docs/conf.py
