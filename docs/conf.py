@@ -72,7 +72,7 @@ release = dask_image._version.__version__
 # The short X.Y.Z version.
 version = '.'.join(release.split('.')[:3])
 if "dev" in release:
-    display_version = release
+    display_version = "(development version)"
 else:
     display_version = version
 
