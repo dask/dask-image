@@ -18,7 +18,7 @@ to complete the release process:
 
 .. code-block:: bash
 
-   pip install PyGithub>=1.44.1 twine>=3.1.1 tqdm
+   pip install "PyGithub>=1.44.1" "twine>=3.1.1" tqdm
 
 
 

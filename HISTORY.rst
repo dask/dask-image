@@ -2,6 +2,73 @@
 History
 =======
 
+2024.5.0 (2024-05-17)
+----------------------
+
+We're pleased to announce the release of dask-image 2024.5.0!
+
+Highlights
+
+Highlights of this release include:
+
+* Martin Schorb adding 'rotate', 'spline_filter' and 'spline_filter1d' functions (#213)
+* Erik Holmgren adding functionality to allow wrapping labels over array boundaries (#344), and 
+* Christoph Sommer's work allowing aicsimageio and other da.core.Array sub-classes as input arrays (#361)
+
+New Features
+
+* Add the rotate, spline_filter, and spline_filter1d functions to ndimage (#213)
+* Wrapping labels over array boundaries (#344)
+* Add python 3.12 support (#370)
+
+Improvements
+
+* Relaxed type check of input array, to allow da.core.Array sub-classes… (#361)
+* Update slice index comment to reflect code change (#353)
+
+Maintenance
+
+* Switch to pyproject.toml package setup, replace versioneer with setuptools-scm (#306)
+* Fix cupy pytest errors (#368)
+* Switch to newer GPU CI images (#345)
+* Bump GPU CI to CUDA 11.8 (#348)
+* Maintenance: fix CI test errors (#366)
+* Update CI test environments (#367)
+* Additions to release guide and change to release note generation script (#339)
+* Fix typo in pull request template (#347)
+* Workaround for the sphinx version problem in the readthedocs build environment (#354)
+* Pin dask to 2024.4.1 to avoid error during dask.dataframe import with python 3.11.9 (#363)
+* Get rid of distutils dependency -- Depend on newer scipy (#346)
+* Bump actions/checkout from 3 to 4 (#342)
+* Bump actions/setup-python from 4 to 5 (#350)
+* Bump coverallsapp/github-action from 2.2.1 to 2.2.3 (#343)
+* Bump conda-incubator/setup-miniconda from 2 to 3 (#349)
+* Bump coverallsapp/github-action from 2.2.3 to 2.3.0 (#365)
+* Update versioneer to version 0.29 for compatibility with python 3.12 (#357)
+
+
+9 authors added to this release (alphabetical)
+
+* `Charles Blackmon-Luca <https://github.com/dask/dask-image/commits?author=charlesbluca>`_ - @charlesbluca
+* `Christoph Sommer <https://github.com/dask/dask-image/commits?author=sommerc>`_ - @sommerc
+* `dependabot[bot] <https://github.com/dask/dask-image/commits?author=dependabot[bot]>`_ - @dependabot[bot]
+* `Erik Holmgren <https://github.com/dask/dask-image/commits?author=Holmgren825>`_ - @Holmgren825
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Mark Harfouche <https://github.com/dask/dask-image/commits?author=hmaarrfk>`_ - @hmaarrfk
+* `Martin Schorb <https://github.com/dask/dask-image/commits?author=martinschorb>`_ - @martinschorb
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+
+
+5 reviewers added to this release (alphabetical)
+
+* `Erik Holmgren <https://github.com/dask/dask-image/commits?author=Holmgren825>`_ - @Holmgren825
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Juan Nunez-Iglesias <https://github.com/dask/dask-image/commits?author=jni>`_ - @jni
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+
+
 2023.08.1 (2023-08-04)
 ----------------------
 
