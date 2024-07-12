@@ -48,7 +48,7 @@ def _ravel_shape_indices_kernel(*args):
     return sum(args2)
 
 
-def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
+def _ravel_shape_indices(dimensions, dtype=int, chunks=None, skip_trailing_dim:bool=False):
     """
     Gets the raveled indices shaped like input.
     """
@@ -61,7 +61,7 @@ def _ravel_shape_indices(dimensions, dtype=int, chunks=None):
             dtype=dtype,
             chunks=c
         )
-        for i, c in enumerate(chunks)
+        for i, c in enumerate(chunks[:-1] if skip_trailing_dim else chunks)
     ]
 
     indices = da.blockwise(
