@@ -450,7 +450,8 @@ def labeled_comprehension(image,
     for i in np.ndindex(index.shape):
         lbl_mtch_i = (label_image == index[i])
         args_lbl_mtch_i = tuple(
-            e[lbl_mtch_i] if e.ndim == 2 else e.reshape(-1, e.shape[2])[lbl_mtch_i.reshape(-1)] for e in args)
+            e[lbl_mtch_i] if e.ndim == lbl_mtch_i.ndim else e.reshape(-1, e.shape[-1])[lbl_mtch_i.reshape(-1)] for e in
+            args)
         result[i] = _utils._labeled_comprehension_func(
             func, out_dtype, default_1d, *args_lbl_mtch_i
         )
