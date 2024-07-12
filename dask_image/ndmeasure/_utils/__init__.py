@@ -30,9 +30,11 @@ def _norm_input_labels_index(image, label_image=None, index=None):
             "Having index with dimensionality greater than 1 is undefined.",
             FutureWarning
         )
-    if image.shape[:2] != label_image.shape:  # allow trailing channel
+
+    image_shape = image.shape if image.ndim == label_image.ndim else image.shape[:-1]
+    if image_shape != label_image.shape:  # allow trailing channel
         raise ValueError(
-            "The image and label_image arrays must be the same shape."
+            f"The image and label_image arrays must be the same shape. {image_shape} != {label_image.shape}"
         )
 
     return (image, label_image, index)
