@@ -442,7 +442,7 @@ def labeled_comprehension(image,
     args = (image,)
     if pass_positions:
         positions = _utils._ravel_shape_indices(
-            image.shape, chunks=image.chunks
+            image.shape, chunks=image.chunks, skip_trailing_dim=image.ndim != label_image.ndim
         )
         args = (image, positions)
 
