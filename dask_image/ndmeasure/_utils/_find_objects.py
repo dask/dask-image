@@ -1,7 +1,7 @@
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 from dask.delayed import Delayed
-import dask.dataframe as dd
 
 
 def _array_chunk_location(block_id, chunks):
@@ -28,7 +28,8 @@ def _find_bounding_boxes(x, array_location):
     result = {}
     for val in unique_vals:
         positions = np.where(x == val)
-        slices = tuple(slice(np.min(pos) + array_location[i], np.max(pos) + 1 + array_location[i]) for i, pos in enumerate(positions))
+        slices = tuple(slice(np.min(pos) + array_location[i], np.max(pos) + 1 + array_location[i]) for i, pos in
+                       enumerate(positions))
         result[val] = slices
     column_names = [i for i in range(x.ndim)]  # column names are: 0, 1, ... nD
     return pd.DataFrame.from_dict(result, orient='index', columns=column_names)
@@ -70,6 +71,14 @@ def _find_objects(ndim, df1, df2):
         df1 = dd.from_delayed(df1, meta=meta)
     if isinstance(df2, Delayed):
         df2 = dd.from_delayed(df2, meta=meta)
-    ddf = dd.merge(df1, df2, how="outer", left_index=True, right_index=True)
+
+    if len(df1) > 0 and len(df2) > 0:
+        ddf = dd.merge(df1, df2, how="outer", left_index=True, right_index=True)
+    elif len(df1) > 0:
+        ddf = df1
+    elif len(df2) > 0:
+        ddf = df2
+    else:
+        ddf = pd.DataFrame()
     result = ddf.apply(_merge_bounding_boxes, ndim=ndim, axis=1, meta=meta)
     return result
