@@ -76,7 +76,8 @@ def test_tiff_imread(tmpdir, seed, nframes, shape, dtype, is_pathlib_Path):  # n
     fn = str(dirpth.join("test.tiff"))
     with tifffile.TiffWriter(fn) as fh:
         for i in range(len(a)):
-            fh.save(a[i], contiguous=True)
+            fh.write(a[i], contiguous=True)
+
     if is_pathlib_Path:
         fn = pathlib.Path(fn)
     d = dask_image.imread.imread(fn, nframes=nframes)
