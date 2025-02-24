@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from dask.delayed import Delayed
 import dask.dataframe as dd
+import dask.config as dask_config
 
 
 def _array_chunk_location(block_id, chunks):
@@ -67,9 +68,11 @@ def _find_objects(ndim, df1, df2):
     """Main utility function for find_objects."""
     meta = dd.utils.make_meta([(i, object) for i in range(ndim)])
     if isinstance(df1, Delayed):
-        df1 = dd.from_delayed(df1, meta=meta)
+        with dask_config.set({'dataframe.convert-string': False}):
+            df1 = dd.from_delayed(df1, meta=meta)
     if isinstance(df2, Delayed):
-        df2 = dd.from_delayed(df2, meta=meta)
+        with dask_config.set({'dataframe.convert-string': False}):
+            df2 = dd.from_delayed(df2, meta=meta)
     ddf = dd.merge(df1, df2, how="outer", left_index=True, right_index=True)
     result = ddf.apply(_merge_bounding_boxes, ndim=ndim, axis=1, meta=meta)
     return result
