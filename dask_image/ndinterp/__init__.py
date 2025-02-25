@@ -367,8 +367,9 @@ def rotate(
     if reshape:
         # Compute transformed input bounds
         iy, ix = in_plane_shape
-        out_bounds = rot_matrix @ [[0, 0, iy, iy],
-                                   [0, ix, 0, ix]]
+        in_bounds = np.array([[0, 0, iy, iy],
+                              [0, ix, 0, ix]])
+        out_bounds = rot_matrix @ in_bounds
         # Compute the shape of the transformed input plane
         out_plane_shape = (np.ptp(out_bounds, axis=1) + 0.5).astype(int)
     else:
