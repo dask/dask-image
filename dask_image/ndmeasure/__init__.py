@@ -10,6 +10,7 @@ import dask.bag as db
 import dask.dataframe as dd
 import numpy as np
 from dask import compute, delayed
+import dask.config as dask_config
 
 from . import _utils
 from ._utils import _label
@@ -244,7 +245,9 @@ def find_objects(label_image):
     result = bag.fold(functools.partial(_find_objects, label_image.ndim), split_every=2).to_delayed()
     meta = dd.utils.make_meta([(i, object) for i in range(label_image.ndim)])
     result = delayed(compute)(result)[0]  # avoid the user having to call compute twice on result
-    result = dd.from_delayed(result, meta=meta, prefix="find-objects-", verify_meta=False)
+
+    with dask_config.set({'dataframe.convert-string': False}):
+        result = dd.from_delayed(result, meta=meta, prefix="find-objects-", verify_meta=False)
 
     return result
 
