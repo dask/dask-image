@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-import dask.dataframe as dd
 from dask.delayed import Delayed
+import dask.dataframe as dd
 import dask.config as dask_config
 
 
