@@ -145,7 +145,7 @@ We will use conda to
 
 .. note::
     If you don't have `conda`_ installed, we recommend downloading and installing it
-    with the conda-forge distribution `Miniforge here`_.
+    with the conda-forge distribution `Miniforge`_.
 
 .. code-block:: console
 
@@ -179,7 +179,7 @@ To run a subset of tests, for example all the tests for ndfourier::
 
 .. _create an environment from a file: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file
 .. _conda: https://conda.io/en/latest/
-.. _Miniforge here: https://conda-forge.org/download/
+.. _Miniforge: https://conda-forge.org/download/
 
 Continuous integration tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

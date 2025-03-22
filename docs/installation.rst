@@ -18,7 +18,7 @@ This is the preferred method to install dask-image, as it will always install
 the most recent stable release.
 
 If you don't have `conda`_ installed, we recommend downloading and installing it
-with the conda-forge distribution `Miniforge here`_.
+with the conda-forge distribution `Miniforge`_.
 
 Alternatively, you can install dask-image with pip:
 
@@ -30,7 +30,7 @@ If you don't have `pip`_ installed, this `Python installation guide`_
 can guide you through the process.
 
 .. _conda: https://conda.io/en/latest/
-.. _Miniforge here: https://conda-forge.org/download/
+.. _Miniforge: https://conda-forge.org/download/
 .. _pip: https://pip.pypa.io
 .. _Python installation guide:
 http://docs.python-guide.org/en/latest/starting/installation/
