@@ -180,7 +180,7 @@ def test_convolutions_modes(sp_func,
                             mode):
     a = np.arange(140).reshape(10, 14)
     d = da.from_array(a, chunks=(5, 7))
-    
+
     da.utils.assert_eq(
         sp_func(
             a, weights, mode=mode
