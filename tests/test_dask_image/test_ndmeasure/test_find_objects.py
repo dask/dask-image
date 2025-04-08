@@ -1,4 +1,3 @@
-from dask_image.ndmeasure._utils import _labeled_comprehension_delayed
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -20,7 +19,7 @@ def label_image():
             [  0,   0,   0, 222, 222, 222, 222, 222, 222,   0],
             [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0]])
 
-    """
+    """  # noqa: E501
     label_image = np.zeros((5, 10)).astype(int)
     label_image[1:3, 0:2] = 111
     label_image[3, 3:-2] = 222
@@ -41,7 +40,7 @@ def label_image_with_empty_chunk():
             [  0,   0,   0,   0,   0,   0],
             [  0,   0,   0, 222, 222, 222],
             [  0,   0,   0,   0,   0,   0]])
-    """
+    """  # noqa: E501
     label_image = np.zeros((6, 6)).astype(int)
     label_image[1:3, 0:2] = 111
     label_image[4, 3:] = 222

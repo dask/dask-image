@@ -178,14 +178,14 @@ def test_convolutions_modes(sp_func,
                             da_func,
                             weights,
                             mode):
-    a = np.arange(140).reshape(10,14)
-    d = da.from_array(a,chunks =(5, 7))
+    a = np.arange(140).reshape(10, 14)
+    d = da.from_array(a, chunks=(5, 7))
     
     da.utils.assert_eq(
         sp_func(
-            a, weights, mode = mode
+            a, weights, mode=mode
         ),
         da_func(
-            d, weights, mode = mode
+            d, weights, mode=mode
         )
     )

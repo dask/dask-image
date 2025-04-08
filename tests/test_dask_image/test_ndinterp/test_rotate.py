@@ -200,7 +200,7 @@ def test_rotate_dtype(image):
 
 def test_rotate_numpy_input():
     image = np.ones((3, 3))
-    image_t = da_ndinterp.rotate(image, 0, reshape =False)
+    image_t = da_ndinterp.rotate(image, 0, reshape=False)
 
     assert image_t.shape == image.shape
     assert (da.from_array(image) == image_t).min()

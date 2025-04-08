@@ -244,7 +244,7 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
 
             # only consider forward neighbors
             if min(pos_structure_coord) < 1 or max(pos_structure_coord) < 2:
-               continue
+                continue
 
             neigh_block = [
                 curr_block[dim] + pos_structure_coord[dim] - 1
