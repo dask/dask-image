@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import functools
-import operator
 import numbers
 
 import dask.array as da
