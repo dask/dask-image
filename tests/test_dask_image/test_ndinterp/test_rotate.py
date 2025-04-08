@@ -38,7 +38,6 @@ def validate_rotate(n=2,
         import cupy as cp
         image_da = image_da.map_blocks(cp.asarray)
 
-
     # define resampling options
     output_chunks = [input_output_chunksize_per_dim[1]] * n
 
@@ -72,7 +71,7 @@ def validate_rotate(n=2,
 @pytest.mark.parametrize("input_shape_per_dim",
                          [25, 2])
 @pytest.mark.parametrize("interp_order",
-                         [0,1])
+                         [0, 1])
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
                          [(16, 16), (16, 7), (7, 16)])
 @pytest.mark.parametrize("random_seed",
@@ -110,7 +109,7 @@ def test_rotate_cupy(n,
                      input_output_chunksize_per_dim,
                      random_seed):
 
-    cupy = pytest.importorskip("cupy", minversion="6.0.0")
+    cupy = pytest.importorskip("cupy", minversion="6.0.0")    # noqa: F841
 
     kwargs = dict()
     kwargs['n'] = n
@@ -174,8 +173,10 @@ def test_rotate_axisdimensions(axes):
         validate_rotate(**kwargs)
 
 
-@pytest.mark.parametrize("axes",
-                         [[1, 2.2], [1, 'a'], [[0, 1], 1], [(0, 1), 1], [0, {}]])
+@pytest.mark.parametrize(
+    "axes",
+    [[1, 2.2], [1, 'a'], [[0, 1], 1], [(0, 1), 1], [0, {}]]
+)
 def test_rotate_axistypes(axes):
     kwargs = dict()
     kwargs['axes'] = axes
@@ -185,12 +186,12 @@ def test_rotate_axistypes(axes):
 
 
 @pytest.mark.parametrize(
-        "image",
-        [
-            np.ones((3, 3)).astype(float),
-            np.ones((3, 3)).astype(int),
-            np.ones((3, 3)).astype(complex)
-            ]
+    "image",
+    [
+        np.ones((3, 3)).astype(float),
+        np.ones((3, 3)).astype(int),
+        np.ones((3, 3)).astype(complex),
+    ]
 )
 def test_rotate_dtype(image):
     image_t = da_ndinterp.rotate(image, 0, reshape=False)
@@ -198,7 +199,6 @@ def test_rotate_dtype(image):
 
 
 def test_rotate_numpy_input():
-
     image = np.ones((3, 3))
     image_t = da_ndinterp.rotate(image, 0, reshape =False)
 
@@ -207,7 +207,6 @@ def test_rotate_numpy_input():
 
 
 def test_rotate_minimal_input():
-
     image = np.ones((3, 3))
     image_t = da_ndinterp.rotate(np.ones((3, 3)), 0)
 
@@ -215,7 +214,6 @@ def test_rotate_minimal_input():
 
 
 def test_rotate_type_consistency():
-
     image = da.ones((3, 3))
     image_t = da_ndinterp.rotate(image, 0)
 
@@ -225,7 +223,6 @@ def test_rotate_type_consistency():
 
 @pytest.mark.cupy
 def test_rotate_type_consistency_gpu():
-
     cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
     image = da.ones((3, 3))
@@ -238,7 +235,6 @@ def test_rotate_type_consistency_gpu():
 
 
 def test_rotate_no_chunks_specified():
-
     image = da.ones((3, 3))
     image_t = da_ndinterp.rotate(image, 0)
 

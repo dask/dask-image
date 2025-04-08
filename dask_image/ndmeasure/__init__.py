@@ -254,7 +254,9 @@ def find_objects(label_image):
     result = delayed(compute)(result)[0]
 
     with dask_config.set({'dataframe.convert-string': False}):
-        result = dd.from_delayed(result, meta=meta, prefix="find-objects-", verify_meta=False)
+        result = dd.from_delayed(
+            result, meta=meta, prefix="find-objects-", verify_meta=False
+        )
 
     return result
 

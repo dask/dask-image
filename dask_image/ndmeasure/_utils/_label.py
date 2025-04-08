@@ -246,8 +246,10 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
             if min(pos_structure_coord) < 1 or max(pos_structure_coord) < 2:
                continue
 
-            neigh_block = [curr_block[dim] + pos_structure_coord[dim] - 1
-                           for dim in range(ndim)]
+            neigh_block = [
+                curr_block[dim] + pos_structure_coord[dim] - 1
+                for dim in range(ndim)
+            ]
 
             if max([neigh_block[dim] >= block_summary.shape[dim]
                     for dim in range(ndim)]):

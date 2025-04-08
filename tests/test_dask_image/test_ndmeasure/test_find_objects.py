@@ -22,9 +22,9 @@ def label_image():
 
     """
     label_image = np.zeros((5, 10)).astype(int)
-    label_image[1:3,0:2] = 111
-    label_image[3,3:-2] = 222
-    label_image[0:2,-3:] = 333
+    label_image[1:3, 0:2] = 111
+    label_image[3, 3:-2] = 222
+    label_image[0:2, -3:] = 333
     label_image = da.from_array(label_image, chunks=(5, 5))
     return label_image
 
@@ -43,8 +43,8 @@ def label_image_with_empty_chunk():
             [  0,   0,   0,   0,   0,   0]])
     """
     label_image = np.zeros((6, 6)).astype(int)
-    label_image[1:3,0:2] = 111
-    label_image[4,3:] = 222
+    label_image[1:3, 0:2] = 111
+    label_image[4, 3:] = 222
     label_image = da.from_array(label_image, chunks=(3, 3))
     return label_image
 
@@ -60,10 +60,10 @@ def test_find_objects(label_image):
     assert isinstance(result, dd.DataFrame)
     computed_result = result.compute()
     assert isinstance(computed_result, pd.DataFrame)
-    expected = pd.DataFrame.from_dict(
-        {0: {111: slice(1, 3), 222: slice(3, 4), 333: slice(0, 2)},
-        1: {111: slice(0, 2), 222: slice(3, 8), 333: slice(7, 10)}}
-    )
+    expected = pd.DataFrame.from_dict({
+        0: {111: slice(1, 3), 222: slice(3, 4), 333: slice(0, 2)},
+        1: {111: slice(0, 2), 222: slice(3, 8), 333: slice(7, 10)},
+    })
     assert computed_result.equals(expected)
 
 
@@ -73,11 +73,11 @@ def test_3d_find_objects(label_image):
     assert isinstance(result, dd.DataFrame)
     computed_result = result.compute()
     assert isinstance(computed_result, pd.DataFrame)
-    expected = pd.DataFrame.from_dict(
-        {0: {111: slice(1, 3), 222: slice(3, 4), 333: slice(0, 2)},
+    expected = pd.DataFrame.from_dict({
+        0: {111: slice(1, 3), 222: slice(3, 4), 333: slice(0, 2)},
         1: {111: slice(0, 2), 222: slice(3, 8), 333: slice(7, 10)},
-        2: {111: slice(0, 2), 222: slice(0, 2), 333: slice(0, 2)}}
-    )
+        2: {111: slice(0, 2), 222: slice(0, 2), 333: slice(0, 2)},
+    })
     assert computed_result.equals(expected)
 
 
@@ -86,8 +86,8 @@ def test_find_objects_with_empty_chunks(label_image_with_empty_chunk):
     assert isinstance(result, dd.DataFrame)
     computed_result = result.compute()
     assert isinstance(computed_result, pd.DataFrame)
-    expected = pd.DataFrame.from_dict(
-        {0: {111: slice(1, 3, None), 222: slice(4, 5, None)},
-        1: {111: slice(0, 2, None), 222: slice(3, 6, None)}}
-    )
+    expected = pd.DataFrame.from_dict({
+        0: {111: slice(1, 3, None), 222: slice(4, 5, None)},
+        1: {111: slice(0, 2, None), 222: slice(3, 6, None)},
+    })
     assert computed_result.equals(expected)

@@ -17,5 +17,5 @@ def test_cupy_imread(tmp_path):
             fh.write(a[i])
 
     result = dask_image.imread.imread(fn, arraytype="cupy")
-    assert type(result._meta) == cupy.ndarray
+    assert type(result._meta) is cupy.ndarray
     assert type(result.compute()) == cupy.ndarray
