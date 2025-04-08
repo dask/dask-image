@@ -14,7 +14,7 @@ def test_cupy_imread(tmp_path):
     fn = str(tmp_path/"test.tiff")
     with tifffile.TiffWriter(fn) as fh:
         for i in range(len(a)):
-            fh.save(a[i])
+            fh.write(a[i])
 
     result = dask_image.imread.imread(fn, arraytype="cupy")
     assert type(result._meta) == cupy.ndarray
