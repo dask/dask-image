@@ -243,14 +243,17 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
         for pos_structure_coord in np.array(np.where(structure)).T:
 
             # only consider forward neighbors
-            if min(pos_structure_coord) < 1 or \
-               max(pos_structure_coord) < 2: continue
+            if min(pos_structure_coord) < 1 or max(pos_structure_coord) < 2:
+                continue
 
-            neigh_block = [curr_block[dim] + pos_structure_coord[dim] - 1
-                           for dim in range(ndim)]
+            neigh_block = [
+                curr_block[dim] + pos_structure_coord[dim] - 1
+                for dim in range(ndim)
+            ]
 
             if max([neigh_block[dim] >= block_summary.shape[dim]
-                    for dim in range(ndim)]): continue
+                    for dim in range(ndim)]):
+                continue
 
             # get current slice index
             ind_curr_block = block_summary[tuple(curr_block)]

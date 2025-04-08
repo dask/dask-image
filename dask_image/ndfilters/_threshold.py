@@ -1,4 +1,3 @@
-import dask.array as da
 import numpy as np
 
 from ..dispatch._dispatch_ndfilters import dispatch_threshold_local_mean

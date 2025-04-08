@@ -69,6 +69,6 @@ exclude = [
     "tests*",
 ]
 
-[tool.pytest]
+[tool.pytest.ini_options]
 addopts = "--flake8"
 markers = "cupy"

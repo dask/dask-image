@@ -4,7 +4,6 @@ import numbers
 
 import pytest
 import numpy as np
-import scipy as sp
 import scipy.ndimage
 
 import dask.array as da
@@ -211,8 +210,6 @@ def test_fourier_filter_non_positive(funcname, s):
         "fourier_uniform",
     ]
 )
-
-
 @pytest.mark.parametrize(
     "real_fft, axis",
     [

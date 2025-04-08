@@ -20,9 +20,6 @@ from ..dispatch._dispatch_ndinterp import (
 )
 from ..ndfilters._utils import _get_depth_boundary
 
-from ..dispatch._dispatch_ndinterp import (dispatch_affine_transform,
-                                           dispatch_asarray)
-
 __all__ = [
     "affine_transform",
     "rotate",
@@ -263,9 +260,9 @@ def rotate(
     The array is rotated in the plane defined by the two axes given by the
     `axes` parameter using spline interpolation of the requested order.
 
-    Chunkwise processing is performed using `dask_image.ndinterp.affine_transform`,
-    for which further parameters supported by the ndimage functions can be
-    passed as keyword arguments.
+    Chunkwise processing is performed using
+    `dask_image.ndinterp.affine_transform`, for which further parameters
+    supported by the ndimage functions can be passed as keyword arguments.
 
     Notes
     -----
@@ -386,10 +383,10 @@ def rotate(
     matrix_nd = np.eye(ndim)
     offset_nd = np.zeros(ndim)
 
-    for o_x,idx in enumerate(axes):
+    for o_x, idx in enumerate(axes):
 
-        matrix_nd[idx,axes[0]] = rot_matrix[o_x,0]
-        matrix_nd[idx,axes[1]] = rot_matrix[o_x,1]
+        matrix_nd[idx, axes[0]] = rot_matrix[o_x, 0]
+        matrix_nd[idx, axes[1]] = rot_matrix[o_x, 1]
 
         offset_nd[idx] = offset[o_x]
 

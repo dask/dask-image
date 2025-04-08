@@ -352,7 +352,7 @@ def test_affine_transform_parameter_formats(n):
     image_t_scale = dask_image.ndinterp.affine_transform(image,
                                                          matrix_only_scaling,
                                                          offset).compute()
-    assert (np.allclose(image_t_0, image_t_scale))
+    assert np.allclose(image_t_0, image_t_scale)
 
     for matrix in [matrix_pre_homogeneous, matrix_homogeneous]:
 
@@ -361,7 +361,7 @@ def test_affine_transform_parameter_formats(n):
                                                        offset + 10.,  # ignored
                                                        ).compute()
 
-        assert(np.allclose(image_t_0, image_t))
+        assert np.allclose(image_t_0, image_t)
 
     # catch matrices that are not homogeneous transformation matrices
     with pytest.raises(ValueError):

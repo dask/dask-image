@@ -26,7 +26,7 @@ def generic_filter(image,
     depth = _utils._get_depth(footprint.shape, origin)
     depth, boundary = _utils._get_depth_boundary(footprint.ndim, depth, "none")
 
-    if type(image._meta) == np.ndarray:
+    if type(image._meta) is np.ndarray:
         kwargs = {"extra_arguments": extra_arguments,
                   "extra_keywords": extra_keywords}
     else:  # pragma: no cover
