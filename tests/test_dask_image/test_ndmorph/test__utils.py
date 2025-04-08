@@ -138,7 +138,7 @@ def test__get_iterations(expected, iterations):
     ]
 )
 def test__get_dtype(expected, a):
-    assert expected is _utils._get_dtype(a)
+    assert np.dtype(expected) is _utils._get_dtype(a)
 
 
 @pytest.mark.parametrize(
