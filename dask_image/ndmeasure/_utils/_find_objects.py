@@ -81,7 +81,9 @@ def _find_objects(ndim, df1, df2):
             df2 = dd.from_delayed(df2, meta=meta)
 
     if len(df1) > 0 and len(df2) > 0:
-        ddf = dd.merge(df1, df2, how="outer", left_index=True, right_index=True)
+        ddf = dd.merge(
+            df1, df2,
+            how="outer", left_index=True, right_index=True)
     elif len(df1) > 0:
         ddf = df1
     elif len(df2) > 0:
