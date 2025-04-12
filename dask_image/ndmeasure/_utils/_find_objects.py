@@ -29,8 +29,13 @@ def _find_bounding_boxes(x, array_location):
     result = {}
     for val in unique_vals:
         positions = np.where(x == val)
-        slices = tuple(slice(np.min(pos) + array_location[i], np.max(pos) + 1 + array_location[i]) for i, pos in
-                       enumerate(positions))
+        slices = tuple(
+            slice(
+                np.min(pos) + array_location[i],
+                np.max(pos) + 1 + array_location[i]
+            )
+            for i, pos in enumerate(positions)
+        )
         result[val] = slices
     column_names = [i for i in range(x.ndim)]  # column names are: 0, 1, ... nD
     return pd.DataFrame.from_dict(result, orient='index', columns=column_names)
@@ -47,7 +52,7 @@ def _combine_slices(slices):
 
 
 def _merge_bounding_boxes(x, ndim):
-    """Merge the bounding boxes describing objects over multiple image chunks."""
+    "Merge the bounding boxes describing objects over multiple image chunks."
     x = x.dropna()
     data = {}
     # For each dimension in the array,

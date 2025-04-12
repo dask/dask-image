@@ -5,6 +5,7 @@ import pytest
 
 from dask_image.ndfilters import threshold_local
 
+
 @pytest.fixture
 def simple_test_image():
     image = da.from_array(np.array(
@@ -38,8 +39,9 @@ def test_threshold_local_gaussian(simple_test_image, block_size):
     out = threshold_local(simple_test_image, block_size, method='gaussian')
     assert_equal(ref, (simple_test_image > out).compute())
 
-    out = threshold_local(simple_test_image, block_size, method='gaussian',
-                            param=1./3.)
+    out = threshold_local(
+        simple_test_image, block_size, method='gaussian', param=1./3.
+    )
     assert_equal(ref, (simple_test_image > out).compute())
 
 
@@ -93,7 +95,9 @@ def test_threshold_local_generic(simple_test_image):
          [25., 29., 28., 19., 10.],
          [34., 31., 23., 10.,  4.]]
     )
-    unchanged = threshold_local(simple_test_image, 1, method='generic', param=sum)
+    unchanged = threshold_local(
+        simple_test_image, 1, method='generic', param=sum
+    )
     out = threshold_local(simple_test_image, 3, method='generic', param=sum)
     assert np.allclose(unchanged.compute(), simple_test_image.compute())
     assert np.allclose(out.compute(), ref)
