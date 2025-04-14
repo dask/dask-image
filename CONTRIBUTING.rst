@@ -197,19 +197,4 @@ To edit the CI checks, see the workflow scripts in the repository located in
 GPU continuous integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We also have continuous integration to test GPU features!
-
-This will run automatically, after a maintainer has approved it.
-Maintainers approve the GPU CI to run by replying to the gpuCI bot on the
-pull request, leaving a comment that says either *"ok to test"* or 
-*"add to allowlist"*.
-
-The gpuCI bot `@GPUtester <https://github.com/GPUtester>`_
-comment looks like this:
-
-    *Can one of the admins verify this patch?*
-    
-    *Admins can comment ok to test to allow this one PR to run or add to allowlist to allow all future PRs from the same author to run.*
-
-For more information about the GPU continuous integration provided by NVIIDIA, 
-`see the main Dask docs GPU CI section <https://docs.dask.org/en/stable/develop.html#gpu-ci>`_
+GPU nightly testing is run in the `rapidsai/dask-upstream-testing repo <https://github.com/rapidsai/dask-upstream-testing>`_

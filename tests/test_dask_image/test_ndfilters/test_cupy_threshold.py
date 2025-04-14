@@ -9,6 +9,7 @@ from dask_image.ndfilters import threshold_local
 
 cupy = pytest.importorskip("cupy", minversion="5.0.0")
 
+
 @pytest.fixture
 def simple_test_image():
     image = da.from_array(cupy.array(
@@ -43,8 +44,9 @@ def test_threshold_local_gaussian(simple_test_image, block_size):
     out = threshold_local(simple_test_image, block_size, method='gaussian')
     cupy.testing.assert_array_equal(ref, (simple_test_image > out).compute())
 
-    out = threshold_local(simple_test_image, block_size, method='gaussian',
-                            param=1./3.)
+    out = threshold_local(
+        simple_test_image, block_size, method='gaussian', param=1./3.
+    )
     cupy.testing.assert_array_equal(ref, (simple_test_image > out).compute())
 
 
