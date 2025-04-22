@@ -222,7 +222,7 @@ def find_objects(label_image):
     Returns
     -------
     Dask dataframe
-        Each row represents an individual integrer label. Columns contain the
+        Each row represents an individual integer label. Columns contain the
         slice information for the object boundaries in each dimension
         (dimensions are named: 0, 1, ..., nd).
 
