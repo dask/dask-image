@@ -54,6 +54,15 @@ def test_find_objects_err(label_image):
         dask_image.ndmeasure.find_objects(label_image)
 
 
+def test_empty_chunk():
+    test_labels = da.zeros((10, 10), dtype='int', chunks=(3, 3))
+    test_labels[0, 0] = 1
+    computed_result = dask_image.ndmeasure.find_objects(test_labels).compute()
+    expected = pd.DataFrame.from_dict({0: {1: slice(0, 1)},
+                                       1: {1: slice(0, 1)}, })
+    assert computed_result.equals(expected)
+
+
 def test_find_objects(label_image):
     result = dask_image.ndmeasure.find_objects(label_image)
     assert isinstance(result, dd.DataFrame)
