@@ -79,6 +79,17 @@ def _find_objects(ndim, df1, df2):
     if isinstance(df2, Delayed):
         with dask_config.set({'dataframe.convert-string': False}):
             df2 = dd.from_delayed(df2, meta=meta)
-    ddf = dd.merge(df1, df2, how="outer", left_index=True, right_index=True)
+
+    if len(df1) > 0 and len(df2) > 0:
+        ddf = dd.merge(
+            df1, df2,
+            how="outer", left_index=True, right_index=True)
+    elif len(df1) > 0:
+        ddf = df1
+    elif len(df2) > 0:
+        ddf = df2
+    else:
+        ddf = pd.DataFrame()
+
     result = ddf.apply(_merge_bounding_boxes, ndim=ndim, axis=1, meta=meta)
     return result
