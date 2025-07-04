@@ -416,13 +416,13 @@ def _map_single_coordinates_array_chunk(input, coordinates, order=3,
 
     # linearize input chunk locations
     coords_input_chunk_locations_linear = np.sum(coords_input_chunk_locations *\
-        np.array([np.product(input.numblocks[:dim])
+        np.array([np.prod(input.numblocks[:dim])
             for dim in range(input.ndim)])[::-1], axis=1, dtype=np.int64)
 
     # determine the input chunks that have coords associated and
     # count how many coords map onto each input chunk
     chunk_indices_count = np.bincount(coords_input_chunk_locations_linear,
-                                      minlength=np.product(input.numblocks))
+                                      minlength=np.prod(input.numblocks))
     required_input_chunk_indices = np.where(chunk_indices_count > 0)[0]
     required_input_chunks = input_chunk_locations[required_input_chunk_indices]
     coord_rc_count = chunk_indices_count[required_input_chunk_indices]
