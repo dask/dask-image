@@ -111,7 +111,7 @@ def test_errs__get_brute_force(err_type, brute_force):
 def test__get_structure(expected, input, structure):
     result = _utils._get_structure(input, structure)
 
-    assert expected.dtype.type == result.dtype.type
+    assert expected.dtype.type is result.dtype.type
     assert np.array((expected == result).all())[()]
 
 
@@ -129,7 +129,7 @@ def test__get_iterations(expected, iterations):
 @pytest.mark.parametrize(
     "expected, a",
     [
-        (np.bool8, False),
+        (np.bool_, False),
         (np.int_, 2),
         (np.float64, 3.1),
         (np.complex128, 1 + 2j),
@@ -138,7 +138,7 @@ def test__get_iterations(expected, iterations):
     ]
 )
 def test__get_dtype(expected, a):
-    assert expected == _utils._get_dtype(a)
+    assert np.dtype(expected) is _utils._get_dtype(a)
 
 
 @pytest.mark.parametrize(
@@ -150,12 +150,12 @@ def test__get_dtype(expected, a):
         (
             True,
             da.arange(2, dtype=bool, chunks=(2,)),
-            np.bool8(True)
+            np.bool_(True)
         ),
         (
             False,
             da.arange(2, dtype=bool, chunks=(2,)),
-            np.bool8(False)
+            np.bool_(False)
         ),
         (
             np.arange(2, dtype=bool),
@@ -172,7 +172,7 @@ def test__get_dtype(expected, a):
 def test__get_mask(expected, input, mask):
     result = _utils._get_mask(input, mask)
 
-    assert type(expected) == type(result)
+    assert type(expected) is type(result)
 
     if isinstance(expected, (np.ndarray, da.Array)):
         assert np.array((expected == result).all())[()]

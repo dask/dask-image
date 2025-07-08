@@ -84,12 +84,13 @@ Ready to contribute? Here's how to set up `dask-image` for local development.
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/dask-image.git
+    $ cd dask-image
 
 3. Install your local copy into an environment. Assuming you have conda installed, this is how you set up your fork for local development (on Windows drop `source`). Replace `"<some version>"` with the Python version used for testing.::
 
     $ conda create -n dask-image-env python="<some version>"
     $ source activate dask-image-env
-    $ python setup.py develop
+    $ python -m pip install -e .
 
 4. Create a branch for local development::
 
@@ -100,7 +101,7 @@ Ready to contribute? Here's how to set up `dask-image` for local development.
 5. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions::
 
     $ flake8 dask_image tests
-    $ python setup.py test or py.test
+    $ pytest
 
    To get flake8, just conda install it into your environment.
 
@@ -125,8 +126,11 @@ Before you submit a pull request, check that it meets these guidelines:
    and make sure that the tests pass for all supported Python versions
    and platforms.
 
+Testing
+-------
+
 Running tests locally
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 To setup a local testing environment that matches the test environments we use
 for our continuous integration services, you can use the ``.yml``
@@ -161,7 +165,7 @@ Finally, install the development version of dask-image::
 
 .. code-block:: console
 
-    $ pip install -e .
+    $ pip install -e ".[test]""
 
 For local testing, please run ``pytest`` in the test environment::
 
@@ -173,3 +177,36 @@ For local testing, please run ``pytest`` in the test environment::
 To run a subset of tests, for example all the tests for ndfourier::
 
     $ pytest tests/test_dask_image/test_ndfourier
+
+Continuous integration tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creating a pull request will automatically run the continuous integration
+tests with Github Actions.
+
+Results from the continuous integration (CI) checks are shown linked at the bottom 
+of your pull request, and also in the dask-image GitHub Actions tab:
+https://github.com/dask/dask-image/actions
+
+To edit the CI checks, see the workflow scripts in the repository located in 
+``dask-image/.github/workflows``
+
+GPU continuous integration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We also have continuous integration to test GPU features!
+
+This will run automatically, after a maintainer has approved it.
+Maintainers approve the GPU CI to run by replying to the gpuCI bot on the
+pull request, leaving a comment that says either *"ok to test"* or 
+*"add to allowlist"*.
+
+The gpuCI bot `@GPUtester <https://github.com/GPUtester>`_
+comment looks like this:
+
+    *Can one of the admins verify this patch?*
+    
+    *Admins can comment ok to test to allow this one PR to run or add to allowlist to allow all future PRs from the same author to run.*
+
+For more information about the GPU continuous integration provided by NVIIDIA, 
+`see the main Dask docs GPU CI section <https://docs.dask.org/en/stable/develop.html#gpu-ci>`_

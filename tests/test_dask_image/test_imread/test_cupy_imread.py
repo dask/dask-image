@@ -4,7 +4,7 @@ import pytest
 
 import dask_image.imread
 
-cupy = pytest.importorskip("cupy", minversion="7.7.0")
+cupy = pytest.importorskip("cupy", minversion="6.0.0")
 
 
 @pytest.mark.cupy
@@ -14,8 +14,8 @@ def test_cupy_imread(tmp_path):
     fn = str(tmp_path/"test.tiff")
     with tifffile.TiffWriter(fn) as fh:
         for i in range(len(a)):
-            fh.save(a[i])
+            fh.write(a[i])
 
     result = dask_image.imread.imread(fn, arraytype="cupy")
-    assert type(result._meta) == cupy.ndarray
+    assert type(result._meta) is cupy.ndarray
     assert type(result.compute()) == cupy.ndarray

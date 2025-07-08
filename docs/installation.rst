@@ -24,7 +24,7 @@ Alternatively, you can install dask-image with pip:
 
 .. code-block:: console
 
-    $ pip install dask-image
+    $ python -m pip install dask-image
 
 If you don't have `pip`_ installed, this `Python installation guide`_
 can guide you through the process.
@@ -57,7 +57,8 @@ Once you have a copy of the source, you can install it with:
 
 .. code-block:: console
 
-    $ python setup.py install
+    $ cd dask-image
+    $ python -m pip install .
 
 
 .. _Github repo: https://github.com/dask/dask-image

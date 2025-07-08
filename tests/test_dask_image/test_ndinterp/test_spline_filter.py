@@ -143,7 +143,7 @@ def test_spline_filter_cupy(
     input_as_non_dask_array,
 ):
 
-    pytest.importorskip("cupy", minversion="6.0.0")
+    pytest.importorskip("cupy", minversion="9.0.0")
 
     validate_spline_filter(
         n=n,
@@ -172,7 +172,7 @@ def test_spline_filter1d_general(
     axis,
 ):
     if axis == 1 and n < 2:
-        pytest.skip(msg="skip axis=1 for 1d signals")
+        pytest.skip("skip axis=1 for 1d signals")
 
     validate_spline_filter(
         n=n,

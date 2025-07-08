@@ -56,7 +56,7 @@ def register_cupy_convolve():
 
     @dispatch_convolve.register(cupy.ndarray)
     def cupy_convolve(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.convolve
+        return cupyx.scipy.ndimage.convolve
 
 
 # ================== correlate ==================
@@ -72,7 +72,7 @@ def register_cupy_correlate():
 
     @dispatch_correlate.register(cupy.ndarray)
     def cupy_correlate(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.correlate
+        return cupyx.scipy.ndimage.correlate
 
 
 # ================== laplace ==================
@@ -88,7 +88,7 @@ def register_cupy_laplace():
 
     @dispatch_laplace.register(cupy.ndarray)
     def cupy_laplace(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.laplace
+        return cupyx.scipy.ndimage.laplace
 
 
 # ================== prewitt ==================
@@ -104,7 +104,7 @@ def register_cupy_prewitt():
 
     @dispatch_prewitt.register(cupy.ndarray)
     def cupy_prewitt(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.prewitt
+        return cupyx.scipy.ndimage.prewitt
 
 
 # ================== sobel ==================
@@ -120,7 +120,7 @@ def register_cupy_sobel():
 
     @dispatch_sobel.register(cupy.ndarray)
     def cupy_sobel(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.sobel
+        return cupyx.scipy.ndimage.sobel
 
 
 # ================== gaussian_filter ==================
@@ -136,7 +136,7 @@ def register_cupy_gaussian_filter():
 
     @dispatch_gaussian_filter.register(cupy.ndarray)
     def cupy_gaussian_filter(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.gaussian_filter
+        return cupyx.scipy.ndimage.gaussian_filter
 
 
 # ================== gaussian_gradient_magnitude ==================
@@ -152,7 +152,7 @@ def register_cupy_gaussian_gradient_magnitude():
 
     @dispatch_gaussian_gradient_magnitude.register(cupy.ndarray)
     def cupy_gaussian_gradient_magnitude(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.gaussian_gradient_magnitude
+        return cupyx.scipy.ndimage.gaussian_gradient_magnitude
 
 
 # ================== gaussian_laplace ==================
@@ -168,7 +168,7 @@ def register_cupy_gaussian_laplace():
 
     @dispatch_gaussian_laplace.register(cupy.ndarray)
     def cupy_gaussian_laplace(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.gaussian_laplace
+        return cupyx.scipy.ndimage.gaussian_laplace
 
 
 # ================== generic_filter ==================
@@ -184,7 +184,7 @@ def register_cupy_generic_filter():
 
     @dispatch_generic_filter.register(cupy.ndarray)
     def cupy_generic_filter(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.generic_filter
+        return cupyx.scipy.ndimage.generic_filter
 
 
 # ================== minimum_filter ==================
@@ -200,7 +200,7 @@ def register_cupy_minimum_filter():
 
     @dispatch_minimum_filter.register(cupy.ndarray)
     def cupy_minimum_filter(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.minimum_filter
+        return cupyx.scipy.ndimage.minimum_filter
 
 
 # ================== median_filter ==================
@@ -216,7 +216,7 @@ def register_cupy_median_filter():
 
     @dispatch_median_filter.register(cupy.ndarray)
     def cupy_median_filter(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.median_filter
+        return cupyx.scipy.ndimage.median_filter
 
 
 # ================== maximum_filter ==================
@@ -232,7 +232,7 @@ def register_cupy_maximum_filter():
 
     @dispatch_maximum_filter.register(cupy.ndarray)
     def cupy_maximum_filter(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.maximum_filter
+        return cupyx.scipy.ndimage.maximum_filter
 
 
 # ================== rank_filter ==================
@@ -248,7 +248,7 @@ def register_cupy_rank_filter():
 
     @dispatch_rank_filter.register(cupy.ndarray)
     def cupy_rank_filter(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.rank_filter
+        return cupyx.scipy.ndimage.rank_filter
 
 
 # ================== percentile_filter ==================
@@ -264,7 +264,7 @@ def register_cupy_percentile_filter():
 
     @dispatch_percentile_filter.register(cupy.ndarray)
     def cupy_percentile_filter(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.percentile_filter
+        return cupyx.scipy.ndimage.percentile_filter
 
 
 # ================== uniform_filter ==================
@@ -280,7 +280,7 @@ def register_cupy_uniform_filter():
 
     @dispatch_uniform_filter.register(cupy.ndarray)
     def cupy_uniform_filter(*args, **kwargs):
-        return cupyx.scipy.ndimage.filters.uniform_filter
+        return cupyx.scipy.ndimage.uniform_filter
 
 
 # ================== threshold_local_mean ==================

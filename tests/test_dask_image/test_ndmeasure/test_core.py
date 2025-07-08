@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from distutils.version import LooseVersion
 import itertools as it
 import warnings as wrn
 
@@ -53,7 +52,7 @@ def test_measure_props_err(funcname):
     "datatype", [
         int,
         float,
-        np.bool,
+        np.bool_,
         np.uint8,
         np.uint16,
         np.uint32,
@@ -107,13 +106,7 @@ def test_center_of_mass(datatype):
     ]
 )
 def test_measure_props(funcname, shape, chunks, has_lbls, ind):
-    # early scipy version uses a different name sum insted of sum_labels.
-    if funcname == 'sum_labels' and scipy.__version__ < LooseVersion('1.6.0'):
-        scipy_funcname = 'sum'
-    else:
-        scipy_funcname = funcname
-
-    sp_func = getattr(scipy.ndimage, scipy_funcname)
+    sp_func = getattr(scipy.ndimage, funcname)
     da_func = getattr(dask_image.ndmeasure, funcname)
 
     a = np.random.random(shape)
@@ -337,6 +330,7 @@ def _assert_equivalent_labeling(labels0, labels1):
         (42, 0.4, (15, 16), (15, 16), 1),
         (42, 0.4, (15, 16), (4, 5), 1),
         (42, 0.4, (15, 16), (4, 5), 2),
+        (42, 0.4, (15, 16), (4, 5), None),
         (42, 0.4, (15, 16), (8, 5), 1),
         (42, 0.4, (15, 16), (8, 5), 2),
         (42, 0.3, (10, 8, 6), (5, 4, 3), 1),
@@ -350,7 +344,10 @@ def test_label(seed, prob, shape, chunks, connectivity):
     a = np.random.random(shape) < prob
     d = da.from_array(a, chunks=chunks)
 
-    s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
+    if connectivity is None:
+        s = None
+    else:
+        s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
 
     a_l, a_nl = scipy.ndimage.label(a, s)
     d_l, d_nl = dask_image.ndmeasure.label(d, s)
@@ -360,6 +357,324 @@ def test_label(seed, prob, shape, chunks, connectivity):
     assert a_l.dtype == d_l.dtype
     assert a_l.shape == d_l.shape
     _assert_equivalent_labeling(a_l, d_l.compute())
+
+
+a = np.array(
+    [
+        [0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+        [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+        [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+        [1, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+        [0, 1, 0, 0, 1, 0, 1, 1, 1, 0],
+        [0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+    ]
+)
+
+
+@pytest.mark.parametrize(
+    "a, a_res, wrap_axes, connectivity, chunks",
+    [
+        pytest.param(
+            a,
+            np.array(
+                [
+                    [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                    [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 2, 0, 1, 1, 1, 0],
+                    [0, 1, 0, 0, 2, 0, 1, 1, 1, 0],
+                    [0, 0, 1, 0, 2, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 4, 0, 0, 5, 5, 0, 0, 0],
+                ]
+            ),
+            (1,),
+            2,
+            (5, 5),
+            id="2d, wrapping 1st axis.",
+        ),
+        pytest.param(
+            a,
+            np.array(
+                [
+                    [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 1, 0, 0, 0, 0, 4, 4, 4, 4],
+                    [1, 1, 0, 0, 0, 0, 4, 4, 4, 4],
+                    [1, 0, 0, 0, 2, 0, 4, 4, 4, 0],
+                    [0, 1, 0, 0, 2, 0, 4, 4, 4, 0],
+                    [0, 0, 1, 0, 2, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
+                ]
+            ),
+            (0,),
+            2,
+            (5, 5),
+            id="2d, wrapping 0th axes.",
+        ),
+        pytest.param(
+            a,
+            np.array(
+                [
+                    [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                    [1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 2, 0, 1, 1, 1, 0],
+                    [0, 1, 0, 0, 2, 0, 1, 1, 1, 0],
+                    [0, 0, 1, 0, 2, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 3, 3, 0, 0, 0],
+                ]
+            ),
+            (0, 1),
+            2,
+            (5, 5),
+            id="2d, wrapping both axes",
+        ),
+        pytest.param(
+            np.array([[1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]),
+            np.array([[1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]),
+            (0, 1),
+            2,
+            "auto",
+            id="2d, full wrap, high connectivity (corners).",
+        ),
+        pytest.param(
+            np.array([[1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1]]),
+            # Corners should not be connected for lower connectivity.
+            np.array([[1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 2]]),
+            (0, 1),
+            1,
+            "auto",
+            id="2d, full wrap, low connectivity (no corners).",
+        ),
+        # 3d
+        pytest.param(
+            np.array(
+                [
+                    [[0, 0, 0, 0, 0], [1, 0, 0, 0, 1], [0, 0, 0, 0, 0]],
+                    [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+                    [[0, 0, 0, 0, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1]],
+                ]
+            ),
+            np.array(
+                [
+                    [[0, 0, 0, 0, 0], [1, 0, 0, 0, 2], [0, 0, 0, 0, 0]],
+                    [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+                    [[0, 0, 0, 0, 0], [3, 0, 0, 0, 4], [3, 0, 0, 0, 4]],
+                ]
+            ),
+            None,
+            3,
+            "auto",
+            id="3d no wrap",
+        ),
+        pytest.param(
+            np.array(
+                [
+                    [[0, 0, 0, 0, 0], [1, 0, 0, 0, 1], [0, 0, 0, 0, 0]],
+                    [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+                    [[0, 0, 0, 0, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1]],
+                ]
+            ),
+            np.array(
+                [
+                    [[0, 0, 0, 0, 0], [1, 0, 0, 0, 1], [0, 0, 0, 0, 0]],
+                    [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+                    [[0, 0, 0, 0, 0], [2, 0, 0, 0, 2], [2, 0, 0, 0, 2]],
+                ]
+            ),
+            (2,),
+            3,
+            "auto",
+            id="3d wrap 2nd axis",
+        ),
+        pytest.param(
+            np.array(
+                [
+                    [
+                        [0, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0],
+                    ],
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ],
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 1],
+                    ],
+                ]
+            ),
+            np.array(
+                [
+                    [
+                        [0, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0],
+                    ],
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [2, 0, 0, 0, 2],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ],
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [3, 0, 0, 0, 3],
+                    ],
+                ]
+            ),
+            (1, 2),
+            3,
+            "auto",
+            id="3d, wrap 1st and 2nd axis, with corners",
+        ),
+        pytest.param(
+            np.array(
+                [
+                    [
+                        [0, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0],
+                    ],
+                    [
+                        [0, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ],
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 1],
+                    ],
+                ]
+            ),
+            np.array(
+                [
+                    [
+                        [0, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0],
+                    ],
+                    [
+                        [0, 0, 0, 0, 1],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [2, 0, 0, 0, 2],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ],
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 1],
+                    ],
+                ]
+            ),
+            (1, 2),
+            3,
+            "auto",
+            id="3d, with corners, connection through adjacent timesteps.",
+        ),
+    ],
+)
+def test_label_wrap(a, a_res, wrap_axes, connectivity, chunks):
+    d = da.from_array(a, chunks=chunks)
+
+    s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
+
+    d_l, _ = dask_image.ndmeasure.label(d, s, wrap_axes=wrap_axes)
+
+    _assert_equivalent_labeling(a_res, d_l.compute())
+
+
+@pytest.mark.parametrize(
+    "ndim", (2, 3, 4, 5)
+)
+def test_label_full_struct_element(ndim):
+
+    full_s = scipy.ndimage.generate_binary_structure(ndim, ndim)
+    orth_s = scipy.ndimage.generate_binary_structure(ndim, ndim - 1)
+
+    # create a mask that represents a single connected component
+    # under the full (highest rank) structuring element
+    # but several connected components under the orthogonal
+    # structuring element
+    mask = full_s ^ orth_s
+    mask[tuple([1] * ndim)] = True
+
+    # create dask array with chunk boundary
+    # that passes through the mask
+    mask_da = da.from_array(mask, chunks=[2] * ndim)
+
+    labels_ndi, N_ndi = scipy.ndimage.label(mask, structure=full_s)
+    labels_di_da, N_di_da = dask_image.ndmeasure.label(
+        mask_da, structure=full_s)
+
+    assert N_ndi == N_di_da.compute()
+
+    _assert_equivalent_labeling(
+        labels_ndi,
+        labels_di_da.compute())
 
 
 @pytest.mark.parametrize(
@@ -445,7 +760,7 @@ def test_labeled_comprehension_struct(shape, chunks, ind):
     )
     d_lbls = da.from_array(lbls, chunks=d.chunks)
 
-    dtype = np.dtype([("val", np.float64), ("pos", np.int)])
+    dtype = np.dtype([("val", np.float64), ("pos", int)])
     default = np.array((np.nan, -1), dtype=dtype)
 
     def func_max(val):

@@ -27,32 +27,32 @@ export CUDA_REL=${CUDA_VERSION%.*}
 # SETUP - Check environment
 ################################################################################
 
-gpuci_logger "Check environment variables"
+rapids-logger "Check environment variables"
 env
 
-gpuci_logger "Check GPU usage"
+rapids-logger "Check GPU usage"
 nvidia-smi
 
-gpuci_logger "Activate conda env"
+rapids-logger "Update conda environment"
 . /opt/conda/etc/profile.d/conda.sh
+rapids-mamba-retry env update -n dask_image -f "$WORKSPACE/continuous_integration/environment-$PYTHON_VER.yml"
+
+rapids-logger "Activate conda env"
 conda activate dask_image
 
-gpuci_logger "Install cupy"
-python -m pip install cupy-cuda112 -f https://pip.cupy.dev/pre
+rapids-logger "Install cupy"
+python -m pip install cupy-cuda11x -f https://pip.cupy.dev/pre
 
-# gpuci_logger "Install dask"
-# python -m pip install git+https://github.com/dask/dask
+rapids-logger "Install dask-image"
+python -m pip install .
 
-gpuci_logger "Install dask-image"
-python setup.py install
-
-gpuci_logger "Check Python versions"
+rapids-logger "Check Python versions"
 python --version
 
-gpuci_logger "Check conda environment"
+rapids-logger "Check conda environment"
 conda info
 conda config --show-sources
 conda list --show-channel-urls
 
-gpuci_logger "Python py.test for dask-image"
+rapids-logger "Python py.test for dask-image"
 py.test $WORKSPACE -v -m cupy --junitxml="$WORKSPACE/junit-dask-image.xml"

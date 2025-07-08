@@ -18,7 +18,7 @@ to complete the release process:
 
 .. code-block:: bash
 
-   pip install PyGithub>=1.44.1 twine>=3.1.1 tqdm
+   pip install "PyGithub>=1.44.1" "twine>=3.1.1" tqdm
 
 
 
@@ -42,7 +42,7 @@ for `dask-image`. This means version numbers have the format
 and X is an integer counter beginning at zero (to distinguish
 between cases where multiple releases were made in the same month).
 
-`Versioneer <https://github.com/warner/python-versioneer>`_
+`setuptools-scm <https://setuptools-scm.readthedocs.io/en/stable/>`_
 then determines the exact version from the latest
 `git tag <https://git-scm.com/book/en/v2/Git-Basics-Tagging>`_
 beginning with `v`. So our git tags will have the format `vYYYY.MM.X`.
@@ -55,7 +55,7 @@ Generate the release notes
 
 The release notes contain a list of merges, contributors, and reviewers.
 
-1. Crate a GH_TOKEN environment variable on your computer.
+1. Create a GH_TOKEN environment variable on your computer.
 
     On Linux/Mac:
 
@@ -120,9 +120,10 @@ Go to the dask-image releases page: https://github.com/dask/dask-image/releases
 
 Click the "Draft Release" button to create a new release candidate.
 
-- Both the tag version and release title should have the format ``vYYYY.MM.DDrc1``.
+- Both the tag version and release title should have the format ``vYYYY.MM.Xrc1``.
 - Copy-paste the release notes from ``HISTORY.rst`` for this release into the
   description text box.
+- Tick "Set as a pre-release"
 
 Note here how we are using ``rc`` for release candidate to create a version
 of our release we can test before making the real release.
@@ -146,7 +147,7 @@ in order to isolate dependencies.
 
 If the release candidate is not what you want, make your changes and
 repeat the process from the beginning but
-incrementing the number after ``rc`` (e.g. ``vYYYY.MM.DDrc1``).
+incrementing the number after ``rc`` (e.g. ``vYYYY.MM.Xrc1``).
 
 Once you are satisfied with the release candidate it is time to generate
 the actual release.
@@ -155,7 +156,9 @@ Generating the actual release
 -----------------------------
 
 To generate the actual release you will now repeat the processes above
-but now dropping the ``rc`` suffix from the version number.
+but now
+- dropping the ``rc`` suffix from the version number.
+- ticking "Set as the latest release"
 
 This will automatically upload the release to PyPI, and will also
 automatically begin the process to release the new version on conda-forge.
@@ -171,10 +174,17 @@ conda-forge feedstock here: https://github.com/conda-forge/dask-image-feedstock
 Note: the conda-forge bot will not open a PR for any of the release candidates,
 only for the final release. Only one PR is opened for
 
+As an alternative to waiting for the conda-forge bot to notice the new release,
+you can submit a new dask-image feedstock issue indicating
+``@conda-forge-admin, please update version`` in the issue title. This will
+`trigger <https://conda-forge.org/docs/maintainer/infrastructure.html#conda-forge-admin-please-update-version>`_`
+the bot to check for new versions.
+
 Before merging the pull request, first you should check:
 
 * That all the tests have passed on CI for this pull request
-* If any dependencies were changed, and should be updated in the pull request
+* If any dependencies were changed, and should be updated by
+  commiting changes to ``recipe/meta.yaml`` to the pull request
 
 Once that all looks good you can merge the pull request,
 and the newest version of ``dask-image`` will automatically be made
