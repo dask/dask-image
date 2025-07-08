@@ -651,7 +651,7 @@ def _map_single_coordinates_array_chunk(
         values.append((
             ndimage_map_coordinates,
             input[tuple(ric_slice)],
-            coordinates[:, required_input_chunk_coords_indices[irc]],
+            coordinates[:, required_input_chunk_coords_indices[irc]]
             - ric_offset[:, None],
             None,
             order,
