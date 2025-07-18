@@ -113,22 +113,18 @@ def test_map_coordinates_large_input():
         coords).compute()
 
 
-def test_map_coordinates_out_of_bounds():
+@pytest.mark.parametrize("interp_mode",
+                         _supported_modes)
+def test_map_coordinates_out_of_bounds(interp_mode):
     """
     This test checks that an error is raised when out-of-bounds
     coordinates are used.
     """
 
-    image_da = da.random.random((128, 128))
+    kwargs = dict()
+    kwargs['random_seed'] = 0
+    kwargs['interp_mode'] = interp_mode
+    kwargs['im_shape_per_dim'] = 10
+    kwargs['coord_offset'] = 10  # coordinates will be out of bounds
 
-    coords = np.array([
-        [128] * 2,  # out of bounds
-        [-1] * 2,  # negative coordinates
-        [-1, 128],  # mixed
-    ]).T
-
-    dask_image.ndinterp.map_coordinates(
-        image_da,
-        coords
-        ).compute(scheduler='single-threaded')
-
+    validate_map_coordinates_general(**kwargs)
