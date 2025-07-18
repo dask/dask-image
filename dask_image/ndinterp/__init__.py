@@ -565,8 +565,13 @@ def _map_single_coordinates_array_chunk(
     # STEP 1: Associate each coordinate in coordinates with
     # the chunk it maps to in the input array
 
-    # get the input chunks each coordinates maps onto
+    # get the input chunks each coordinate maps onto
     coords_input_chunk_locations = coordinates.T // np.array(input.chunksize)
+
+    # map out-of-bounds chunk locations to valid input chunks
+    coords_input_chunk_locations = np.clip(
+        coords_input_chunk_locations, 0, np.array(input.numblocks) - 1
+    )
 
     # all input chunk locations
     input_chunk_locations = np.array([i for i in np.ndindex(input.numblocks)])
