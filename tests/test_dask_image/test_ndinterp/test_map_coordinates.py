@@ -111,3 +111,24 @@ def test_map_coordinates_large_input():
     dask_image.ndinterp.map_coordinates(
         image_da,
         coords).compute()
+
+
+def test_map_coordinates_out_of_bounds():
+    """
+    This test checks that an error is raised when out-of-bounds
+    coordinates are used.
+    """
+
+    image_da = da.random.random((128, 128))
+
+    coords = np.array([
+        [128] * 2,  # out of bounds
+        [-1] * 2,  # negative coordinates
+        [-1, 128],  # mixed
+    ]).T
+
+    dask_image.ndinterp.map_coordinates(
+        image_da,
+        coords
+        ).compute(scheduler='single-threaded')
+
