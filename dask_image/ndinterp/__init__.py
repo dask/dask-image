@@ -705,10 +705,17 @@ def map_coordinates(input, coordinates, order=3,
     cval : float, optional
         Value to fill past edges of input if mode is 'constant'. Default is 0.0
     prefilter : bool, optional
+        If True, prefilter the input before interpolation. Default is False.
+        Warning: prefilter is True by default in `scipy.ndimage.map_coordinates`.
+        Prefiltering here is performed on a chunk-by-chunk basis, which may lead
+        to different results than `scipy.ndimage.map_coordinates` in case of
+        chunked input arrays and order > 1.
 
     Comments:
-     - in case of a small coordinate array, it might make sense to rechunk
-       it into a single chunk
+      - in case of a small coordinate array, it might make sense to rechunk
+        it into a single chunk
+      - note the different default for `prefilter` compared to
+        `scipy.ndimage.map_coordinates`, which is True by default.
     """
 
     # if coordinate array is not a dask array, convert it into one
