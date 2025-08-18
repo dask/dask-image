@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Conda Environment
         uses: conda-incubator/setup-miniconda@v3
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.ref, 'tags')
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
