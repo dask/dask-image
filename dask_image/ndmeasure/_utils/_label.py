@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import functools
 import operator
-
 import dask
 import dask.array as da
 import numpy as np
@@ -26,15 +25,15 @@ def _get_connected_components_dtype():
 CONN_COMP_DTYPE = _get_connected_components_dtype()
 
 
-def relabel_blocks(block_labeled, mapping):
+def relabel(labels, mapping):
     """
-    Relabel a block-labeled array based on ``mapping``.
+    Relabel a label array based on ``mapping``.
 
     Parameters
     ----------
-    block_labeled : array of int
+    labels : array of int
         The input label array.
-    mapping : dict
+    mapping : (delayed) dict
         A label mapping, such that ``mapping[i] = j`` implies that
         any element in ``array`` valued ``i`` should be relabeled to ``j``.
 
@@ -43,36 +42,34 @@ def relabel_blocks(block_labeled, mapping):
     relabeled : array of int, same shape as ``array``
         The relabeled input array.
     """
-    
-    def relabel_block(block, mapping):
-        # pandas replace works well for both dense and sparse mappings
-        # including large integer labels
-        s = pd.Series(block.flatten())
-        result = s.replace(mapping).to_numpy()
-        return result.reshape(block.shape)
 
-    relabeled = block_labeled.map_blocks(
-        relabel_block,
-        mapping=mapping,
-        dtype=block_labeled.dtype
+    relabeled = np.empty(labels.numblocks, dtype=object)
+
+    block_iter = zip(
+        np.ndindex(*labels.numblocks),
+        map(functools.partial(operator.getitem, labels),
+            da.core.slices_from_chunks(labels.chunks))
     )
 
-    return relabeled
+    def relabel_block(block, mapping):
+        # Convert block to pandas Series for mapping
+        s = pd.Series(block.flatten())
+        # Vectorized lookup using reindex
+        relabeled_block = s.replace(mapping).to_numpy().reshape(block.shape)
+        return relabeled_block
 
+    for index, input_block in block_iter:
 
-def relabel_sequential(labels):
-    """
-    Relabel the labels in ``labels`` to be sequential starting at 1.
-    """
-
-    u = da.unique(
-        da.concatenate(
-            [da.unique(b) for b in labels.blocks]
-            )
+        relabeled_block = da.from_delayed(
+            dask.delayed(relabel_block)(input_block, mapping),
+            shape=input_block.shape,
+            dtype=input_block.dtype
         )
-    mapping = dask.delayed(lambda x: {k: v for k, v in zip(x, np.arange(len(x)))})(u)
 
-    relabeled = relabel_blocks(labels, mapping)
+        relabeled[index] = relabeled_block
+
+    # Put all the blocks together
+    relabeled = da.block(relabeled.tolist())
 
     return relabeled
 
@@ -86,7 +83,12 @@ def _unique_axis(a, axis=0):
     return r
 
 
-def _across_block_label_grouping(face, structure):
+def _across_block_label_grouping(
+        face, structure,
+        overlap_depth,
+        face_dims,
+        iou_threshold,
+        ):
     """
     Find a grouping of labels across block faces.
 
@@ -101,6 +103,15 @@ def _across_block_label_grouping(face, structure):
         Structuring element for the labeling of the face. This should have
         length 3 along each axis and have the same number of dimensions as
         ``face``.
+    overlap_depth : int
+        The depth of the overlap between blocks.
+    face_dims : list of int
+        The dimensions along which the face extends.
+    iou_threshold : float, optional
+        If ``overlap_depth > 0``, the intersection-over-union (IoU) between labels
+        in the overlap region is used to determine which labels should be
+        merged. If the IoU between two labels is greater than ``iou_threshold``,
+        they are merged. Default is 0.8.
 
     Returns
     -------
@@ -121,23 +132,79 @@ def _across_block_label_grouping(face, structure):
     This shows that 1-2 are connected, 2-7 are connected, and 8-9 are
     connected. The resulting graph is (1-2-7), (8-9).
     """
-    common_labels = scipy.ndimage.label(face, structure)[0]
-    matching = np.stack((common_labels.ravel(), face.ravel()), axis=1)
-    unique_matching = _unique_axis(matching)
-    valid = np.all(unique_matching, axis=1)
-    unique_valid_matching = unique_matching[valid]
-    common_labels, labels = unique_valid_matching.T
-    in_group = np.flatnonzero(np.diff(common_labels) == 0)
-    i = np.take(labels, in_group)
-    j = np.take(labels, in_group + 1)
-    grouped = np.stack((i, j), axis=0)
+
+    if not overlap_depth:
+
+        # merge touching labels
+        
+        common_labels = scipy.ndimage.label(face, structure)[0]
+        # when processing labels that don't come from ndimage.label, we need to
+        # ensure equal dtypes
+        common_labels = common_labels.astype(face.dtype)
+        matching = np.stack((common_labels.ravel(), face.ravel()), axis=1)
+        unique_matching = _unique_axis(matching)
+        valid = np.all(unique_matching, axis=1)
+        unique_valid_matching = unique_matching[valid]
+        common_labels, labels = unique_valid_matching.T
+        in_group = np.flatnonzero(np.diff(common_labels) == 0)
+        i = np.take(labels, in_group)
+        j = np.take(labels, in_group + 1)
+        grouped = np.stack((i, j), axis=0)
+
+    else:
+
+        # consider labels as grouped if intersection over union
+        # is higher than the given threshold
+
+        # overlap comparison
+        slice1 = [slice(None)] * len(face.shape)
+        slice2 = [slice(None)] * len(face.shape)
+        for dim in range(face.ndim):
+            if dim in face_dims:
+                # slice1[dim] = slice(-2 * overlap_depth, None)
+                # slice2[dim] = slice(0, 2 * overlap_depth)
+                slice1[dim] = slice(-1 * overlap_depth, None)
+                slice2[dim] = slice(0, 1 * overlap_depth)
+            else:
+                slice1[dim] = slice(None)
+                slice2[dim] = slice(None)
+
+        # get IoU based matching
+
+        face1 = face[tuple(slice1)]
+        face2 = face[tuple(slice2)]
+
+        # get IoU between all labels in face1 and face2
+        # consider only already overlapping labels
+        label_pairs = np.stack((face1.ravel(), face2.ravel()), axis=1)
+        unique_label_pairs = _unique_axis(label_pairs)
+        valid = np.all(unique_label_pairs > 0, axis=1)
+        unique_valid_label_pairs = unique_label_pairs[valid]
+        ilabels1, ilabels2 = unique_valid_label_pairs.T
+
+        matching_pairs = []
+        for l1 in ilabels1:
+            for l2 in ilabels2:
+                intersection = np.sum((face1 == l1) * (face2 == l2))
+                if intersection == 0:
+                    continue
+                union = np.sum(face1 == l1) + np.sum(face2 == l2) - intersection
+                iou = intersection / union
+                if iou > iou_threshold:
+                    matching_pairs.append((l1, l2))
+
+        grouped = np.array(matching_pairs).T if len(matching_pairs) > 0\
+            else np.zeros((2, 0), dtype=face.dtype)
+        
+        # import pdb; pdb.set_trace()
+
     return grouped
 
 
-def _across_block_label_grouping_delayed(face, structure):
+def _across_block_label_grouping_delayed(**across_block_label_grouping_kwargs):
     """Delayed version of :func:`_across_block_label_grouping`."""
     _across_block_label_grouping_ = dask.delayed(_across_block_label_grouping)
-    grouped = _across_block_label_grouping_(face, structure)
+    grouped = _across_block_label_grouping_(**across_block_label_grouping_kwargs)
     return da.from_delayed(grouped, shape=(2, np.nan), dtype=LABEL_DTYPE)
 
 
@@ -148,7 +215,13 @@ def _to_csr_matrix(i, j, n):
     return mat.tocsr()
 
 
-def label_adjacency_mapping(labels, structure, wrap_axes=None):
+def label_adjacency_mapping(
+        labels,
+        structure=None,
+        wrap_axes=None,
+        overlap_depth=None,
+        iou_threshold=0.8,
+    ):
     """
     Adjacency graph of labels between chunks of ``labels``.
 
@@ -171,6 +244,7 @@ def label_adjacency_mapping(labels, structure, wrap_axes=None):
         - (0,) only wrap over the 0th axis.
         - (0, 1) wrap over the 0th and 1st axis.
         - (0, 1, 3)  wrap over 0th, 1st and 3rd axis.
+    overlap_depth : int, optional
 
     Returns
     -------
@@ -182,14 +256,21 @@ def label_adjacency_mapping(labels, structure, wrap_axes=None):
     if structure is None:
         structure = scipy.ndimage.generate_binary_structure(labels.ndim, 1)
 
-    face_slices = _chunk_faces(
+    face_slice_infos = _chunk_faces(
         labels.chunks, labels.shape, structure, wrap_axes=wrap_axes
     )
     all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
 
-    for face_slice in face_slices:
-        face = labels[face_slice]
-        mapped = _across_block_label_grouping_delayed(face, structure)
+    for face_slice_info in face_slice_infos:
+
+        face = labels[face_slice_info['slice']]
+        mapped = _across_block_label_grouping_delayed(
+            face=face,
+            structure=structure,
+            overlap_depth=overlap_depth,
+            face_dims=face_slice_info['dims'],
+            iou_threshold=iou_threshold
+        )
         all_mappings.append(mapped)
 
     all_mappings = da.concatenate(all_mappings, axis=1)
@@ -197,7 +278,10 @@ def label_adjacency_mapping(labels, structure, wrap_axes=None):
     return all_mappings
 
 
-def _chunk_faces(chunks, shape, structure, wrap_axes=None):
+def _chunk_faces(
+    chunks, shape, structure,
+    wrap_axes=None, overlap_depth=0
+    ):
     """
     Return slices for two-pixel-wide boundaries between chunks.
 
@@ -214,6 +298,8 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
         - (0,) only wrap over the 0th axis.
         - (0, 1) wrap over the 0th and 1st axis.
         - (0, 1, 3)  wrap over 0th, 1st and 3rd axis.
+    overlap_depth : int, optional
+        The depth of the overlap between blocks.
 
     Yields
     -------
@@ -279,6 +365,7 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
             ind_curr_block = block_summary[tuple(curr_block)]
 
             curr_slice = []
+            curr_slice_dims = []
             for dim in range(ndim):
                 # keep slice if not on boundary
                 if neigh_block[dim] == curr_block[dim]:
@@ -288,11 +375,20 @@ def _chunk_faces(chunks, shape, structure, wrap_axes=None):
                     if slices[ind_curr_block][dim].stop == shape[dim]:
                         curr_slice.append(slice(None, None, shape[dim] - 1))
                     else:
-                        curr_slice.append(slice(
-                            slices[ind_curr_block][dim].stop - 1,
-                            slices[ind_curr_block][dim].stop + 1))
+                        if overlap_depth > 0:
+                            curr_slice.append(slice(
+                                slices[ind_curr_block][dim].stop - 1 * overlap_depth,
+                                slices[ind_curr_block][dim].stop + 1 * overlap_depth))
+                        else:
+                            curr_slice.append(slice(
+                                slices[ind_curr_block][dim].stop - 1,
+                                slices[ind_curr_block][dim].stop + 1))
+                    curr_slice_dims.append(dim)
 
-            yield tuple(curr_slice)
+            yield {
+                'slice': tuple(curr_slice),
+                'dims': curr_slice_dims
+            }
 
 
 def block_ndi_label_delayed(block, structure):
@@ -345,7 +441,7 @@ def connected_components_delayed(all_mappings):
     relabeled_mappings = unique_labels_new[unique_inverse]
 
     i, j = relabeled_mappings
-    csr_matrix = _to_csr_matrix(i, j, len(unique_labels) + 1)
+    csr_matrix = _to_csr_matrix(i, j, len(unique_labels))
 
     conn_comp = scipy.sparse.csgraph.connected_components
     new_labeling = unique_labels[conn_comp(csr_matrix, directed=False)[1]]
