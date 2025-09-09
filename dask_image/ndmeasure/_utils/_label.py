@@ -322,18 +322,17 @@ def block_ndi_label_delayed(block, structure):
     return labeled, n
 
 
-@dask.delayed(nout=2)
+@dask.delayed
 def connected_components_delayed(all_mappings):
     """
     Use scipy.sparse.csgraph.connected_components to find the connected
     components of the graph defined by ``all_mappings``.
 
-    Return the mapping from old labels to new labels, and the number of
-    labels that were collapsed.
+    Return the mapping from old labels to new labels.
     """
 
     if not all_mappings.shape[1]:
-        return {}, 0
+        return {}
 
     # relabel all_mappings to consecutive integers starting at 1
     unique_labels, unique_inverse = np.unique(
@@ -351,11 +350,13 @@ def connected_components_delayed(all_mappings):
     conn_comp = scipy.sparse.csgraph.connected_components
     new_labeling = unique_labels[conn_comp(csr_matrix, directed=False)[1]]
 
-    n_red = len(unique_labels) - len(np.unique(new_labeling)) + 1
-
     mapping = {k: v for k, v in zip(unique_labels, new_labeling)}
 
-    return mapping, n_red
+    return mapping
+
+
+def count_n_of_collapsed_labels(mapping):
+    return len(mapping.keys()) - len(set(mapping.values()))
 
 
 def _encode_label(label, block_id, encoding_dtype=np.uint32):

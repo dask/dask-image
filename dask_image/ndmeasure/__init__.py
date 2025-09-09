@@ -382,13 +382,7 @@ def label(
     all_mappings = _label.label_adjacency_mapping(
         block_labeled_unique, structure, wrap_axes=wrap_axes
     )
-    mapping, n_red = _label.connected_components_delayed(all_mappings)
-
-    n_red = da.from_delayed(
-        n_red,
-        shape=(),
-        dtype=np.uint16
-    )
+    mapping = _label.connected_components_delayed(all_mappings)
 
     relabeled = _label.relabel_blocks(
         block_labeled_unique, mapping
@@ -410,7 +404,11 @@ def label(
             chunks=(1, ) * block_labeled.ndim
         ).sum()
 
-        n = total - n_red
+        n = total - da.from_delayed(
+            delayed(_label.count_n_of_collapsed_labels)(mapping),
+            shape=(),
+            dtype=np.uint64
+        )
 
     return (relabeled, n)
 
