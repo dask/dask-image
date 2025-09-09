@@ -11,6 +11,7 @@ import dask.array as da
 import dask.bag as db
 import dask.dataframe as dd
 import numpy as np
+from scipy.ndimage import label as ndimage_label
 
 from . import _utils
 from ._utils import _label
@@ -315,7 +316,12 @@ def histogram(image,
     return result
 
 
-def label(image, structure=None, wrap_axes=None):
+def label(
+        image,
+        structure=None,
+        wrap_axes=None,
+        produce_sequential_labels=False,
+        ):
     """
     Label features in an array.
 
@@ -334,7 +340,6 @@ def label(image, structure=None, wrap_axes=None):
             [[0,1,0],
              [1,1,1],
              [0,1,0]]
-
     wrap_axes : tuple of int, optional
         Whether labels should be wrapped across array boundaries, and if so
         which axes.
@@ -343,6 +348,11 @@ def label(image, structure=None, wrap_axes=None):
         - (0,) only wrap across the 0th axis.
         - (0, 1) wrap across the 0th and 1st axis.
         - (0, 1, 3)  wrap across 0th, 1st and 3rd axis.
+    produce_sequential_labels : bool, optional
+        If False, the returned labels are not contiguous (i.e. 0, 1, 6045, 54654).
+        This is the default behavior and has advantages for parallelism.
+        If True, the labels are relabeled to be sequential
+        and contiguous from 1 to the number of features.
 
     Returns
     -------
@@ -355,41 +365,52 @@ def label(image, structure=None, wrap_axes=None):
 
     image = da.asarray(image)
 
-    labeled_blocks = np.empty(image.numblocks, dtype=object)
-
-    # First, label each block independently, incrementing the labels in that
-    # block by the total number of labels from previous blocks. This way, each
-    # block's labels are globally unique.
-    block_iter = zip(
-        np.ndindex(*image.numblocks),
-        map(functools.partial(operator.getitem, image),
-            da.core.slices_from_chunks(image.chunks))
+    block_labeled = image.map_blocks(
+        lambda x: ndimage_label(x, structure=structure)[0],
+        dtype=_label.LABEL_DTYPE,
     )
-    index, input_block = next(block_iter)
-    labeled_blocks[index], total = _label.block_ndi_label_delayed(input_block,
-                                                                  structure)
-    for index, input_block in block_iter:
-        labeled_block, n = _label.block_ndi_label_delayed(input_block,
-                                                          structure)
-        block_label_offset = da.where(labeled_block > 0,
-                                      total,
-                                      _label.LABEL_DTYPE.type(0))
-        labeled_block += block_label_offset
-        labeled_blocks[index] = labeled_block
-        total += n
 
-    # Put all the blocks together
-    block_labeled = da.block(labeled_blocks.tolist())
+    # Make labels unique across blocks by encoding the block ID into the labels.
+    # We use half the bits to encode the block ID and half the bits to encode
+    # the label ID within the block.
+    block_labeled_unique = _label._make_labels_unique(
+        block_labeled, encoding_dtype=np.uint32)
 
-    # Now, build a label connectivity graph that groups labels across blocks.
-    # We use this graph to find connected components and then relabel each
+    # Now, build a label mapping that groups labels across blocks.
+    # We use this mapping to find connected components and then relabel each
     # block according to those.
-    label_groups = _label.label_adjacency_graph(
-        block_labeled, structure, total, wrap_axes=wrap_axes
+    all_mappings = _label.label_adjacency_mapping(
+        block_labeled_unique, structure, wrap_axes=wrap_axes
     )
-    new_labeling = _label.connected_components_delayed(label_groups)
-    relabeled = _label.relabel_blocks(block_labeled, new_labeling)
-    n = da.max(relabeled)
+    mapping, n_red = _label.connected_components_delayed(all_mappings)
+
+    n_red = da.from_delayed(
+        n_red,
+        shape=(),
+        dtype=np.uint16
+    )
+
+    relabeled = _label.relabel_blocks(
+        block_labeled_unique, mapping
+    )
+
+    relabeled = relabeled.astype(_label.LABEL_DTYPE)
+
+    if produce_sequential_labels:
+        relabeled = _label.relabel_sequential(relabeled)
+        n = relabeled.max()
+        
+    else:
+        def count_labels(label_block):
+            return len(np.unique(label_block[label_block > 0]))
+
+        total = block_labeled.map_blocks(
+            lambda x: np.ones((1, ) * x.ndim, dtype=np.uint64) * count_labels(x),
+            dtype=np.uint64,
+            chunks=(1, ) * block_labeled.ndim
+        ).sum()
+
+        n = total - n_red
 
     return (relabeled, n)
 

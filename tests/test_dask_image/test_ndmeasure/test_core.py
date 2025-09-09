@@ -319,26 +319,36 @@ def _assert_equivalent_labeling(labels0, labels1):
     """
     matching = np.stack((labels0.ravel(), labels1.ravel()), axis=1)
     unique_matching = dask_image.ndmeasure._label._unique_axis(matching)
-    bincount0 = np.bincount(unique_matching[:, 0])
-    bincount1 = np.bincount(unique_matching[:, 1])
-    assert np.all(bincount0 == 1)
-    assert np.all(bincount1 == 1)
+    assert len(np.unique(unique_matching[:, 0])),\
+           len(np.unique(unique_matching[:, 1]))
+
+
+def assert_sequential_labeling(labels):
+    """Assert that the labels are sequential starting at 1.
+
+    I.e. the labels are in {0, 1, 2, ..., N} where 0 is background.
+    """
+    u = np.unique(labels)
+    assert len(u) == 1 + u.max()
 
 
 @pytest.mark.parametrize(
-    "seed, prob, shape, chunks, connectivity", [
-        (42, 0.4, (15, 16), (15, 16), 1),
-        (42, 0.4, (15, 16), (4, 5), 1),
-        (42, 0.4, (15, 16), (4, 5), 2),
-        (42, 0.4, (15, 16), (4, 5), None),
-        (42, 0.4, (15, 16), (8, 5), 1),
-        (42, 0.4, (15, 16), (8, 5), 2),
-        (42, 0.3, (10, 8, 6), (5, 4, 3), 1),
-        (42, 0.3, (10, 8, 6), (5, 4, 3), 2),
-        (42, 0.3, (10, 8, 6), (5, 4, 3), 3),
+    "seed, prob, shape, chunks, connectivity, sequential", [
+        (42, 0.4, (15, 16), (15, 16), 1, False),
+        (42, 0.4, (15, 16), (15, 16), 1, True),
+        (42, 0.4, (15, 16), (4, 5), 1, False),
+        (42, 0.4, (15, 16), (4, 5), 1, True),
+        (42, 0.4, (15, 16), (4, 5), 2, False),
+        (42, 0.4, (15, 16), (4, 5), None, False),
+        (42, 0.4, (15, 16), (8, 5), 1, False),
+        (42, 0.4, (15, 16), (8, 5), 2, False),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 1, False),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 1, True),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 2, False),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 3, False),
     ]
 )
-def test_label(seed, prob, shape, chunks, connectivity):
+def test_label(seed, prob, shape, chunks, connectivity, sequential):
     np.random.seed(seed)
 
     a = np.random.random(shape) < prob
@@ -350,13 +360,17 @@ def test_label(seed, prob, shape, chunks, connectivity):
         s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
 
     a_l, a_nl = scipy.ndimage.label(a, s)
-    d_l, d_nl = dask_image.ndmeasure.label(d, s)
+    d_l, d_nl = dask_image.ndmeasure.label(
+        d, s, produce_sequential_labels=sequential)
 
     assert a_nl == d_nl.compute()
 
     assert a_l.dtype == d_l.dtype
     assert a_l.shape == d_l.shape
     _assert_equivalent_labeling(a_l, d_l.compute())
+
+    if sequential:
+        assert_sequential_labeling(d_l.compute())
 
 
 a = np.array(
@@ -854,3 +868,20 @@ def test_labeled_comprehension_object(shape, chunks, ind):
                 assert d_r[i].compute() is None
             else:
                 assert np.allclose(a_r[i], d_r[i].compute(), equal_nan=True)
+
+
+def test_label_encoding():
+    for label in [0, 10]:
+        for block_id in [0, 1]:
+            for encoding_dtype in [np.uint8, np.uint32]:
+                bit_shift = np.iinfo(encoding_dtype).bits // 2
+                encoded = dask_image.ndmeasure._label._encode_label(
+                            label, block_id, encoding_dtype=encoding_dtype
+                        )
+                assert encoded.dtype == encoding_dtype
+                label_d, block_id_d = \
+                    dask_image.ndmeasure._label._decode_label(
+                        encoded, encoding_dtype=encoding_dtype
+                    )
+                assert label == label_d
+                assert block_id == block_id_d
