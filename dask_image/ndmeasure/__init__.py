@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import collections
 import functools
 import operator
+import collections
 import warnings
 from dask import compute, delayed
 import dask.config as dask_config
@@ -370,28 +370,19 @@ def label(
         dtype=_label.LABEL_DTYPE,
     )
 
-    # Make labels unique across blocks by encoding the block ID into the labels.
-    # We use half the bits to encode the block ID and half the bits to encode
-    # the label ID within the block.
-    block_labeled_unique = _label._make_labels_unique(
-        block_labeled, encoding_dtype=np.uint32)
-
-    # Now, build a label mapping that groups labels across blocks.
-    # We use this mapping to find connected components and then relabel each
-    # block according to those.
-    all_mappings = _label.label_adjacency_mapping(
-        block_labeled_unique, structure, wrap_axes=wrap_axes
-    )
-    mapping = _label.connected_components_delayed(all_mappings)
-
-    relabeled = _label.relabel_blocks(
-        block_labeled_unique, mapping
-    )
-
-    relabeled = relabeled.astype(_label.LABEL_DTYPE)
+    merged_labels_dict = merge_labels_across_chunk_boundaries(
+        block_labeled,
+        overlap_depth=0,
+        structure=structure,
+        wrap_axes=wrap_axes,
+        produce_sequential_labels=False,
+        )
+    
+    relabeled = merged_labels_dict['labels']
+    mapping = merged_labels_dict['mapping']
 
     if produce_sequential_labels:
-        relabeled = _label.relabel_sequential(relabeled)
+        relabeled = relabel_sequential(relabeled)
         n = relabeled.max()
         
     else:
@@ -411,6 +402,116 @@ def label(
         )
 
     return (relabeled, n)
+
+
+def merge_labels_across_chunk_boundaries(
+        labels,
+        overlap_depth=0,
+        iou_threshold=0.8,
+        structure=None,
+        wrap_axes=None,
+        trim_overlap=True,
+        produce_sequential_labels=True,
+        ):
+    """
+    Merge labels across chunk boundaries.
+
+    Each chunk in ``labels`` has been labeled independently, and the labels
+    in different chunks may overlap. This function tries to merge labels across
+    chunk boundaries using a strategy dependent on ``overlap``:
+    - If ``overlap > 0``, the overlap region between chunks is used to
+      determine which between each pair of chunks should be merged.
+    - If ``overlap == 0``, labels that touch across chunk boundaries are merged.
+
+    Parameters
+    ----------
+    labels : dask array of int
+        The input labeled array, where each chunk is independently labeled.
+    overlap_depth : int, optional
+        The size of the overlap region between chunks, e.g. as produced by
+        `dask.array.overlap` or `map_overlap`. Default is 0.
+    iou_threshold : float, optional
+        If ``overlap > 0``, the intersection-over-union (IoU) between labels
+        in the overlap region is used to determine which labels should be
+        merged. If the IoU between two labels is greater than ``iou_threshold``,
+        they are merged. Default is 0.8.
+    structure : array of bool, optional
+        Structuring element for determining connectivity. If None, a
+        cross-shaped structuring element is used.
+    wrap_axes : tuple of int, optional
+        Should labels be wrapped across array boundaries, and if so which axes.
+        - (0,) only wrap over the 0th axis.
+        - (0, 1) wrap over the 0th and 1st axis.
+        - (0, 1, 3)  wrap over 0th, 1st and 3rd axis.
+    trim_overlap : bool, optional
+        If True, the overlap regions are trimmed from the output labels.
+        Default is True.
+
+    Returns
+    -------
+    dict with keys 'labels' and 'mapping'
+        'labels': dask array of int
+            The relabeled array, where labels have been merged across chunk
+            boundaries.
+        'mapping': dict
+            A mapping from old labels to new labels.
+    """
+
+    # Make labels unique across blocks by encoding the block ID into the labels.
+    # We use half the bits to encode the block ID and half the bits to encode
+    # the label ID within the block.
+    block_labeled_unique = _label._make_labels_unique(
+        labels, encoding_dtype=np.uint32)
+
+    # Now, build a label mapping that groups labels across blocks.
+    # We use this mapping to find connected components and then relabel each
+    # block according to those.
+    all_mappings = _label.label_adjacency_mapping(
+        block_labeled_unique,
+        structure,
+        wrap_axes=wrap_axes,
+        iou_threshold=iou_threshold,
+        overlap_depth=overlap_depth,
+    )
+
+    mapping = _label.connected_components_delayed(all_mappings)
+
+    relabeled = _label.relabel(
+        block_labeled_unique, mapping
+    )
+
+    relabeled = relabeled.astype(_label.LABEL_DTYPE)
+
+    if trim_overlap and overlap_depth > 0:
+        relabeled = da.overlap.trim_overlap(
+            relabeled, {i: overlap_depth for i in range(relabeled.ndim)},
+            boundary='none',
+        )
+
+    if produce_sequential_labels:
+        relabeled = relabel_sequential(relabeled)
+
+    return {
+        'labels': relabeled,
+        'mapping': mapping,
+    }
+
+
+def relabel_sequential(labels):
+    """
+    Relabel the labels in ``labels`` to be sequential starting at 1.
+    """
+
+    u = da.unique(
+        da.concatenate(
+            [da.unique(b) for b in labels.blocks]
+            )
+        )
+    mapping = delayed(lambda x: {k: v for k, v in zip(x, np.arange(len(x)))})(u)
+
+    relabeled = _label.relabel(labels, mapping)
+
+    return relabeled
 
 
 def labeled_comprehension(image,
