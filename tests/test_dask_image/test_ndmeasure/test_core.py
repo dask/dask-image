@@ -883,12 +883,14 @@ def test_make_labels_unique():
 
 @pytest.mark.parametrize(
         "ndim, overlap_depth, produce_sequential_labels",
-        [(1, 0, False),
-         (1, 1, True),
-         (2, 0, False),
-         (2, 1, True),
-         (3, 0, False),
-         (3, 1, True)]
+        [
+            (1, 0, False),
+            (1, 1, True),
+            (2, 0, False),
+            (2, 1, True),
+            (3, 0, False),
+            (3, 1, True),
+        ]
 )
 def test_merge_labels_across_chunk_boundaries(
     ndim, overlap_depth, produce_sequential_labels
@@ -953,7 +955,8 @@ def test_merge_labels_across_chunk_boundaries(
     dim_segmentation_merged = dask_image.ndmeasure\
         .merge_labels_across_chunk_boundaries(
             dim_chunkwise_segmentation,
-            overlap_depth=overlap_depth
+            overlap_depth=overlap_depth,
+            iou_threshold=0,
         )['labels']
 
     dim_segmentation_merged_c = \

@@ -161,10 +161,10 @@ def _across_block_label_grouping(
         slice2 = [slice(None)] * len(face.shape)
         for dim in range(face.ndim):
             if dim in face_dims:
-                # slice1[dim] = slice(-2 * overlap_depth, None)
-                # slice2[dim] = slice(0, 2 * overlap_depth)
-                slice1[dim] = slice(-1 * overlap_depth, None)
-                slice2[dim] = slice(0, 1 * overlap_depth)
+                slice1[dim] = slice(-2 * overlap_depth, None)
+                slice2[dim] = slice(0, 2 * overlap_depth)
+                # slice1[dim] = slice(-1 * overlap_depth, None)
+                # slice2[dim] = slice(0, 1 * overlap_depth)
             else:
                 slice1[dim] = slice(None)
                 slice2[dim] = slice(None)
@@ -195,8 +195,6 @@ def _across_block_label_grouping(
 
         grouped = np.array(matching_pairs).T if len(matching_pairs) > 0\
             else np.zeros((2, 0), dtype=face.dtype)
-        
-        # import pdb; pdb.set_trace()
 
     return grouped
 
@@ -257,7 +255,8 @@ def label_adjacency_mapping(
         structure = scipy.ndimage.generate_binary_structure(labels.ndim, 1)
 
     face_slice_infos = _chunk_faces(
-        labels.chunks, labels.shape, structure, wrap_axes=wrap_axes
+        labels.chunks, labels.shape, structure,
+        wrap_axes=wrap_axes, overlap_depth=overlap_depth
     )
     all_mappings = [da.empty((2, 0), dtype=LABEL_DTYPE, chunks=1)]
 
@@ -377,8 +376,8 @@ def _chunk_faces(
                     else:
                         if overlap_depth > 0:
                             curr_slice.append(slice(
-                                slices[ind_curr_block][dim].stop - 1 * overlap_depth,
-                                slices[ind_curr_block][dim].stop + 1 * overlap_depth))
+                                slices[ind_curr_block][dim].stop - 2 * overlap_depth,
+                                slices[ind_curr_block][dim].stop + 2 * overlap_depth))
                         else:
                             curr_slice.append(slice(
                                 slices[ind_curr_block][dim].stop - 1,
