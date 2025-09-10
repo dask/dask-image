@@ -391,17 +391,19 @@ def label(
             return len(np.unique(label_block[label_block > 0]))
 
         total = block_labeled.map_blocks(
-            lambda x: np.ones(
-                (1, ) * x.ndim, dtype=np.uint64) * count_labels(x),
+            lambda x: (np.ones(
+                (1, ) * x.ndim) * count_labels(x)).astype(np.uint64),
             dtype=np.uint64,
             chunks=(1, ) * block_labeled.ndim
         ).sum()
 
-        n = total - da.from_delayed(
+        n_reduced = da.from_delayed(
             delayed(_label.count_n_of_collapsed_labels)(mapping),
             shape=(),
             dtype=np.uint64
         )
+
+        n = total - n_reduced
 
     return (relabeled, n)
 

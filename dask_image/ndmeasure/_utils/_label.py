@@ -441,7 +441,8 @@ def connected_components_delayed(all_mappings):
     unique_labels_new = np.arange(
         0, len(unique_labels), dtype=all_mappings.dtype)
 
-    relabeled_mappings = unique_labels_new[unique_inverse]
+    relabeled_mappings = unique_labels_new[unique_inverse].reshape(
+        all_mappings.shape)
 
     i, j = relabeled_mappings
     csr_matrix = _to_csr_matrix(i, j, len(unique_labels))
@@ -455,7 +456,9 @@ def connected_components_delayed(all_mappings):
 
 
 def count_n_of_collapsed_labels(mapping):
-    return len(mapping.keys()) - len(set(mapping.values()))
+    return np.array(
+        len(mapping.keys()) - len(set(mapping.values())))\
+            .astype(np.uint64)
 
 
 def _encode_label(label, block_id, encoding_dtype=np.uint32):
