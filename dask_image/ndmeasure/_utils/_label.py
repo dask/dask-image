@@ -108,10 +108,10 @@ def _across_block_label_grouping(
     face_dims : list of int
         The dimensions along which the face extends.
     iou_threshold : float, optional
-        If ``overlap_depth > 0``, the intersection-over-union (IoU) between labels
-        in the overlap region is used to determine which labels should be
-        merged. If the IoU between two labels is greater than ``iou_threshold``,
-        they are merged. Default is 0.8.
+        If ``overlap_depth > 0``, the intersection-over-union (IoU) between
+        labels in the overlap region is used to determine which labels should
+        be merged. If the IoU between two labels is greater than
+        ``iou_threshold``, they are merged. Default is 0.8.
 
     Returns
     -------
@@ -136,7 +136,7 @@ def _across_block_label_grouping(
     if not overlap_depth:
 
         # merge touching labels
-        
+
         common_labels = scipy.ndimage.label(face, structure)[0]
         # when processing labels that don't come from ndimage.label, we need to
         # ensure equal dtypes
@@ -188,7 +188,8 @@ def _across_block_label_grouping(
                 intersection = np.sum((face1 == l1) * (face2 == l2))
                 if intersection == 0:
                     continue
-                union = np.sum(face1 == l1) + np.sum(face2 == l2) - intersection
+                union = \
+                    np.sum(face1 == l1) + np.sum(face2 == l2) - intersection
                 iou = intersection / union
                 if iou > iou_threshold:
                     matching_pairs.append((l1, l2))
@@ -202,7 +203,8 @@ def _across_block_label_grouping(
 def _across_block_label_grouping_delayed(**across_block_label_grouping_kwargs):
     """Delayed version of :func:`_across_block_label_grouping`."""
     _across_block_label_grouping_ = dask.delayed(_across_block_label_grouping)
-    grouped = _across_block_label_grouping_(**across_block_label_grouping_kwargs)
+    grouped = _across_block_label_grouping_(
+        **across_block_label_grouping_kwargs)
     return da.from_delayed(grouped, shape=(2, np.nan), dtype=LABEL_DTYPE)
 
 
@@ -214,12 +216,12 @@ def _to_csr_matrix(i, j, n):
 
 
 def label_adjacency_mapping(
-        labels,
-        structure=None,
-        wrap_axes=None,
-        overlap_depth=None,
-        iou_threshold=0.8,
-    ):
+            labels,
+            structure=None,
+            wrap_axes=None,
+            overlap_depth=None,
+            iou_threshold=0.8,
+        ):
     """
     Adjacency graph of labels between chunks of ``labels``.
 
@@ -278,9 +280,9 @@ def label_adjacency_mapping(
 
 
 def _chunk_faces(
-    chunks, shape, structure,
-    wrap_axes=None, overlap_depth=0
-    ):
+        chunks, shape, structure,
+        wrap_axes=None, overlap_depth=0
+        ):
     """
     Return slices for two-pixel-wide boundaries between chunks.
 
@@ -376,8 +378,10 @@ def _chunk_faces(
                     else:
                         if overlap_depth > 0:
                             curr_slice.append(slice(
-                                slices[ind_curr_block][dim].stop - 2 * overlap_depth,
-                                slices[ind_curr_block][dim].stop + 2 * overlap_depth))
+                                slices[ind_curr_block][dim].stop -
+                                2 * overlap_depth,
+                                slices[ind_curr_block][dim].stop +
+                                2 * overlap_depth))
                         else:
                             curr_slice.append(slice(
                                 slices[ind_curr_block][dim].stop - 1,
@@ -462,7 +466,9 @@ def _encode_label(label, block_id, encoding_dtype=np.uint32):
     return label
 
 
-# def _decode_label(encoded_label, encoding_dtype=np.uint32, decoding_dtype=np.uint16):
+# def _decode_label(
+#     encoded_label, encoding_dtype=np.uint32, decoding_dtype=np.uint16
+# ):
 #     bit_shift = np.iinfo(encoding_dtype).bits // 2
 #     label = encoded_label & ((1 << bit_shift) - 1)
 #     # block_id = encoded_label >> bit_shift
@@ -486,13 +492,13 @@ def _make_labels_unique(labels, encoding_dtype=np.uint16):
 
     assert np.issubdtype(encoding_dtype, np.unsignedinteger), \
         "encoding_dtype must be an unsigned integer dtype"
-        
+
     def _unique_block_labels(
             block, block_id=None,
             encoding_dtype=encoding_dtype,
             numblocks=labels.numblocks
             ):
-        
+
         if block_id is None:
             block_id = (0,) * block.ndim
 
@@ -511,5 +517,5 @@ def _make_labels_unique(labels, encoding_dtype=np.uint16):
                                   chunks=labels.chunks,
                                   encoding_dtype=encoding_dtype,
                                   )
-    
+
     return unique_labels

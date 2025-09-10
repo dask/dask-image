@@ -349,8 +349,9 @@ def label(
         - (0, 1) wrap across the 0th and 1st axis.
         - (0, 1, 3)  wrap across 0th, 1st and 3rd axis.
     produce_sequential_labels : bool, optional
-        If False, the returned labels are not contiguous (i.e. 0, 1, 6045, 54654).
-        This is the default behavior and has advantages for parallelism.
+        If False, the returned labels are not contiguous
+        (i.e. 0, 1, 6045, 54654). This is the default behavior
+        and has advantages for parallelism.
         If True, the labels are relabeled to be sequential
         and contiguous from 1 to the number of features.
 
@@ -377,20 +378,21 @@ def label(
         wrap_axes=wrap_axes,
         produce_sequential_labels=False,
         )
-    
+
     relabeled = merged_labels_dict['labels']
     mapping = merged_labels_dict['mapping']
 
     if produce_sequential_labels:
         relabeled = relabel_sequential(relabeled)
         n = relabeled.max()
-        
+
     else:
         def count_labels(label_block):
             return len(np.unique(label_block[label_block > 0]))
 
         total = block_labeled.map_blocks(
-            lambda x: np.ones((1, ) * x.ndim, dtype=np.uint64) * count_labels(x),
+            lambda x: np.ones(
+                (1, ) * x.ndim, dtype=np.uint64) * count_labels(x),
             dtype=np.uint64,
             chunks=(1, ) * block_labeled.ndim
         ).sum()
@@ -421,7 +423,8 @@ def merge_labels_across_chunk_boundaries(
     chunk boundaries using a strategy dependent on ``overlap``:
     - If ``overlap > 0``, the overlap region between chunks is used to
       determine which between each pair of chunks should be merged.
-    - If ``overlap == 0``, labels that touch across chunk boundaries are merged.
+    - If ``overlap == 0``, labels that touch across chunk boundaries
+    are merged.
 
     Parameters
     ----------
@@ -433,8 +436,8 @@ def merge_labels_across_chunk_boundaries(
     iou_threshold : float, optional
         If ``overlap > 0``, the intersection-over-union (IoU) between labels
         in the overlap region is used to determine which labels should be
-        merged. If the IoU between two labels is greater than ``iou_threshold``,
-        they are merged. Default is 0.8.
+        merged. If the IoU between two labels is greater than
+        ``iou_threshold``, they are merged. Default is 0.8.
     structure : array of bool, optional
         Structuring element for determining connectivity. If None, a
         cross-shaped structuring element is used.
@@ -457,9 +460,9 @@ def merge_labels_across_chunk_boundaries(
             A mapping from old labels to new labels.
     """
 
-    # Make labels unique across blocks by encoding the block ID into the labels.
-    # We use half the bits to encode the block ID and half the bits to encode
-    # the label ID within the block.
+    # Make labels unique across blocks by encoding the block ID into
+    # the labels. We use half the bits to encode the block ID and half the
+    # bits to encode the label ID within the block.
     block_labeled_unique = _label._make_labels_unique(
         labels, encoding_dtype=np.uint32)
 
@@ -507,7 +510,8 @@ def relabel_sequential(labels):
             [da.unique(b) for b in labels.blocks]
             )
         )
-    mapping = delayed(lambda x: {k: v for k, v in zip(x, np.arange(len(x)))})(u)
+    mapping = delayed(
+        lambda x: {k: v for k, v in zip(x, np.arange(len(x)))})(u)
 
     relabeled = _label.relabel(labels, mapping)
 
