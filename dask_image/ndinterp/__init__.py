@@ -694,6 +694,13 @@ def map_coordinates(input, coordinates, order=3,
     match the input order. For more details see the docstring of
     '_map_single_coordinates_array_chunk'.
 
+    Using this function together with schedulers that support
+    parallelism (threads, processes, distributed) makes sense in the
+    case of either a large input array or a large coordinates array.
+    When both arrays are large, it is recommended to use the
+    single-threaded scheduler. A scheduler can be specified using e.g.
+    `with dask.config.set(scheduler='threads'): ...`.
+
     input : array_like
         The input array.
     coordinates : array_like
