@@ -31,6 +31,11 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
     -------
     array : dask.array.Array
         A Dask Array representing the contents of all image files.
+
+    Warnings
+    --------
+    There are several known issues with this function, and users are
+    recommended to use `dask.array.image.imread` instead.
     """
 
     sfname = str(fname)
