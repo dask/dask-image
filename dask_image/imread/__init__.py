@@ -14,7 +14,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
     Read image data into a Dask Array.
 
     Provides a simple, fast mechanism to ingest image data into a
-    Dask Array.
+    Dask Array. This uses the `pims` package to open images.
 
     Parameters
     ----------
@@ -35,7 +35,7 @@ def imread(fname, nframes=1, *, arraytype="numpy"):
     Warnings
     --------
     There are several known issues with this function, and users are
-    recommended to use `dask.array.image.imread` instead.
+    recommended to use `dask.array.image.imread` or `bioio` instead.
     """
 
     sfname = str(fname)
