@@ -4,13 +4,13 @@ import collections
 import functools
 import operator
 import warnings
-from dask import compute, delayed
-import dask.config as dask_config
 
 import dask.array as da
 import dask.bag as db
 import dask.dataframe as dd
 import numpy as np
+from dask import compute, delayed
+import dask.config as dask_config
 
 from . import _utils
 from ._utils import _label
@@ -414,7 +414,9 @@ def labeled_comprehension(image,
     Parameters
     ----------
     image : ndarray
-        N-D image data
+        Intensity image with same size as ``label_image``, plus optionally
+        an extra dimension for multichannel data. The extra channel dimension,
+        if present, must be the last axis.
     label_image : ndarray, optional
         Image features noted by integers. If None (default), all values.
     index : int or sequence of ints, optional
@@ -453,14 +455,16 @@ def labeled_comprehension(image,
     args = (image,)
     if pass_positions:
         positions = _utils._ravel_shape_indices(
-            image.shape, chunks=image.chunks
+            image.shape, chunks=image.chunks, skip_trailing_dim=image.ndim != label_image.ndim
         )
         args = (image, positions)
 
     result = np.empty(index.shape, dtype=object)
     for i in np.ndindex(index.shape):
         lbl_mtch_i = (label_image == index[i])
-        args_lbl_mtch_i = tuple(e[lbl_mtch_i] for e in args)
+        args_lbl_mtch_i = tuple(
+            e[lbl_mtch_i] if e.ndim == lbl_mtch_i.ndim else e.reshape(-1, e.shape[-1])[lbl_mtch_i.reshape(-1)] for e in
+            args)
         result[i] = _utils._labeled_comprehension_func(
             func, out_dtype, default_1d, *args_lbl_mtch_i
         )
