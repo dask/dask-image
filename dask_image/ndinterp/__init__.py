@@ -749,6 +749,7 @@ def map_coordinates(input, coordinates, order=3,
     # executed. Therefore two `compute` calls are required to obtain the
     # final result, one of which is peformed by
     # `_map_single_coordinates_array_chunk`
+    # Discussion https://dask.discourse.group/t/passing-dask-objects-to-delayed-computations-without-triggering-compute/1441
     output = da.map_blocks(
         _map_single_coordinates_array_chunk,
         delayed(da.Array)(input.dask, input.name, input.chunks, input.dtype),
