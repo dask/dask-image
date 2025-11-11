@@ -22,6 +22,7 @@ from ..dispatch._dispatch_ndinterp import (
     dispatch_spline_filter,
     dispatch_spline_filter1d,
 )
+from ..dispatch._utils import get_type
 from ..ndfilters._utils import _get_depth_boundary
 
 __all__ = [
@@ -687,6 +688,7 @@ def map_coordinates(input, coordinates, order=3,
     Wraps ndimage.map_coordinates.
 
     Both the input and coordinate arrays can be dask arrays.
+    GPU arrays are not supported.
 
     For each chunk in the coordinates array, the coordinates are computed
     and mapped onto the required slices of the input array. One task is
@@ -731,6 +733,8 @@ def map_coordinates(input, coordinates, order=3,
       - note the different default for `prefilter` compared to
         `scipy.ndimage.map_coordinates`, which is True by default.
     """
+    if "cupy" in str(get_type(input)) or "cupy" in str(get_type(coordinates)):
+        raise NotImplementedError("GPU cupy arrays are not supported by dask_image.ndinterp.map_overlap")
 
     # if coordinate array is not a dask array, convert it into one
     if type(coordinates) is not da.Array:
