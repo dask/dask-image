@@ -140,13 +140,12 @@ in the dask-image repository.
 There is a separate environment file for each supported Python version.
 
 We will use conda to
-`create an environment from a file
-<https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file>`_
+`create an environment from a file`_
 (``conda env create -f name-of-environment-file.yml``).
 
 .. note::
-    If you do not have Anaconda/miniconda installed, please follow
-    `these instructions <https://docs.conda.io/projects/conda/en/latest/user-guide/install/>`_.
+    If you don't have `conda`_ installed, we recommend downloading and installing it
+    with the conda-forge distribution `Miniforge`_.
 
 .. code-block:: console
 
@@ -178,6 +177,10 @@ To run a subset of tests, for example all the tests for ndfourier::
 
     $ pytest tests/test_dask_image/test_ndfourier
 
+.. _create an environment from a file: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file
+.. _conda: https://conda.io/en/latest/
+.. _Miniforge: https://conda-forge.org/download/
+
 Continuous integration tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -194,19 +197,4 @@ To edit the CI checks, see the workflow scripts in the repository located in
 GPU continuous integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We also have continuous integration to test GPU features!
-
-This will run automatically, after a maintainer has approved it.
-Maintainers approve the GPU CI to run by replying to the gpuCI bot on the
-pull request, leaving a comment that says either *"ok to test"* or 
-*"add to allowlist"*.
-
-The gpuCI bot `@GPUtester <https://github.com/GPUtester>`_
-comment looks like this:
-
-    *Can one of the admins verify this patch?*
-    
-    *Admins can comment ok to test to allow this one PR to run or add to allowlist to allow all future PRs from the same author to run.*
-
-For more information about the GPU continuous integration provided by NVIIDIA, 
-`see the main Dask docs GPU CI section <https://docs.dask.org/en/stable/develop.html#gpu-ci>`_
+GPU nightly testing is run in the `rapidsai/dask-upstream-testing repo <https://github.com/rapidsai/dask-upstream-testing>`_
