@@ -18,7 +18,7 @@ from ..dispatch._dispatch_ndinterp import (
     dispatch_spline_filter,
     dispatch_spline_filter1d,
 )
-from ..ndfilters._utils import _get_depth_boundary
+from ..ndfilters._utils import _get_depth_boundary, _update_wrapper
 
 __all__ = [
     "affine_transform",
@@ -37,22 +37,23 @@ def affine_transform(
         output_chunks=None,
         **kwargs
 ):
-    """Apply an affine transform using Dask. For every
-    output chunk, only the slice containing the relevant part
+    """Apply an affine transform using Dask.
+
+    For every output chunk, only the slice containing the relevant part
     of the image is processed. Chunkwise processing is performed
     either using `ndimage.affine_transform` or
     `cupyx.scipy.ndimage.affine_transform`, depending on the input type.
 
     Notes
     -----
-        Differences to `ndimage.affine_transformation`:
+    Differences to `ndimage.affine_transformation`:
         - currently, prefiltering is not supported
           (affecting the output in case of interpolation `order > 1`)
         - default order is 1
         - modes 'reflect', 'mirror' and 'wrap' are not supported
 
-        Arguments equal to `ndimage.affine_transformation`,
-        except for `output_chunks`.
+    Arguments equal to `ndimage.affine_transformation`,
+    except for `output_chunks`.
 
     Parameters
     ----------
@@ -266,7 +267,7 @@ def rotate(
 
     Notes
     -----
-        Differences to `ndimage.rotate`:
+    Differences to `ndimage.rotate`:
         - currently, prefiltering is not supported
           (affecting the output in case of interpolation `order > 1`)
         - default order is 1
@@ -323,8 +324,8 @@ def rotate(
     (512, 512)
     >>> print(full_img_45.shape)
     (724, 724)
-
     """
+
     if not isinstance(input_arr, da.core.Array):
         input_arr = da.from_array(input_arr)
 
@@ -418,9 +419,11 @@ def _get_default_depth(order, tol=1e-8):
     Here depth is chosen as the smallest integer such that ``|p| ** n < tol``
     where `|p|` is the magnitude of the largest pole in the IIR filter.
     """
+
     return math.ceil(np.log(tol) / np.log(_maximum_pole[order]))
 
 
+@_update_wrapper(scipy.ndimage.spline_filter)
 def spline_filter(
         image,
         order=3,
@@ -478,6 +481,7 @@ def spline_filter(
     return result
 
 
+@_update_wrapper(scipy.ndimage.spline_filter1d)
 def spline_filter1d(
         image,
         order=3,
