@@ -189,7 +189,7 @@ This table shows which SciPy ndimage functions are supported by dask-image.
      - ✓
    * - ``map_coordinates``
      - ✓
-     -
+     - ✓
      -
    * - ``maximum``
      - ✓
