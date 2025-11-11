@@ -32,8 +32,7 @@ can guide you through the process.
 .. _conda: https://conda.io/en/latest/
 .. _Miniforge: https://conda-forge.org/download/
 .. _pip: https://pip.pypa.io
-.. _Python installation guide:
-http://docs.python-guide.org/en/latest/starting/installation/
+.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
 
 
 From sources
