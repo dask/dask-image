@@ -734,7 +734,9 @@ def map_coordinates(input, coordinates, order=3,
         `scipy.ndimage.map_coordinates`, which is True by default.
     """
     if "cupy" in str(get_type(input)) or "cupy" in str(get_type(coordinates)):
-        raise NotImplementedError("GPU cupy arrays are not supported by dask_image.ndinterp.map_overlap")
+        raise NotImplementedError(
+            "GPU cupy arrays are not supported by "
+            "dask_image.ndinterp.map_overlap")
 
     # if coordinate array is not a dask array, convert it into one
     if type(coordinates) is not da.Array:
@@ -758,7 +760,7 @@ def map_coordinates(input, coordinates, order=3,
     # executed. Therefore two `compute` calls are required to obtain the
     # final result, one of which is peformed by
     # `_map_single_coordinates_array_chunk`
-    # Discussion https://dask.discourse.group/t/passing-dask-objects-to-delayed-computations-without-triggering-compute/1441
+    # Discussion https://dask.discourse.group/t/passing-dask-objects-to-delayed-computations-without-triggering-compute/1441 # noqa: E501
     output = da.map_blocks(
         _map_single_coordinates_array_chunk,
         delayed(da.Array)(input.dask, input.name, input.chunks, input.dtype),
