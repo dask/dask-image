@@ -719,6 +719,11 @@ def map_coordinates(input, coordinates, order=3,
         chunk-by-chunk basis, which may lead to different results than
         `scipy.ndimage.map_coordinates` in case of chunked input arrays
         and order > 1.
+        Note: prefilter is not necessary when:
+          - You are using nearest neighbour interpolation, by setting order=0
+          - You are using linear interpolation, by setting order=1, or
+          - You have already prefiltered the input array,
+          using the spline_filter or spline_filter1d functions.
 
     Comments:
       - in case of a small coordinate array, it might make sense to rechunk
