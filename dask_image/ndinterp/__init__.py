@@ -26,6 +26,7 @@ from ..ndfilters._utils import _get_depth_boundary
 
 __all__ = [
     "affine_transform",
+    "map_coordinates",
     "rotate",
     "spline_filter",
     "spline_filter1d",
