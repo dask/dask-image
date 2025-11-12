@@ -2,7 +2,7 @@
 History
 =======
 
-v2025.11.0 (2025-11-11)
+v2025.11.0 (2025-11-12)
 -----------------------
 
 We're pleased to announce the release of dask-image v2025.11.0!
