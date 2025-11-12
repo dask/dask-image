@@ -2,6 +2,66 @@
 History
 =======
 
+v2025.11.0 (2025-11-11)
+-----------------------
+
+We're pleased to announce the release of dask-image v2025.11.0!
+
+Highlights
+
+The key highlight of this release is that Marvin Albert added a dask-image
+implementation of the scipy.ndimage.map_coordinates function (#237).
+There have also been improvements to the documentation.
+
+New Features
+
+* Implement support for ndimage.map_coordinates (#237)
+
+Improvements
+
+* Use `tifffile.TiffWriter`'s `write` method in `test_cupy_imread` (#398)
+* Recommend dask.array.image.imread over dask-image imread (#410)
+* Expand dask_image.imread.imread docstring (#411)
+* Add spline filter docstrings (#412)
+* Fix typo (#402)
+
+Maintenance
+
+* ReadTheDocs: fix displayed version number in top left corner (#379)
+* Display dev version numbers on ReadTheDocs latest (#380)
+* Update conf.py, sphinx context injection deprecated in ReadTheDocs (#383)
+* fix KeyError: "None of [Index(['0_x', '1_x', '0_y', '1_y'], dtype='object')] are in the [columns]" in find_objects (#384)
+* Bump coverallsapp/github-action from 2.3.0 to 2.3.4 (#390)
+* Fix CI test failures (#393)
+* Recommend miniforge conda installer in docs (#395)
+* Update pytest config key (#396)
+* Drop gpuCI & ref dask-upstream-testing (#401)
+* Bump actions/checkout from 4 to 5 (#406)
+* Bump actions/setup-python from 5 to 6 (#408)
+* Maintenance: split ndinterp long __init__.py file functions into separate files (#416)
+
+
+9 authors added to this release (alphabetical)
+
+* `David Haberthür <https://github.com/dask/dask-image/commits?author=habi>`_ - @habi
+* `David Stansby <https://github.com/dask/dask-image/commits?author=dstansby>`_ - @dstansby
+* `dependabot[bot] <https://github.com/dask/dask-image/commits?author=dependabot[bot]>`_ - @dependabot[bot]
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Joshua Gould <https://github.com/dask/dask-image/commits?author=joshua-gould>`_ - @joshua-gould
+* `Kimberly Meechan <https://github.com/dask/dask-image/commits?author=K-Meech>`_ - @K-Meech
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+* `Tom Augspurger <https://github.com/dask/dask-image/commits?author=TomAugspurger>`_ - @TomAugspurger
+
+
+4 reviewers added to this release (alphabetical)
+
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `jakirkham <https://github.com/dask/dask-image/commits?author=jakirkham>`_ - @jakirkham
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+* `Thomas Robitaille <https://github.com/dask/dask-image/commits?author=astrofrog>`_ - @astrofrog
+
+
 2024.5.0 (2024-05-17)
 ----------------------
 
