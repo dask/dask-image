@@ -65,8 +65,8 @@ license-files = [
 ]
 
 [tool.setuptools.packages.find]
-exclude = [
-    "tests*",
+include = [
+    "dask_image*",
 ]
 
 [tool.pytest.ini_options]
