@@ -29,7 +29,7 @@ dependencies = [
     "scipy >=1.7.0",
     "pandas >=2.0.0",
     "pims >=0.4.1",
-    "tifffile >=2018.10.18",
+    "tifffile >=2020.10.1",
 ]
 
 [project.optional-dependencies]
