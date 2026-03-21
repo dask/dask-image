@@ -142,7 +142,7 @@ def test_measure_props(funcname, shape, chunks, has_lbls, ind):
     if (
         funcname == "median" and
         ind is not None and
-        not np.in1d(np.atleast_1d(ind), lbls).all()
+        not np.isin(np.atleast_1d(ind), lbls).all()
     ):
         pytest.skip("SciPy's `median` mishandles missing labels.")
 
