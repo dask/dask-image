@@ -75,3 +75,6 @@ include = [
 [tool.pytest.ini_options]
 addopts = "--flake8"
 markers = "cupy"
+
+[tool.flake8]
+exclude = ["dask_image/_version.py"]
