@@ -9,7 +9,6 @@ import dask.config as dask_config
 
 import dask.array as da
 import dask.bag as db
-import dask.dataframe as dd
 import numpy as np
 
 from . import _utils
@@ -228,9 +227,21 @@ def find_objects(label_image):
 
     Notes
     -----
-    You must have the optional dependency ``dask[dataframe]`` installed
-    to use the ``find_objects`` function.
+    You must have the optional dependencies ``dask[dataframe]`` and
+    ``pandas`` installed to use the ``find_objects`` function. They can
+    be installed together via the ``dataframe`` extras group:
+    ``pip install dask-image[dataframe]``.
     """
+    try:
+        import pandas  # noqa: F401  # used by the private helpers below
+        import dask.dataframe as dd
+    except ImportError as e:
+        raise ImportError(
+            "dask_image.ndmeasure.find_objects requires the optional "
+            "dependencies `dask[dataframe]` and `pandas`. Install them "
+            "with `pip install dask-image[dataframe]`."
+        ) from e
+
     if label_image.dtype.char not in np.typecodes['AllInteger']:
         raise ValueError("find_objects only accepts integer dtype arrays")
 

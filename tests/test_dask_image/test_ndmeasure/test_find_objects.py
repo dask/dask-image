@@ -1,10 +1,12 @@
-import dask.array as da
-import dask.dataframe as dd
-import numpy as np
-import pandas as pd
 import pytest
 
-import dask_image.ndmeasure
+pd = pytest.importorskip("pandas")
+dd = pytest.importorskip("dask.dataframe")
+
+import dask.array as da  # noqa: E402
+import numpy as np  # noqa: E402
+
+import dask_image.ndmeasure  # noqa: E402
 
 
 @pytest.fixture

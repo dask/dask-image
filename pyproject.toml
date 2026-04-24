@@ -24,15 +24,18 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "dask[array,dataframe] >=2024.4.1",
+    "dask[array] >=2024.4.1",
     "numpy >=1.18",
     "scipy >=1.7.0",
-    "pandas >=2.0.0",
     "pims >=0.4.1",
     "tifffile >=2020.10.1",
 ]
 
 [project.optional-dependencies]
+dataframe = [
+    "dask[dataframe] >=2024.4.1",
+    "pandas >=2.0.0",
+]
 test = [
     "build >=1.2.1",
     "coverage >=7.2.1",
@@ -72,3 +75,6 @@ include = [
 [tool.pytest.ini_options]
 addopts = "--flake8"
 markers = "cupy"
+
+[tool.flake8]
+exclude = ["dask_image/_version.py"]

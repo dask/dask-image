@@ -1,7 +1,5 @@
 import numpy as np
-import pandas as pd
 from dask.delayed import Delayed
-import dask.dataframe as dd
 import dask.config as dask_config
 
 
@@ -24,6 +22,8 @@ def _find_bounding_boxes(x, array_location):
     This alternative function returns a pandas dataframe,
     with one row per object found in the image chunk.
     """
+    import pandas as pd
+
     unique_vals = np.unique(x)
     unique_vals = unique_vals[unique_vals != 0]
     result = {}
@@ -53,6 +53,8 @@ def _combine_slices(slices):
 
 def _merge_bounding_boxes(x, ndim):
     "Merge the bounding boxes describing objects over multiple image chunks."
+    import pandas as pd
+
     x = x.dropna()
     data = {}
     # For each dimension in the array,
@@ -72,6 +74,9 @@ def _merge_bounding_boxes(x, ndim):
 
 def _find_objects(ndim, df1, df2):
     """Main utility function for find_objects."""
+    import pandas as pd
+    import dask.dataframe as dd
+
     meta = dd.utils.make_meta([(i, object) for i in range(ndim)])
     if isinstance(df1, Delayed):
         with dask_config.set({'dataframe.convert-string': False}):
