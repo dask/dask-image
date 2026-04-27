@@ -52,7 +52,11 @@ jobs:
   test-minimal:
     # Verify dask-image works without the optional `dataframe` extras
     # (i.e. without pandas and dask[dataframe]).
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: ["windows-latest", "ubuntu-latest", "macos-latest"]
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
