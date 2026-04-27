@@ -70,9 +70,9 @@ def test_generic_filter_shape_type(da_func):
 @pytest.mark.parametrize(
     "function, size, footprint",
     [
-        (lambda x: x, 1, None),
-        (lambda x: x, (1, 1), None),
-        (lambda x: x, None, np.ones((1, 1))),
+        (lambda x: x[0], 1, None),
+        (lambda x: x[0], (1, 1), None),
+        (lambda x: x[0], None, np.ones((1, 1))),
     ],
 )
 def test_generic_filter_identity(sp_func, da_func, function, size, footprint):
@@ -94,7 +94,7 @@ def test_generic_filter_identity(sp_func, da_func, function, size, footprint):
     ],
 )
 def test_generic_filter_comprehensions(da_func):
-    da_wfunc = lambda arr: da_func(arr, lambda x: x, 1)  # noqa: E731
+    da_wfunc = lambda arr: da_func(arr, lambda x: x[0], 1)  # noqa: E731
 
     np.random.seed(0)
 

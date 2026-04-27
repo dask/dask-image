@@ -10,7 +10,7 @@ keywords = ["dask-image", "dask", "image"]
 readme = "README.rst"
 license = { text = "BSD-3-Clause" }
 dynamic = ["version"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
@@ -18,21 +18,24 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "dask[array,dataframe] >=2024.4.1",
+    "dask[array] >=2024.4.1",
     "numpy >=1.18",
     "scipy >=1.7.0",
-    "pandas >=2.0.0",
     "pims >=0.4.1",
     "tifffile >=2020.10.1",
 ]
 
 [project.optional-dependencies]
+dataframe = [
+    "dask[dataframe] >=2024.4.1",
+    "pandas >=2.0.0",
+]
 test = [
     "build >=1.2.1",
     "coverage >=7.2.1",
@@ -72,3 +75,6 @@ include = [
 [tool.pytest.ini_options]
 addopts = "--flake8"
 markers = "cupy"
+
+[tool.flake8]
+exclude = ["dask_image/_version.py"]
