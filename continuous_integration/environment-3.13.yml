@@ -5,7 +5,7 @@ channels:
 
 dependencies:
   - python=3.13.*
-  - pip==24.3
+  - pip==24.3.1
   - coverage==7.6.1
   - flake8==7.1.1
   - pytest==8.3.4
