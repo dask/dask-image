@@ -70,6 +70,31 @@ jobs:
       - name: Run tests (find_objects tests are skipped automatically)
         run: pytest -v
 
+  test-latest-all-extras:
+    # Verify dask-image works with the latest unfixed dependencies, including
+    # optional `dataframe` extras so find_objects is also tested.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: ["windows-latest", "ubuntu-latest", "macos-latest"]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dask-image with all extras
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dataframe,test]
+
+      - name: Run tests
+        run: pytest -v
+
   coveralls:
     needs: test
     runs-on: ubuntu-latest
