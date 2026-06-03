@@ -319,26 +319,36 @@ def _assert_equivalent_labeling(labels0, labels1):
     """
     matching = np.stack((labels0.ravel(), labels1.ravel()), axis=1)
     unique_matching = dask_image.ndmeasure._label._unique_axis(matching)
-    bincount0 = np.bincount(unique_matching[:, 0])
-    bincount1 = np.bincount(unique_matching[:, 1])
-    assert np.all(bincount0 == 1)
-    assert np.all(bincount1 == 1)
+    assert len(np.unique(unique_matching[:, 0])) == \
+           len(np.unique(unique_matching[:, 1]))
+
+
+def assert_sequential_labeling(labels):
+    """Assert that the labels are sequential starting at 1.
+
+    I.e. the labels are in {0, 1, 2, ..., N} where 0 is background.
+    """
+    u = np.unique(labels)
+    assert len(u) == 1 + u.max()
 
 
 @pytest.mark.parametrize(
-    "seed, prob, shape, chunks, connectivity", [
-        (42, 0.4, (15, 16), (15, 16), 1),
-        (42, 0.4, (15, 16), (4, 5), 1),
-        (42, 0.4, (15, 16), (4, 5), 2),
-        (42, 0.4, (15, 16), (4, 5), None),
-        (42, 0.4, (15, 16), (8, 5), 1),
-        (42, 0.4, (15, 16), (8, 5), 2),
-        (42, 0.3, (10, 8, 6), (5, 4, 3), 1),
-        (42, 0.3, (10, 8, 6), (5, 4, 3), 2),
-        (42, 0.3, (10, 8, 6), (5, 4, 3), 3),
+    "seed, prob, shape, chunks, connectivity, sequential", [
+        (42, 0.4, (15, 16), (15, 16), 1, False),
+        (42, 0.4, (15, 16), (15, 16), 1, True),
+        (42, 0.4, (15, 16), (4, 5), 1, False),
+        (42, 0.4, (15, 16), (4, 5), 1, True),
+        (42, 0.4, (15, 16), (4, 5), 2, False),
+        (42, 0.4, (15, 16), (4, 5), None, False),
+        (42, 0.4, (15, 16), (8, 5), 1, False),
+        (42, 0.4, (15, 16), (8, 5), 2, False),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 1, False),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 1, True),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 2, False),
+        (42, 0.3, (10, 8, 6), (5, 4, 3), 3, False),
     ]
 )
-def test_label(seed, prob, shape, chunks, connectivity):
+def test_label(seed, prob, shape, chunks, connectivity, sequential):
     np.random.seed(seed)
 
     a = np.random.random(shape) < prob
@@ -350,13 +360,17 @@ def test_label(seed, prob, shape, chunks, connectivity):
         s = scipy.ndimage.generate_binary_structure(a.ndim, connectivity)
 
     a_l, a_nl = scipy.ndimage.label(a, s)
-    d_l, d_nl = dask_image.ndmeasure.label(d, s)
+    d_l, d_nl = dask_image.ndmeasure.label(
+        d, s, produce_sequential_labels=sequential)
 
     assert a_nl == d_nl.compute()
 
     assert a_l.dtype == d_l.dtype
     assert a_l.shape == d_l.shape
     _assert_equivalent_labeling(a_l, d_l.compute())
+
+    if sequential:
+        assert_sequential_labeling(d_l.compute())
 
 
 a = np.array(
@@ -854,3 +868,113 @@ def test_labeled_comprehension_object(shape, chunks, ind):
                 assert d_r[i].compute() is None
             else:
                 assert np.allclose(a_r[i], d_r[i].compute(), equal_nan=True)
+
+
+def test_make_labels_unique():
+
+    np.random.seed(42)
+    labels = da.random.randint(0, 1, size=(6, 6), chunks=(3, 3))
+    unique_labels = dask_image.ndmeasure._label._make_labels_unique(labels)
+
+    assert unique_labels.shape == labels.shape
+    assert len(np.unique(unique_labels.compute())) >= \
+           len(np.unique(labels.compute()))
+
+
+@pytest.mark.parametrize(
+        "ndim, overlap_depth, produce_sequential_labels",
+        [
+            (1, 0, False),
+            (1, 1, True),
+            (2, 0, False),
+            (2, 1, True),
+            (3, 0, False),
+            (3, 1, True),
+        ]
+)
+def test_merge_labels_across_chunk_boundaries(
+    ndim, overlap_depth, produce_sequential_labels
+):
+
+    # create a segmentation ground truth
+    # e.g. in 2d:
+    # 0 0 0 0 0 0
+    # 0 1 1 1 1 0
+    # 0 1 1 1 1 0
+    # 0 2 2 2 2 0
+    # 0 2 2 2 2 0
+    # 0 0 0 0 0 0
+
+    im = np.zeros((6, ) * ndim, dtype=np.uint16)
+    im[tuple([slice(1, -1)] * ndim)] = 1
+
+    # along dimension 0 introduce two "instances"
+    # with labels 1 and 2
+    # along the remaining dimensions the labels don't change
+
+    dim = da.from_array(im, chunks=(3, ) * ndim)
+
+    def label_block_dim0(x, block_id=None):
+        return x * (block_id[0] + 1)
+
+    dim = dim.map_blocks(
+        label_block_dim0,
+        dtype=dim.dtype,
+    )
+
+    # simulate a segmentation method which works
+    # perfectly within each chunk, but cannot
+    # guarantee object identities across chunks.
+    # the segmentation is applied with different
+    # overlap depths
+
+    # input as seen by the segmentation method
+    dim_chunkwise_view = da.overlap.overlap(
+        dim,
+        depth={i: overlap_depth for i in range(ndim)},
+        boundary='none',
+    )
+
+    # simulate instance label ids that vary over chunks
+    random_factor_per_chunk = da.random.randint(
+        0,
+        1000,
+        size=dim_chunkwise_view.numblocks,
+        chunks=(1, ) * ndim,
+    )
+
+    dim_chunkwise_segmentation = da.map_blocks(
+            lambda x, y: x * y,
+            dim_chunkwise_view,
+            random_factor_per_chunk,
+            chunks=dim_chunkwise_view.chunks,
+            dtype=dim.dtype,
+        )
+
+    # merge labels across chunk boundaries
+    dim_segmentation_merged = dask_image.ndmeasure\
+        .merge_labels_across_chunk_boundaries(
+            dim_chunkwise_segmentation,
+            overlap_depth=overlap_depth,
+            iou_threshold=0,
+        )['labels']
+
+    dim_segmentation_merged_c = \
+        dim_segmentation_merged.compute(scheduler='single-threaded')
+
+    if not overlap_depth:
+        # merging labels with zero overlap should merge all labels
+        # into a single connected component
+        _assert_equivalent_labeling(
+            dim_segmentation_merged_c,
+            scipy.ndimage.label(dim > 0)[0]
+        )
+    else:
+        # merging labels with overlap recovers the ground truth
+        _assert_equivalent_labeling(
+            dim.compute(),
+            dim_segmentation_merged_c
+        )
+
+    if produce_sequential_labels:
+        assert_sequential_labeling(dim_segmentation_merged_c)
