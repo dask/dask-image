@@ -3,7 +3,6 @@
 from dask import delayed
 import dask.array as da
 import numpy as np
-from dask.base import tokenize
 from scipy.ndimage import map_coordinates as ndimage_map_coordinates
 from scipy.ndimage import labeled_comprehension as\
     ndimage_labeled_comprehension
@@ -99,21 +98,10 @@ def _map_single_coordinates_array_chunk(
     # STEP 3: For each previously obtained slice and its associated
     # coordinates, define a dask task and apply ndimage.map_coordinates
 
-    # prepare building dask graph
-    # define one task per associated input chunk
-    name = "map_coordinates_chunk-%s" % tokenize(
-        input,
-        coordinates,
-        order,
-        mode,
-        cval,
-        prefilter
-        )
-
-    keys = [(name, i) for i in range(len(required_input_chunks))]
-
-    # pair map_coordinates calls with input slices and mapped coordinates
-    values = []
+    # pair map_coordinates calls with input slices and mapped coordinates,
+    # using delayed so that the input slices are passed to
+    # ndimage.map_coordinates as computed chunks rather than dask arrays
+    blocks = []
     for irc in range(len(required_input_chunks)):
 
         ric_slice = [slice(
@@ -122,8 +110,7 @@ def _map_single_coordinates_array_chunk(
             for dim in range(input.ndim)]
         ric_offset = input_slices[0][irc]
 
-        values.append((
-            ndimage_map_coordinates,
+        block = delayed(ndimage_map_coordinates)(
             input[tuple(ric_slice)],
             coordinates[:, required_input_chunk_coords_indices[irc]]
             - ric_offset[:, None],
@@ -132,11 +119,12 @@ def _map_single_coordinates_array_chunk(
             mode,
             cval,
             prefilter
-        ))
+        )
+        blocks.append(da.from_delayed(
+            block, (coord_rc_count[irc],), dtype=input.dtype,
+            meta=input._meta))
 
-    # build dask graph
-    dsk = dict(zip(keys, values))
-    ar = da.Array(dsk, name, tuple([list(coord_rc_count)]), input.dtype)
+    ar = da.concatenate(blocks)
 
     # STEP 4: rearrange outputs of ndimage.map_coordinates
     # to match input order
