@@ -378,7 +378,7 @@ def label(
     -----
     You must have the optional dependency ``pandas`` installed
     to use the ``find_objects`` function.
-    This can be installed together with ``dask.dataframe`` via the extras group:
+    This can be installed together with ``dask.dataframe`` via extras group:
     ``pip install dask-image[dataframe]``.
     """
     try:
