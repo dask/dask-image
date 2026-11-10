@@ -7,13 +7,15 @@ import numpy as np
 
 
 def _get_freq_grid(shape, chunks, axis, n, dtype=float):
-    assert len(shape) == len(chunks)
+    if len(shape) != len(chunks):
+        raise ValueError("shape and chunks must have the same length")
 
     shape = tuple(shape)
     dtype = np.dtype(dtype).type
 
-    assert (issubclass(dtype, numbers.Real) and
-            not issubclass(dtype, numbers.Integral))
+    if not (issubclass(dtype, numbers.Real) and
+            not issubclass(dtype, numbers.Integral)):
+        raise TypeError("dtype must be a non-integral real number")
 
     axis = axis % len(shape)
 
@@ -33,8 +35,9 @@ def _get_freq_grid(shape, chunks, axis, n, dtype=float):
 def _get_ang_freq_grid(shape, chunks, axis, n, dtype=float):
     dtype = np.dtype(dtype).type
 
-    assert (issubclass(dtype, numbers.Real) and
-            not issubclass(dtype, numbers.Integral))
+    if not (issubclass(dtype, numbers.Real) and
+            not issubclass(dtype, numbers.Integral)):
+        raise TypeError("dtype must be a non-integral real number")
 
     pi = dtype(np.pi)
 

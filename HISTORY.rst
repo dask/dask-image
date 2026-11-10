@@ -2,6 +2,48 @@
 History
 =======
 
+v2026.05.0 (2026-05-26)
+-----------------------
+
+We're pleased to announce the release of dask-image v2026.05.0!
+
+Highlights
+
+Highlights of this release include making the dask dataframe dependency optional,
+improving packaging and compatibility with Numpy v2.4.
+
+Bug Fixes
+
+* Compatibility with Numpy v2.4 (#425)
+* Fix package discovery in pyproject.toml (#422)
+* Bump tifffile to ensure functionality used in imread tests (#424)
+
+API Changes
+
+* Make dataframe dependencies optional (#429)
+
+Other Pull Requests
+
+* Bump actions/checkout from 5 to 6 (#420)
+* Bump coverallsapp/github-action from 2.3.6 to 2.3.7 (#421)
+* Bump conda-incubator/setup-miniconda from 3 to 4 (#430)
+* Bump actions/checkout from 5 to 6 (#433)
+
+5 authors added to this release (alphabetical)
+
+* `Antonio Valentino <https://github.com/dask/dask-image/commits?author=avalentino>`_ - @avalentino
+* `dependabot[bot] <https://github.com/dask/dask-image/commits?author=dependabot[bot]>`_ - @dependabot[bot]
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+* `Marvin Albert <https://github.com/dask/dask-image/commits?author=m-albert>`_ - @m-albert
+* `Thomas Robitaille <https://github.com/dask/dask-image/commits?author=astrofrog>`_ - @astrofrog
+
+
+2 reviewers added to this release (alphabetical)
+
+* `Copilot <https://github.com/dask/dask-image/commits?author=Copilot>`_ - @Copilot
+* `Genevieve Buckley <https://github.com/dask/dask-image/commits?author=GenevieveBuckley>`_ - @GenevieveBuckley
+
+
 v2025.11.0 (2025-11-12)
 -----------------------
 
