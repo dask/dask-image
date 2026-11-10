@@ -373,7 +373,22 @@ def label(
         label in the returned array.
     num_features : int
         How many objects were found.
+
+    Notes
+    -----
+    You must have the optional dependency ``pandas`` installed
+    to use the ``find_objects`` function.
+    This can be installed together with ``dask.dataframe`` via the extras group:
+    ``pip install dask-image[dataframe]``.
     """
+    try:
+        import pandas  # noqa: F401  # used by the private helpers below
+    except ImportError as e:
+        raise ImportError(
+            "dask_image.ndmeasure.label requires the optional "
+            "dependency `pandas`."
+            "Install with `pip install dask-image[dataframe]`."
+        ) from e
 
     image = da.asarray(image)
 

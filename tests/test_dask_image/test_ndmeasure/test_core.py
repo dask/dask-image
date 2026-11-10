@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import importlib.util
 import itertools as it
 import warnings as wrn
 
@@ -332,6 +333,10 @@ def assert_sequential_labeling(labels):
     assert len(u) == 1 + u.max()
 
 
+@pytest.mark.skipif(
+    importlib.util.find_spec("pandas") is None,
+    reason="pandas is not installed",
+)
 @pytest.mark.parametrize(
     "seed, prob, shape, chunks, connectivity, sequential", [
         (42, 0.4, (15, 16), (15, 16), 1, False),
@@ -389,6 +394,10 @@ a = np.array(
 )
 
 
+@pytest.mark.skipif(
+    importlib.util.find_spec("pandas") is None,
+    reason="pandas is not installed",
+)
 @pytest.mark.parametrize(
     "a, a_res, wrap_axes, connectivity, chunks",
     [
@@ -661,9 +670,11 @@ def test_label_wrap(a, a_res, wrap_axes, connectivity, chunks):
     _assert_equivalent_labeling(a_res, d_l.compute())
 
 
-@pytest.mark.parametrize(
-    "ndim", (2, 3, 4, 5)
+@pytest.mark.skipif(
+    importlib.util.find_spec("pandas") is None,
+    reason="pandas is not installed",
 )
+@pytest.mark.parametrize("ndim", (2, 3, 4, 5))
 def test_label_full_struct_element(ndim):
 
     full_s = scipy.ndimage.generate_binary_structure(ndim, ndim)
@@ -881,6 +892,10 @@ def test_make_labels_unique():
            len(np.unique(labels.compute()))
 
 
+@pytest.mark.skipif(
+    importlib.util.find_spec("pandas") is None,
+    reason="pandas is not installed",
+)
 @pytest.mark.parametrize(
         "ndim, overlap_depth, produce_sequential_labels",
         [

@@ -4,7 +4,6 @@ import operator
 import dask
 import dask.array as da
 import numpy as np
-import pandas as pd
 import scipy.ndimage
 import scipy.sparse
 import scipy.sparse.csgraph
@@ -52,6 +51,8 @@ def relabel(labels, mapping):
     )
 
     def relabel_block(block, mapping):
+        import pandas as pd
+
         # Convert block to pandas Series for mapping
         s = pd.Series(block.flatten())
         # Vectorized lookup using reindex
