@@ -884,7 +884,7 @@ def test_labeled_comprehension_object(shape, chunks, ind):
 def test_make_labels_unique():
 
     np.random.seed(42)
-    labels = da.random.randint(0, 1, size=(6, 6), chunks=(3, 3))
+    labels = da.random.randint(0, 2, size=(6, 6), chunks=(3, 3))
     unique_labels = dask_image.ndmeasure._label._make_labels_unique(labels)
 
     assert unique_labels.shape == labels.shape
