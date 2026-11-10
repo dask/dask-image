@@ -1,5 +1,5 @@
 """
-Test that ``find_objects`` and ``label`` raise a helpful ``ImportError`` when the
+Test that ``find_objects`` and ``label`` raise a helpful ``ImportError`` when
 optional ``dask[dataframe]`` / ``pandas`` dependencies are not installed.
 
 This is skipped if both dependencies are installed.
