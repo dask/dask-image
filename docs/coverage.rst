@@ -6,6 +6,7 @@ Coverage of dask-image vs scipy ndimage functions
 *************************************************
 
 This table shows which SciPy ndimage functions are supported by dask-image.
+See :doc:`array_backends` for examples using NumPy and CuPy chunks.
 
 .. list-table::
    :widths: 25 25 25 30
