@@ -194,3 +194,23 @@ def test_gaussian_derivative_filters_compare(sp_func, da_func,
         sp_func(a, sigma, order, truncate=truncate),
         da_func(d, sigma, order, truncate=truncate)
     )
+
+
+@pytest.mark.parametrize('name', ['gaussian_filter', 'gaussian'])
+@pytest.mark.parametrize('order', [0, 1, 2])
+@pytest.mark.parametrize('mode', [
+    'wrap', 'grid-wrap', ('wrap', 'reflect'), ('nearest', 'wrap')])
+@pytest.mark.parametrize('chunks', [(4, 5), (13, 17)])
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+def test_gaussian_filters_periodic_boundaries(
+        name, order, mode, chunks, dtype):
+    """Periodic halos come from opposite image edges, not chunk edges."""
+    a = np.random.default_rng(0).standard_normal((13, 17)).astype(dtype)
+    d = da.from_array(a, chunks=chunks)
+    kwargs = dict(sigma=(0.8, 1.2), order=order, mode=mode, truncate=3.0)
+
+    expected = scipy.ndimage.gaussian_filter(a, **kwargs)
+    actual = getattr(dask_image.ndfilters, name)(d, **kwargs).compute()
+
+    np.testing.assert_allclose(actual, expected, rtol=1e-6, atol=1e-5)
+    assert actual.dtype == expected.dtype
