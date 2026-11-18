@@ -19,6 +19,7 @@ Contents
 
    installation
    quickstart
+   array_backends
    coverage
    api
    contributing
