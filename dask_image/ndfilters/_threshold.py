@@ -20,7 +20,8 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
     Parameters
     ----------
     image : (N, M) dask ndarray
-        Input image.
+        Input image. Native float32 and float64 images are filtered without
+        conversion. Other input types are converted to float64.
     block_size : int or list/tuple/array
         Size of pixel neighborhood which is used to calculate the
         threshold value.
@@ -39,7 +40,8 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
         By default the 'gaussian' method is used.
     offset : float, optional
         Constant subtracted from weighted mean of neighborhood to calculate
-        the local threshold value. Default offset is 0.
+        the local threshold value. Default offset is 0. Subtraction follows
+        NumPy dtype promotion rules.
     mode : {'reflect', 'constant', 'nearest', 'mirror', 'wrap'}, optional
         The mode parameter determines how the array borders are handled, where
         cval is the value when mode is equal to 'constant'.
@@ -69,7 +71,8 @@ def threshold_local(image, block_size, method='gaussian', offset=0,
     >>> result = threshold_local(image, 15, 'gaussian')
     """  # noqa
 
-    image = image.astype(np.float64)
+    if image.dtype not in (np.float32, np.float64):
+        image = image.astype(np.float64)
 
     if method == 'generic':
         if not callable(param):

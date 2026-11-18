@@ -126,3 +126,36 @@ def test_nan_blocksize(simple_test_image, method, block_size, error_type):
 def test_invalid_threshold_method(simple_test_image):
     with pytest.raises(ValueError):
         threshold_local(simple_test_image, 3, method='invalid')
+
+
+@pytest.mark.parametrize('method', ['gaussian', 'mean', 'median', 'generic'])
+@pytest.mark.parametrize('dtype, expected_dtype', [
+    (np.float32, np.float32),
+    (np.float64, np.float64),
+    (np.float16, np.float64),
+    (np.uint16, np.float64),
+    (np.bool_, np.float64),
+])
+@pytest.mark.parametrize('chunks', [(3, 3), (6, 6)])
+def test_threshold_local_dtype(method, dtype, expected_dtype, chunks):
+    image = np.arange(36).reshape(6, 6).astype(dtype)
+    image = da.from_array(image, chunks=chunks)
+    result = threshold_local(image, 3, method=method, param=np.mean
+                             if method == 'generic' else None, offset=0.25)
+    assert result.dtype == expected_dtype
+    computed = result.compute()
+    assert computed.dtype == expected_dtype
+    expected = [[13.75, 14.75], [19.75, 20.75]]
+    if dtype == np.bool_:
+        expected = [[0.75, 0.75], [0.75, 0.75]]
+    np.testing.assert_allclose(computed[2:4, 2:4], expected, rtol=1e-6)
+
+
+@pytest.mark.parametrize('method', ['mean', 'generic'])
+def test_threshold_local_integer_fractional_values(method):
+    image = np.zeros((5, 5), dtype=np.uint16)
+    image[2, 2] = 1
+    result = threshold_local(da.from_array(image, chunks=(3, 3)), 3,
+                             method=method, param=np.mean
+                             if method == 'generic' else None)
+    assert np.isclose(result.compute()[2, 2], 1. / 9.)
