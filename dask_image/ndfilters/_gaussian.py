@@ -55,6 +55,14 @@ def _get_border(image, sigma, truncate):
     return half_shape
 
 
+def _get_boundary(ndim, mode):
+    # Periodic modes need values from the opposite edge of the full image.
+    # Other modes can be handled by SciPy at the outer edges of each block.
+    modes = (mode,) * ndim if isinstance(mode, str) else mode
+    return tuple("periodic" if m in ("wrap", "grid-wrap") else "none"
+                 for m in modes)
+
+
 @_utils._update_wrapper(scipy.ndimage.gaussian_filter)
 def gaussian_filter(image,
                     sigma,
@@ -65,7 +73,8 @@ def gaussian_filter(image,
     sigma = _get_sigmas(image, sigma)
     depth = _get_border(image, sigma, truncate)
 
-    depth, boundary = _utils._get_depth_boundary(image.ndim, depth, "none")
+    depth, boundary = _utils._get_depth_boundary(
+        image.ndim, depth, _get_boundary(image.ndim, mode))
 
     result = image.map_overlap(
         dispatch_gaussian_filter(image),
