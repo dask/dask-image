@@ -43,7 +43,7 @@ def validate_rotate(n=2,
 
     # transform with dask-image
     image_t_dask = da_ndinterp.rotate(
-        image, angle,
+        image_da, angle,
         axes=axes,
         reshape=reshape,
         order=interp_order,
@@ -53,6 +53,10 @@ def validate_rotate(n=2,
         )
 
     image_t_dask_computed = image_t_dask.compute()
+    if use_cupy:
+        assert isinstance(image_t_dask._meta, cp.ndarray)
+        assert isinstance(image_t_dask_computed, cp.ndarray)
+        image_t_dask_computed = cp.asnumpy(image_t_dask_computed)
 
     # transform with scipy
     image_t_scipy = ndimage.rotate(
@@ -101,12 +105,14 @@ def test_rotate_general(n,
                          [0, 1])
 @pytest.mark.parametrize("input_output_chunksize_per_dim",
                          [(16, 16), (16, 7)])
+@pytest.mark.parametrize("reshape", [False, True])
 @pytest.mark.parametrize("random_seed",
                          [0])
 def test_rotate_cupy(n,
                      input_shape_per_dim,
                      interp_order,
                      input_output_chunksize_per_dim,
+                     reshape,
                      random_seed):
 
     cupy = pytest.importorskip("cupy", minversion="6.0.0")    # noqa: F841
@@ -116,6 +122,7 @@ def test_rotate_cupy(n,
     kwargs['input_shape_per_dim'] = input_shape_per_dim
     kwargs['interp_order'] = interp_order
     kwargs['input_output_chunksize_per_dim'] = input_output_chunksize_per_dim
+    kwargs['reshape'] = reshape
     kwargs['random_seed'] = random_seed
     kwargs['use_cupy'] = True
 
