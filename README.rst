@@ -33,3 +33,6 @@ Distributed image processing
 
 * Free software: BSD 3-Clause
 * Documentation: https://dask-image.readthedocs.io.
+* ``dask_image.ndinterp.map_coordinates`` prefilters across chunk boundaries
+  for spline orders greater than one. The default ``prefilter=True`` matches
+  SciPy. Pass ``prefilter=False`` to sample an already filtered array.

@@ -8,12 +8,12 @@ from scipy.ndimage import map_coordinates as ndimage_map_coordinates
 from scipy.ndimage import labeled_comprehension as\
     ndimage_labeled_comprehension
 
+from ._spline_filters import _get_default_depth, spline_filter
 from ..dispatch._utils import get_type
 
 
 def _map_single_coordinates_array_chunk(
-        input, coordinates, order=3, mode='constant',
-        cval=0.0, prefilter=False):
+        input, coordinates, order, mode, cval, output_dtype):
     """
     Central helper function for implementing map_coordinates.
 
@@ -23,75 +23,75 @@ def _map_single_coordinates_array_chunk(
     1) associate each coordinate in coordinates with the chunk
        it maps to in the input
     2) for each input chunk that has been associated to at least one
-       coordinate, calculate the minimal slice required to map
-       all coordinates that are associated to it (note that resulting slice
-       coordinates can lie outside of the coordinate's chunk)
+       coordinate, calculate a slice covering the interpolation samples for
+       those coordinates. The slice can extend beyond the chunk.
     3) for each previously obtained slice and its associated coordinates,
        define a dask task and apply ndimage.map_coordinates
     4) outputs of ndimage.map_coordinates are rearranged to match input order
     """
 
-    # STEP 1: Associate each coordinate in coordinates with
-    # the chunk it maps to in the input array
+    output_shape = coordinates.shape[1:]
+    coordinates = coordinates.astype(np.float64, copy=False)
+    coordinates = coordinates.reshape(input.ndim, -1)
+    if coordinates.shape[1] == 0:
+        return np.empty(output_shape, dtype=output_dtype)
 
-    # get the input chunks each coordinate maps onto
-    coords_input_chunk_locations = coordinates.T // np.array(input.chunksize)
-
-    # map out-of-bounds chunk locations to valid input chunks
-    coords_input_chunk_locations = np.clip(
-        coords_input_chunk_locations, 0, np.array(input.numblocks) - 1
+    # STEP 1: Associate coordinates with input chunks. Use the actual chunk
+    # edges since prefilter padding can introduce uneven chunk sizes.
+    coords_input_chunk_locations = tuple(
+        np.searchsorted(np.cumsum(chunks)[:-1], axis_coords, side='right')
+        for chunks, axis_coords in zip(input.chunks, coordinates)
     )
-
-    # all input chunk locations
-    input_chunk_locations = np.array([i for i in np.ndindex(input.numblocks)])
-
-    # linearize input chunk locations
-    coords_input_chunk_locations_linear = np.sum(
-        coords_input_chunk_locations * np.array(
-            [np.prod(input.numblocks[:dim])
-                for dim in range(input.ndim)])[::-1],
-        axis=1, dtype=np.int64)
-
-    # determine the input chunks that have coords associated and
-    # count how many coords map onto each input chunk
-    chunk_indices_count = np.bincount(coords_input_chunk_locations_linear,
-                                      minlength=np.prod(input.numblocks))
-    required_input_chunk_indices = np.where(chunk_indices_count > 0)[0]
-    required_input_chunks = input_chunk_locations[required_input_chunk_indices]
-    coord_rc_count = chunk_indices_count[required_input_chunk_indices]
+    coords_input_chunk_locations_linear = np.ravel_multi_index(
+        coords_input_chunk_locations, input.numblocks
+    )
+    required_input_chunk_indices, coord_rc_count = np.unique(
+        coords_input_chunk_locations_linear, return_counts=True
+    )
 
     # inverse mapping: input chunks to coordinates
     required_input_chunk_coords_indices = \
         [np.where(coords_input_chunk_locations_linear == irc)[0]
             for irc in required_input_chunk_indices]
 
-    # STEP 2: for each input chunk that has been associated to at least
-    # one coordinate, calculate the minimal slice required to map all
-    # coordinates that are associated to it (note that resulting slice
-    # coordinates can lie outside of the coordinate's chunk)
+    # STEP 2: Find the source slice for the samples associated with each chunk.
 
     # determine the slices of the input array that are required for
     # mapping all coordinates associated to a given input chunk.
     # Note that this slice can be larger than the given chunk when coords
     # lie at chunk borders.
     # (probably there's a more efficient way to do this)
-    input_slices_lower = np.array([np.clip(
-            ndimage_labeled_comprehension(
-                np.floor(coordinates[dim] - order // 2),
-                coords_input_chunk_locations_linear,
-                required_input_chunk_indices,
-                np.min, np.int64, 0),
-            0, input.shape[dim] - 1)
-        for dim in range(input.ndim)])
+    input_slices_lower = np.array([
+        ndimage_labeled_comprehension(
+            np.floor(coordinates[dim] - order // 2),
+            coords_input_chunk_locations_linear,
+            required_input_chunk_indices,
+            np.min, np.int64, 0,
+        )
+        for dim in range(input.ndim)
+    ])
 
-    input_slices_upper = np.array([np.clip(
-            ndimage_labeled_comprehension(
-                np.ceil(coordinates[dim] + order // 2) + 1,
-                coords_input_chunk_locations_linear,
-                required_input_chunk_indices,
-                np.max, np.int64, 0),
-            0, input.shape[dim])
-        for dim in range(input.ndim)])
+    input_slices_upper = np.array([
+        ndimage_labeled_comprehension(
+            np.ceil(coordinates[dim] + order // 2) + 1,
+            coords_input_chunk_locations_linear,
+            required_input_chunk_indices,
+            np.max, np.int64, 0,
+        )
+        for dim in range(input.ndim)
+    ])
+
+    shape = np.asarray(input.shape)[:, None]
+    if mode in ('reflect', 'grid-mirror', 'mirror', 'wrap', 'grid-wrap'):
+        # These modes can map a coordinate or spline tap to a distant sample.
+        # Give SciPy the full extent of an axis when the slice crosses an edge.
+        crosses_edge = (input_slices_lower < 0) | (input_slices_upper > shape)
+        input_slices_lower = np.where(crosses_edge, 0, input_slices_lower)
+        input_slices_upper = np.where(crosses_edge, shape, input_slices_upper)
+    input_slices_lower = np.clip(input_slices_lower, 0, shape - 1)
+    input_slices_upper = np.clip(
+        input_slices_upper, input_slices_lower + 1, shape
+    )
 
     input_slices = np.array([input_slices_lower, input_slices_upper])\
         .swapaxes(1, 2)
@@ -107,14 +107,14 @@ def _map_single_coordinates_array_chunk(
         order,
         mode,
         cval,
-        prefilter
+        output_dtype
         )
 
-    keys = [(name, i) for i in range(len(required_input_chunks))]
+    keys = [(name, i) for i in range(len(required_input_chunk_indices))]
 
     # pair map_coordinates calls with input slices and mapped coordinates
     values = []
-    for irc in range(len(required_input_chunks)):
+    for irc in range(len(required_input_chunk_indices)):
 
         ric_slice = [slice(
             input_slices[0][irc][dim],
@@ -127,16 +127,16 @@ def _map_single_coordinates_array_chunk(
             input[tuple(ric_slice)],
             coordinates[:, required_input_chunk_coords_indices[irc]]
             - ric_offset[:, None],
-            None,
+            output_dtype,
             order,
             mode,
             cval,
-            prefilter
+            False  # the source has already been prefiltered if requested
         ))
 
     # build dask graph
     dsk = dict(zip(keys, values))
-    ar = da.Array(dsk, name, tuple([list(coord_rc_count)]), input.dtype)
+    ar = da.Array(dsk, name, (tuple(coord_rc_count),), output_dtype)
 
     # STEP 4: rearrange outputs of ndimage.map_coordinates
     # to match input order
@@ -146,11 +146,11 @@ def _map_single_coordinates_array_chunk(
 
     # compute result and reorder
     # (ordering first would probably unnecessarily inflate the task graph)
-    return ar.compute()[orig_order]
+    return ar.compute()[orig_order].reshape(output_shape)
 
 
 def map_coordinates(input, coordinates, order=3,
-                    mode='constant', cval=0.0, prefilter=False):
+                    mode='constant', cval=0.0, prefilter=True):
     """
     Wraps ndimage.map_coordinates.
 
@@ -159,10 +159,12 @@ def map_coordinates(input, coordinates, order=3,
 
     For each chunk in the coordinates array, the coordinates are computed
     and mapped onto the required slices of the input array. One task is
-    is defined for each input array chunk that has been associated to at
+    defined for each input array chunk that has been associated to at
     least one coordinate. The outputs of the tasks are then rearranged to
     match the input order. For more details see the docstring of
     '_map_single_coordinates_array_chunk'.
+    Reflecting or wrapping at the image boundary can require reading the full
+    extent of the affected input axes.
 
     Using this function together with schedulers that support
     parallelism (threads, processes, distributed) makes sense in the
@@ -180,14 +182,13 @@ def map_coordinates(input, coordinates, order=3,
         be in the range 0-5.
     mode : boundary behavior mode, optional
     cval : float, optional
-        Value to fill past edges of input if mode is 'constant'. Default is 0.0
+        Fill value for 'constant' and 'grid-constant' modes. Default is 0.0.
     prefilter : bool, optional
-        If True, prefilter the input before interpolation. Default is False.
-        Warning: prefilter is True by default in
-        `scipy.ndimage.map_coordinates`. Prefiltering here is performed on a
-        chunk-by-chunk basis, which may lead to different results than
-        `scipy.ndimage.map_coordinates` in case of chunked input arrays
-        and order > 1.
+        If True and order is greater than 1, prefilter the input with
+        `dask_image.ndinterp.spline_filter` before extracting the slices for
+        interpolation. The filter overlaps input chunks to approximate the
+        full-array spline coefficients. The default is True, as in
+        `scipy.ndimage.map_coordinates`.
         Note: prefilter is not necessary when:
           - You are using nearest neighbour interpolation, by setting order=0
           - You are using linear interpolation, by setting order=1, or
@@ -197,8 +198,6 @@ def map_coordinates(input, coordinates, order=3,
     Comments:
       - in case of a small coordinate array, it might make sense to rechunk
         it into a single chunk
-      - note the different default for `prefilter` compared to
-        `scipy.ndimage.map_coordinates`, which is True by default.
     """
     if "cupy" in str(get_type(input)) or "cupy" in str(get_type(coordinates)):
         raise NotImplementedError(
@@ -220,6 +219,31 @@ def map_coordinates(input, coordinates, order=3,
     if type(input) is not da.Array:
         input = da.from_array(input, chunks=input.shape)
 
+    if coordinates.ndim < 2 or coordinates.shape[0] != input.ndim:
+        raise RuntimeError("invalid shape for coordinate array")
+
+    output_dtype = input.dtype
+    if prefilter and 2 <= order <= 5:
+        if mode in ('nearest', 'grid-constant'):
+            # Match the padding SciPy uses before spline filtering.
+            pad_width = 12
+            if mode == 'nearest':
+                input = da.pad(input, pad_width, mode='edge')
+            else:
+                input = da.pad(input, pad_width, mode='constant',
+                               constant_values=cval)
+            coordinates = coordinates.astype(np.float64) + pad_width
+
+        # SciPy uses mirror boundary conditions for the spline in wrap mode.
+        filter_mode = 'mirror' if mode == 'wrap' else mode
+        coefficient_dtype = (np.complex128
+                             if np.issubdtype(output_dtype, np.complexfloating)
+                             else np.float64)
+        overlap = _get_default_depth(order, tol=np.finfo(np.float64).eps)
+        depth = tuple(min(size, overlap) for size in input.shape)
+        input = spline_filter(input, order=order, output=coefficient_dtype,
+                              mode=filter_mode, depth=depth)
+
     # Map each chunk of the coordinates array onto the entire input array.
     # 'input' is passed to `_map_single_coordinates_array_chunk` using a bit of
     # a dirty trick: it is split into its components and passed as a delayed
@@ -235,8 +259,8 @@ def map_coordinates(input, coordinates, order=3,
         order=order,
         mode=mode,
         cval=cval,
-        prefilter=prefilter,
-        dtype=input.dtype,
+        output_dtype=output_dtype,
+        dtype=output_dtype,
         chunks=coordinates.chunks[1:],
         drop_axis=0,
     )
