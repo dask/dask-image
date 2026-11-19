@@ -10,22 +10,11 @@ import scipy.ndimage
 
 import dask_image.ndinterp
 
-# mode lists for the case with prefilter = False
-_supported_modes = ['constant', 'nearest']
-_unsupported_modes = ['wrap', 'reflect', 'mirror']
-
-# mode lists for the case with prefilter = True
-_supported_prefilter_modes = ['constant']
-_unsupported_prefilter_modes = _unsupported_modes + ['nearest']
-
 have_scipy16 = version.parse(scipy.__version__) >= version.parse('1.6.0')
-
-# additional modes are present in SciPy >= 1.6.0
-if have_scipy16:
-    _supported_modes += ['grid-constant']
-    _unsupported_modes += ['grid-mirror', 'grid-wrap']
-    _unsupported_prefilter_modes += ['grid-constant', 'grid-mirror',
-                                     'grid-wrap']
+_boundary_modes = [
+    'constant', 'nearest', 'grid-constant', 'reflect', 'grid-mirror',
+    'mirror', 'wrap', 'grid-wrap',
+]
 
 
 def validate_map_coordinates_general(n=2,
@@ -110,15 +99,15 @@ def test_map_coordinates_large_input():
     # dask-image result
     dask_image.ndinterp.map_coordinates(
         image_da,
-        coords).compute()
+        coords,
+        prefilter=False).compute()
 
 
 @pytest.mark.parametrize("interp_mode",
-                         _supported_modes)
+                         _boundary_modes)
 def test_map_coordinates_out_of_bounds(interp_mode):
     """
-    This test checks that an error is raised when out-of-bounds
-    coordinates are used.
+    Out-of-bounds coordinates follow the boundary mode of the full image.
     """
 
     kwargs = dict()
@@ -128,3 +117,52 @@ def test_map_coordinates_out_of_bounds(interp_mode):
     kwargs['coord_offset'] = 10  # coordinates will be out of bounds
 
     validate_map_coordinates_general(**kwargs)
+
+
+@pytest.mark.parametrize("mode", _boundary_modes)
+@pytest.mark.parametrize("order", [2, 3, 4, 5])
+def test_map_coordinates_prefilters_before_cropping(mode, order):
+    rng = np.random.default_rng(82)
+    image = rng.random((61, 72))
+    coords = np.array([
+        [-70.2, -0.6, 0.15, 16.7, 17.1, 50.2, 59.6, 61.5, 132.6],
+        [131.4, 21.6, 0.5, 19.4, 20.2, 69.9, 71.1, -2.1, -82.7],
+    ])
+    expected = scipy.ndimage.map_coordinates(
+        image, coords, order=order, mode=mode, cval=-0.3, prefilter=True,
+    )
+    result = dask_image.ndinterp.map_coordinates(
+        da.from_array(image, chunks=(17, 20)),
+        da.from_array(coords, chunks=(1, 3)),
+        order=order, mode=mode, cval=-0.3, prefilter=True,
+    )
+    np.testing.assert_allclose(result.compute(), expected, atol=1e-11)
+
+
+@pytest.mark.parametrize("dtype", [np.int16, np.float32, np.complex64])
+def test_map_coordinates_default_preserves_dtype_and_coordinate_shape(dtype):
+    image = np.arange(99).reshape(9, 11).astype(dtype)
+    if np.iscomplexobj(image):
+        image += 1j * image[::-1]
+    coords = np.array([
+        [[0.2, 4.3, 8.0], [3.0, 4.8, 7.2]],
+        [[0.7, 5.1, 10.0], [2.0, 5.7, 9.1]],
+    ])
+    expected = scipy.ndimage.map_coordinates(image, coords)
+    result = dask_image.ndinterp.map_coordinates(
+        da.from_array(image, chunks=(3, 6)),
+        da.from_array(coords, chunks=(1, 1, 2)),
+    )
+    assert result.dtype == image.dtype
+    assert result.chunks == ((1, 1), (2, 1))
+    np.testing.assert_allclose(result.compute(), expected)
+
+
+def test_map_coordinates_prefilter_does_not_overflow_integer_coordinates():
+    image = np.arange(270, dtype=float)
+    coords = np.array([[245, 250, 255]], dtype=np.uint8)
+    expected = scipy.ndimage.map_coordinates(image, coords, mode='nearest')
+    result = dask_image.ndinterp.map_coordinates(
+        da.from_array(image, chunks=70), coords, mode='nearest',
+    )
+    np.testing.assert_allclose(result.compute(), expected)
