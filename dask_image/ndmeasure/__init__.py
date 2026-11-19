@@ -776,11 +776,28 @@ def sum_labels(image, label_image=None, index=None):
     sum_lbl : ndarray
         Sum of ``image`` over the ``index`` selected regions from
         ``label_image``.
+
+    Notes
+    -----
+    Floating-point sums may vary with the chunk layout because partial sums
+    are combined across chunks.
     """
 
     image, label_image, index = _utils._norm_input_labels_index(
         image, label_image, index
     )
+
+    if (
+        index.ndim == 1 and index.size > 1
+        and image.dtype.kind in "biuf"
+        and label_image.dtype.kind in "biu"
+        and index.dtype.kind in "biu"
+        and np.result_type(label_image.dtype, index.dtype).kind in "biu"
+        and all(type(a._meta) is np.ndarray
+                for a in (image, label_image, index))
+        and not np.isnan(image.shape).any()
+    ):
+        return _utils._sum_labels_grouped(image, label_image, index)
 
     sum_lbl = labeled_comprehension(
         image, label_image, index, np.sum, np.float64, np.float64(0)

@@ -39,6 +39,73 @@ def _norm_input_labels_index(image, label_image=None, index=None):
     return (image, label_image, index)
 
 
+def _grouped_sums(values, labels, dtype):
+    """Return sorted labels and their partial sums."""
+    if labels.size == 0:
+        return labels, np.empty(0, dtype=dtype)
+
+    order = np.argsort(labels, kind="stable")
+    labels = labels[order]
+    starts = np.r_[0, np.flatnonzero(labels[1:] != labels[:-1]) + 1]
+    return labels[starts], np.add.reduceat(values[order], starts, dtype=dtype)
+
+
+def _sum_labels_block(image, labels, index, dtype):
+    present = np.isin(labels, index)
+    return _grouped_sums(image[present], labels[present], dtype)
+
+
+def _merge_label_sums(blocks):
+    labels, values = zip(*blocks)
+    return _grouped_sums(np.concatenate(values), np.concatenate(labels),
+                         values[0].dtype)
+
+
+def _select_label_sums(grouped, index, sum_dtype):
+    labels, sums = grouped
+    positions = np.searchsorted(labels, index)
+    candidates = np.flatnonzero(positions < labels.size)
+    matches = candidates[labels[positions[candidates]] == index[candidates]]
+    result = np.zeros(index.shape, dtype=np.float64)
+    result[matches] = sums[positions[matches]].astype(sum_dtype, copy=False)
+    return result
+
+
+def _sum_labels_grouped(image, labels, index):
+    """Build a tree of sparse per-block label sums."""
+    sum_dtype = np.sum(np.empty(0, dtype=image.dtype)).dtype
+    partial_dtype = sum_dtype
+    if sum_dtype.kind == "f":
+        # Cast to the input sum dtype only after combining partial sums.
+        partial_dtype = np.result_type(sum_dtype, np.float64)
+
+    axes = tuple(range(image.ndim))
+    _, (image, labels) = da.core.unify_chunks(image, axes, labels, axes)
+    index_block = index.rechunk(-1).to_delayed().item()
+    sum_block = dask.delayed(_sum_labels_block, pure=True)
+    partials = [
+        sum_block(image_block, label_block, index_block, partial_dtype)
+        for image_block, label_block in zip(
+            image.to_delayed().flat, labels.to_delayed().flat
+        )
+    ]
+
+    merge = dask.delayed(_merge_label_sums, pure=True)
+    fan_in = 8
+    while len(partials) > 1:
+        partials = [
+            merge(partials[start:start + fan_in])
+            for start in range(0, len(partials), fan_in)
+        ]
+
+    select_sums = dask.delayed(_select_label_sums, pure=True)
+    return da.from_delayed(
+        select_sums(partials[0], index_block, sum_dtype),
+        shape=index.shape,
+        dtype=np.float64,
+    )
+
+
 def _ravel_shape_indices_kernel(*args):
     args2 = tuple(
         a[i * (None,) + (slice(None),) + (len(args) - i - 1) * (None,)]

@@ -13,6 +13,62 @@ import dask.array as da
 import dask_image.ndmeasure
 
 
+@pytest.mark.parametrize("dtype", [np.bool_, np.int64, np.float32, np.float64])
+def test_sum_labels_sparse_index(dtype):
+    large_label = 2**60
+    labels = np.array([
+        [0, -large_label, -large_label, large_label],
+        [large_label, 0, -large_label, large_label],
+        [-large_label, large_label, 0, large_label],
+    ], dtype=np.int64)
+    image = np.arange(labels.size).reshape(labels.shape).astype(dtype)
+    index = np.array([large_label, -large_label, 0, 17, large_label])
+
+    actual = dask_image.ndmeasure.sum_labels(
+        da.from_array(image, chunks=(2, 3)),
+        da.from_array(labels, chunks=(1, 2)),
+        da.from_array(index, chunks=2),
+    )
+    expected = [image[labels == value].sum() for value in index]
+    assert actual.dtype == np.float64
+    np.testing.assert_array_equal(actual.compute(), expected)
+
+
+def test_sum_labels_uint64_values_and_labels():
+    large_label = 2**64 - 1
+    labels = np.array([large_label, large_label, large_label - 1, 0],
+                      dtype=np.uint64)
+    image = np.array([2**64 - 1, 7, 4, 0], dtype=np.uint64)
+    index = np.array([large_label - 1, large_label, 0, large_label - 2],
+                     dtype=np.uint64)
+
+    actual = dask_image.ndmeasure.sum_labels(
+        da.from_array(image, chunks=1), labels, index
+    )
+    np.testing.assert_array_equal(actual.compute(), [4, 6, 0, 0])
+
+
+def test_sum_labels_float16_partial_sums():
+    image = np.array([10000] * 8 + [-10000] * 8, dtype=np.float16)
+    labels = da.ones(image.shape, chunks=8, dtype=np.int64)
+
+    actual = dask_image.ndmeasure.sum_labels(
+        da.from_array(image, chunks=8), labels, [1, 2]
+    )
+    np.testing.assert_array_equal(actual.compute(), [0, 0])
+
+
+def test_sum_labels_graph_groups_labels():
+    index = np.arange(1, 257)
+    labels = da.from_array(index.reshape(16, 16), chunks=(4, 4))
+    image = da.ones(labels.shape, chunks=labels.chunks, dtype=bool)
+
+    result = dask_image.ndmeasure.sum_labels(image, labels, index)
+
+    assert len(result.__dask_graph__()) < len(index)
+    np.testing.assert_array_equal(result.compute(), np.ones(index.shape))
+
+
 @pytest.mark.parametrize(
     "funcname", [
         "center_of_mass",
