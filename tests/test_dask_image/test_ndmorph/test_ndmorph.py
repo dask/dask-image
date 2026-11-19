@@ -276,7 +276,7 @@ def test_binary_ops(funcname,
     )
 
     sp_result = sp_func(
-        input,
+        np.asarray(input),
         structure=structure,
         origin=origin
     )
@@ -356,7 +356,7 @@ def test_binary_ops_iter(funcname,
     )
 
     sp_result = sp_func(
-        input,
+        np.asarray(input),
         structure=structure,
         iterations=iterations,
         origin=origin
@@ -496,17 +496,17 @@ def test_binary_ops_expanded(funcname,
         input,
         structure=structure,
         iterations=iterations,
-        mask=mask,
+        mask=None if mask is None else np.asarray(mask),
         border_value=border_value,
         origin=origin,
         brute_force=brute_force
     )
 
     sp_result = sp_func(
-        input,
+        np.asarray(input),
         structure=structure,
         iterations=iterations,
-        mask=mask,
+        mask=None if mask is None else np.asarray(mask),
         border_value=border_value,
         origin=origin,
         brute_force=brute_force
